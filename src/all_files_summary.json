@@ -1,0 +1,20 @@
+{
+  "backend/main.mo": "Motoko actor defining Note type (classLevel, subject, topic, content) with CRUD operations and query methods to retrieve notes by class, subject, or all notes; includes seed data for Mathematics, Science, English, Social Studies, and Hindi across classes 6-12.",
+  "feature_evidence.json": "Feature evidence report documenting four implemented features: home page with class navigation, subjects listing page, notes viewer page, and educational theme design with warm colors.",
+  "frontend-file-summaries.txt": "JSON-formatted summaries of frontend files describing routing, layout, pages, components, hooks, and styling with warm academic color palette.",
+  "frontend/index.css": "Tailwind CSS base styles defining CSS custom properties for light and dark themes using OKLCH color space with neutral grayscale values.",
+  "frontend/index.html": "HTML entry point with root div and module script loading main.tsx for the Educational Notes App.",
+  "frontend/src/App.tsx": "TanStack Router setup defining root, index, class, and notes routes with Layout wrapper component.",
+  "frontend/src/components/Layout.tsx": "Layout component with sticky header showing EduNotes branding with BookOpen icon, main content outlet, and footer with copyright and caffeine.ai attribution link.",
+  "frontend/src/components/NoteCard.tsx": "Expandable card component displaying note topic with notebook icon and collapsible content area toggled by chevron button.",
+  "frontend/src/hooks/useActor.ts": "React Query hook managing backend actor creation with Internet Identity authentication, invalidating dependent queries when actor changes.",
+  "frontend/src/hooks/useInternetIdentity.ts": "Context provider and hook for Internet Identity authentication managing login state, identity, and AuthClient with configurable options.",
+  "frontend/src/hooks/useQueries.ts": "Custom React Query hooks (useGetAllNotes, useGetNotesByClass, useGetNotesBySubject) for fetching notes from backend actor with proper enablement conditions.",
+  "frontend/src/index.css": "Tailwind CSS configuration with custom warm academic color palette (earth tones, terracotta, golden yellow) for light and dark modes, plus enhanced typography for reading study material.",
+  "frontend/src/main.tsx": "Application entry point that sets up React Query, Internet Identity provider, and renders the root App component.",
+  "frontend/src/pages/HomePage.tsx": "Landing page displaying a hero banner and grid of class level cards (6-12) for navigation to subject pages.",
+  "frontend/src/pages/NotesPage.tsx": "Displays filtered list of notes for a specific class and subject combination with breadcrumb navigation and loading/error states.",
+  "frontend/src/pages/SubjectsPage.tsx": "Shows available subjects for a selected class level with note counts, using icons and cards for navigation to notes pages.",
+  "frontend/tailwind.config.js": "Tailwind configuration extending theme with custom OKLCH color system, animations, typography plugin, and container queries support.",
+  "project_state.json": "Project metadata tracking educational notes app features, pending backend requirements (data model, API methods, seeding), and warm academic design theme implementation status."
+}

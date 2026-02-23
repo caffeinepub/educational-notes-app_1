@@ -1,0 +1,84 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-create-a-home-page-with-navigation-to-browse-notes-by-class-level-6-7-8-9-10-11-12",
+      "featureTitle": "Create a home page with navigation to browse notes by class level (6, 7, 8, 9, 10, 11, 12)",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/HomePage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-subjects-listing-page-that-displays-all-available-subjects-for-the-selected-class",
+      "featureTitle": "Create a subjects listing page that displays all available subjects for the selected class",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/SubjectsPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-notes-viewer-page-that-displays-all-notes-topics-for-the-selected-class-and-subject-combination",
+      "featureTitle": "Create a notes viewer page that displays all notes/topics for the selected class and subject combination",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/NoteCard.tsx",
+        "frontend/src/pages/NotesPage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-design-a-creative-educational-theme-with-warm-academic-colors-avoid-blue-and-purple-clear-typography-suitable-for-reading-study-material-and-a-consistent-visual-style-that-promotes-learning",
+      "featureTitle": "Design a creative educational theme with warm, academic colors (avoid blue and purple), clear typography suitable for reading study material, and a consistent visual style that promotes learning",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/Layout.tsx",
+        "frontend/src/index.css",
+        "frontend/tailwind.config.js"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Educational Notes App for Classes 6-12",
+  "requirements": [
+    {
+      "id": "REQ-3",
+      "summary": "Create home page with navigation to browse notes by class level (6-12)",
+      "acceptanceCriteria": [
+        "Display all class levels as clickable cards or buttons",
+        "Clicking a class navigates to that class's subjects view",
+        "Clear visual hierarchy showing class organization"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "create",
+          "description": "Create the home page component that displays class levels 6 through 12 as navigable cards. Include the generated hero image from frontend/public/assets/generated/books-hero.dim_1200x600.png as a banner. Each class card should link to /class/:classLevel route to view subjects for that class. Use warm academic color scheme avoiding blue and purple."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wire the HomePage component into the main application router at the root path (/). Add routes for /class/:classLevel and /class/:classLevel/subject/:subject to support navigation flow. Ensure HomePage is the default landing page."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Create subjects listing page for selected class",
+      "acceptanceCriteria": [
+        "Shows all subjects available for the selected class",
+        "Each subject is clickable to view its notes",
+        "Display breadcrumb or back navigation to return to class selection"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SubjectsPage.tsx",
+          "operation": "create",
+          "description": "Create the subjects listing page component that fetches notes for the selected class using getNotesByClass backend method. Extract unique subjects from the returned notes and display them as clickable cards. Include breadcrumb navigation showing 'Home > Class X'. Each subject card should navigate to /class/:classLevel/subject/:subject route."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register the SubjectsPage component in the router at path /class/:classLevel. Ensure proper route parameter extraction for classLevel."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Create notes viewer page for selected class and subject",
+      "acceptanceCriteria": [
+        "Lists all available notes/topics for the selected filters",
+        "Each note shows its title and can be expanded to view content",
+        "Navigation to go back to subject selection",
+        "Clean, readable formatting for note content"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/NotesPage.tsx",
+          "operation": "create",
+          "description": "Create the notes viewer page that fetches all notes using getAllNotes backend method and filters them by the selected class level and subject from route parameters. Display notes as expandable cards showing topic titles with the notebook icon from frontend/public/assets/generated/notebook-icon.dim_64x64.png. Include breadcrumb navigation showing 'Home > Class X > Subject'. Use typography optimized for reading study material with proper spacing and line height."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register the NotesPage component in the router at path /class/:classLevel/subject/:subject. Ensure proper extraction of both classLevel and subject route parameters."
+        },
+        {
+          "path": "frontend/src/components/NoteCard.tsx",
+          "operation": "create",
+          "description": "Create a reusable NoteCard component that displays a note with expandable/collapsible content. Show the notebook icon from frontend/public/assets/generated/notebook-icon.dim_64x64.png alongside the topic title. When expanded, render the note content with proper formatting for readability. Use warm academic colors for the card design."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Design creative educational theme with warm academic colors and clear typography",
+      "acceptanceCriteria": [
+        "Cohesive color scheme appropriate for educational content",
+        "Typography optimized for readability of study notes",
+        "Layout supports easy navigation between classes and subjects",
+        "Visual style is consistent across all pages"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Define the global educational theme using warm academic colors (avoid blue and purple). Include color palette with earth tones, warm oranges, greens, and browns suitable for learning. Set base typography with clear, readable fonts optimized for study content with appropriate line heights and spacing."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Extend Tailwind configuration with custom educational theme colors matching the warm academic palette defined in index.css. Add custom font families suitable for educational content readability. Configure spacing and typography scales to support easy reading of study notes."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "create",
+          "description": "Create a Layout component that wraps all pages with consistent header, navigation structure, and footer. Include branding elements and apply the warm educational theme consistently. Provide breadcrumb navigation support that can be used across SubjectsPage and NotesPage."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wrap all route components with the Layout component to ensure consistent visual style and navigation across the entire application."
+        }
+      ]
+    }
+  ]
+}

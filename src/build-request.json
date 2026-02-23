@@ -1,0 +1,137 @@
+{
+  "kind": "build_request",
+  "title": "Build educational notes app for classes 6-12",
+  "projectName": "Study Notes",
+  "priority": "normal",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Create a backend data model to store educational notes with fields for class level (6-12), subject name, topic title, and note content",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Data model supports class levels from 6 to 12",
+        "Each note has subject, topic, and content fields",
+        "Notes can be retrieved by class level and subject"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Implement backend methods to add, retrieve, and list notes filtered by class level and subject",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Method to add new notes with validation",
+        "Method to get all notes for a specific class",
+        "Method to get all notes for a specific subject",
+        "Method to get notes filtered by both class and subject"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Create a home page with navigation to browse notes by class level (6, 7, 8, 9, 10, 11, 12)",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Display all class levels as clickable cards or buttons",
+        "Clicking a class navigates to that class's subjects view",
+        "Clear visual hierarchy showing class organization"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Create a subjects listing page that displays all available subjects for the selected class",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Shows all subjects available for the selected class",
+        "Each subject is clickable to view its notes",
+        "Display breadcrumb or back navigation to return to class selection"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Create a notes viewer page that displays all notes/topics for the selected class and subject combination",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Lists all available notes/topics for the selected filters",
+        "Each note shows its title and can be expanded to view content",
+        "Navigation to go back to subject selection",
+        "Clean, readable formatting for note content"
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Seed the backend with sample educational notes covering major subjects (Mathematics, Science, English, Social Studies, Hindi) for classes 6-12",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ]
+      },
+      "acceptanceCriteria": [
+        "At least 3-5 sample notes per subject per class level",
+        "Notes contain meaningful educational content relevant to the class level",
+        "Coverage includes core subjects taught in Indian schools"
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "text": "Design a creative educational theme with warm, academic colors (avoid blue and purple), clear typography suitable for reading study material, and a consistent visual style that promotes learning",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Cohesive color scheme appropriate for educational content",
+        "Typography optimized for readability of study notes",
+        "Layout supports easy navigation between classes and subjects",
+        "Visual style is consistent across all pages"
+      ]
+    }
+  ],
+  "constraints": [
+    "Use only Motoko for backend implementation",
+    "Use React with TypeScript and Tailwind CSS for frontend",
+    "All notes must be stored in the backend canister",
+    "Support exactly classes 6 through 12, no other grade levels"
+  ],
+  "nonGoals": [
+    "User authentication or personalized accounts",
+    "Note editing or contribution by users",
+    "Search functionality across notes",
+    "Downloadable PDF or offline access",
+    "Multimedia content like videos or interactive quizzes",
+    "Real-time collaboration features"
+  ],
+  "imageRequirements": {
+    "required": [
+      "Educational book stack illustration with warm tones for the home page hero section (books-hero.dim_1200x600.png)",
+      "Simple notebook icon for representing individual notes (notebook-icon.dim_64x64.png)"
+    ],
+    "edits": []
+  }
+}

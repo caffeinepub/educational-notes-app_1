@@ -1,0 +1,11 @@
+{
+  "frontend/src/App.tsx": "Main application component that sets up TanStack Router with routes for home page, subjects page, and notes page, all wrapped in a Layout component.",
+  "frontend/src/components/Layout.tsx": "Layout wrapper component providing consistent header with app branding, main content area with Outlet for route rendering, and footer with attribution.",
+  "frontend/src/pages/HomePage.tsx": "Home page displaying hero image with welcome message and grid of class level cards (6-12) for navigation to subject selection.",
+  "frontend/src/pages/SubjectsPage.tsx": "Subjects listing page that fetches notes for selected class, extracts unique subjects, and displays them as clickable cards with breadcrumb navigation.",
+  "frontend/src/pages/NotesPage.tsx": "Notes viewer page that displays filtered notes for selected class and subject as expandable cards with breadcrumb navigation.",
+  "frontend/src/components/NoteCard.tsx": "Reusable expandable card component displaying individual note with notebook icon, topic title, and collapsible content area.",
+  "frontend/src/hooks/useQueries.ts": "Custom React Query hooks for fetching all notes, notes by class level, and notes by subject from the backend actor.",
+  "frontend/src/index.css": "Global styles with warm academic color palette using OKLCH (terracotta, beige, golden tones), enhanced typography for readability, and smooth transitions.",
+  "frontend/tailwind.config.js": "Tailwind configuration extending theme with warm educational color tokens, custom font stack, and enhanced spacing for study material readability."
+}
