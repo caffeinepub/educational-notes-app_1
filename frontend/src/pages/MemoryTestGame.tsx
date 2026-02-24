@@ -8,12 +8,14 @@ import { Badge } from '../components/ui/badge';
 import { useMemoryTest } from '../hooks/useMemoryTest';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useCompleteLevel } from '../hooks/useQueries';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 import { GameType } from '../backend';
 
 export default function MemoryTestGame() {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
   const principal = identity?.getPrincipal().toString() || 'guest';
+  const { playClick, playSuccess, playError } = useSoundEffects();
 
   const level = 1;
   const {
@@ -33,12 +35,25 @@ export default function MemoryTestGame() {
   const completeLevel = useCompleteLevel();
   const savedRef = useRef(false);
   const startTimeRef = useRef<bigint>(BigInt(Date.now()) * BigInt(1_000_000));
+  const prevPhaseRef = useRef(phase);
 
   // Reset start time when game resets
   useEffect(() => {
     if (phase === 'memorize') {
       startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
       savedRef.current = false;
+    }
+  }, [phase]);
+
+  // Play sounds on phase change
+  useEffect(() => {
+    if (prevPhaseRef.current !== phase) {
+      if (phase === 'won') {
+        playSuccess();
+      } else if (phase === 'lost') {
+        playError();
+      }
+      prevPhaseRef.current = phase;
     }
   }, [phase]);
 
@@ -59,8 +74,14 @@ export default function MemoryTestGame() {
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      playClick();
       submitGuess();
     }
+  };
+
+  const handleSubmitClick = () => {
+    playClick();
+    submitGuess();
   };
 
   const handleReset = () => {
@@ -191,7 +212,7 @@ export default function MemoryTestGame() {
                   invalidInput ? 'border-destructive ring-1 ring-destructive' : ''
                 }`}
               />
-              <Button onClick={submitGuess} disabled={!inputValue.trim()}>
+              <Button onClick={handleSubmitClick} disabled={!inputValue.trim()}>
                 Enter
               </Button>
             </div>

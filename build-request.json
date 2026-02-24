@@ -1,132 +1,90 @@
 {
   "kind": "build_request",
-  "title": "Add Memory Test Game to Brain Training App",
+  "title": "Add short sound effects to all games",
   "projectName": "Memory Increase",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add a new 'Memory Test' game type to the backend GameType variant and support saving its game state and high scores alongside existing game types.",
-      "target": "backend",
+      "text": "Create a custom useSoundEffects hook that generates and plays three short sound effects using the Web Audio API (no external files needed): a soft click/tap sound on every interactive button press, a cheerful success chime on correct answers, and a low buzz/error sound on wrong answers. The hook should expose play functions: playClick(), playSuccess(), playError().",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-7"
+          "msg-recent"
         ],
         "quotes": [
-          "koi 10 object screen par dikhe aur 10 secend baad gaayab ho jaye fi torant ek search baar aay aur 25 sec ka time mile",
-          "Memory test achaa naam hai"
+          "Har click par — ek halka sa click/tap sound",
+          "Sahi jawab par — cheerful success sound",
+          "Galat jawab par — error/buzz sound",
+          "sirf short sound effect"
         ]
       },
       "acceptanceCriteria": [
-        "GameType variant includes a `memoryTest` entry",
-        "Backend can store and retrieve game state and high scores for memoryTest game type",
-        "Existing game types and data are unaffected"
+        "useSoundEffects hook is created at frontend/src/hooks/useSoundEffects.ts",
+        "playClick() produces a short, soft tap sound",
+        "playSuccess() produces a short, cheerful success chime",
+        "playError() produces a short buzz/error sound",
+        "All sounds are generated programmatically via Web Audio API — no audio files required",
+        "Hook handles cases where AudioContext is not available gracefully (no crash)"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Create a useMemoryTest custom React hook that manages the Memory Test game logic: displays 10 everyday objects (with emoji + text) for 10 seconds, then hides them and starts a 25-second countdown, accepts user-typed object names one at a time via Enter key, tracks how many of the 10 objects have been correctly recalled, and determines win (all 10 recalled before time runs out) or loss (timer reaches zero).",
+      "text": "Integrate sound effects into all Section A game pages: CardMatchingGame, MemoryTestGame, PatternMemoryGame, SequenceMemoryGame, SlidingPuzzleGame, StroopEffectGame, and SpeedTypingGame. Call playClick() on every button/tile interaction, playSuccess() on correct answers or level completion, and playError() on wrong answers or game-over states.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-7"
+          "msg-recent"
         ],
         "quotes": [
-          "koi 10 object screen par dikhe aur 10 secend baad gaayab ho jaye fi torant ek search baar aay aur 25 sec ka time mile agar ugers ne 10 secend mein un saari object ko note bar mein note kar diya hai to wah jeet jaata agar time out hota hai toh woh haar jaata hai"
+          "Saare game mein sound add karo",
+          "Section A aur Section B dono mein kaam karega"
         ]
       },
       "acceptanceCriteria": [
-        "Hook exposes game phase: 'memorize' | 'recall' | 'won' | 'lost'",
-        "During 'memorize' phase, 10 objects are visible with a 10-second countdown",
-        "After 10 seconds, phase transitions to 'recall' and objects are hidden",
-        "During 'recall' phase, a 25-second countdown is active",
-        "User can type an object name, press Enter, and the hook validates it (case-insensitive)",
-        "Correctly recalled objects are tracked and displayed",
-        "Phase transitions to 'won' when all 10 objects are correctly recalled",
-        "Phase transitions to 'lost' when the 25-second timer expires",
-        "Hook provides a reset function to restart the game"
+        "CardMatchingGame plays click on card flip, success on match found, error on mismatch",
+        "MemoryTestGame plays click on input submission, success on correct recall, error on wrong recall",
+        "PatternMemoryGame plays click on cell toggle, success on correct pattern, error on incorrect pattern",
+        "SequenceMemoryGame plays click on sequence item tap, success on correct sequence, error on wrong sequence",
+        "SlidingPuzzleGame plays click on tile move, success on puzzle completion",
+        "StroopEffectGame plays click on color button, success on correct color selection, error on wrong color selection",
+        "SpeedTypingGame plays success on game completion with good accuracy, error on game over with low accuracy"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Create a MemoryTestGame page at a new route (e.g., /memory-test) that renders the Memory Test game UI: shows a grid of 10 object cards (emoji + label) during the memorize phase with a 10-second countdown, then hides the objects and shows a search/input bar with a 25-second timer during the recall phase, displays a list of already-recalled objects, and shows a win/loss result screen on completion. Save the result to the backend using the useCompleteLevel mutation hook on game end.",
+      "text": "Integrate sound effects into all Section B game pages: MissingLetterGame, WordScrambleGame, and FillInTheBlanksGame. Call playClick() on every button press or input submission, playSuccess() on correct answers, and playError() on wrong answers.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4",
-          "msg-7",
-          "msg-9"
+          "msg-recent"
         ],
         "quotes": [
-          "koi 10 object screen par dikhe aur 10 secend baad gaayab ho jaye fi torant ek search baar aay aur 25 sec ka time mile",
-          "Memory test achaa naam hai"
+          "Saare game mein sound add karo",
+          "Section A aur Section B dono mein kaam karega"
         ]
       },
       "acceptanceCriteria": [
-        "Route /memory-test renders the MemoryTestGame page",
-        "Memorize phase shows 10 object cards in a responsive grid with emoji and text label, and a visible 10-second countdown",
-        "After 10 seconds, cards disappear and a text input (search bar) appears",
-        "Recall phase shows the 25-second timer prominently",
-        "User can type an object name and press Enter to submit; correctly recalled objects appear in a list below the input",
-        "Invalid or duplicate entries are silently ignored or show a subtle error",
-        "Win screen appears when all 10 objects are recalled; loss screen appears when the timer expires",
-        "Game result is saved to the backend via useCompleteLevel",
-        "Restart button resets the game back to the memorize phase",
-        "Back-to-menu button navigates to the home page"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Register the /memory-test route in App.tsx and add the Memory Test game card to the HomePage below all existing game cards, using a consistent GameCard component with the game's title 'Memory Test', a short description, and an appropriate icon.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ],
-        "quotes": [
-          "ye game un saare game ke neeche hi add karna hai"
-        ]
-      },
-      "acceptanceCriteria": [
-        "App.tsx includes a route for /memory-test pointing to MemoryTestGame page",
-        "HomePage displays a Memory Test GameCard below all existing game cards",
-        "GameCard shows title 'Memory Test', a short description, and an icon",
-        "Clicking the card navigates to /memory-test"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Add a difficulty configuration entry for 'memoryTest' in difficultyConfig.ts with appropriate settings across 5 levels (e.g., varying the number of objects shown, or time limits in future levels), defaulting to 10 objects, 10-second memorize phase, and 25-second recall phase at level 1.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-4"
-        ]
-      },
-      "acceptanceCriteria": [
-        "difficultyConfig.ts exports configuration for memoryTest game type",
-        "Level 1 config specifies 10 objects, 10-second memorize timer, 25-second recall timer",
-        "5 levels are defined with progressively increasing difficulty"
+        "MissingLetterGame plays click on submit/check button, success on correct letter, error on wrong letter",
+        "WordScrambleGame plays click on submit, success on correct unscramble, error on wrong guess",
+        "FillInTheBlanksGame plays click on submit/check, success on correct answer, error on wrong answer",
+        "Show Answer button in MissingLetterGame plays a neutral click sound (not success/error)"
       ]
     }
   ],
   "constraints": [
-    "All existing games (Card Matching, Sliding Puzzle, Pattern Memory, Sequence Memory, Stroop Effect) must remain fully functional and unmodified.",
-    "Memory Test game card must appear below all existing game cards on the HomePage.",
-    "Do not edit any files listed in frontend.immutablePaths."
+    "Use Web Audio API only — no external audio files or CDN-hosted sounds",
+    "Sound effects must be short (under 500ms) so they do not interfere with gameplay",
+    "Do not modify any files in frontend/src/hooks/useInternetIdentity.ts, useActor.ts, main.tsx, or frontend/src/components/ui"
   ],
   "nonGoals": [
-    "Changing the visual theme or design of existing games",
-    "Adding multiplayer or real-time features",
-    "Supporting image-based objects (text + emoji only)",
-    "Adding partial credit scoring (win requires all 10 correct)"
+    "Background music or looping audio",
+    "Volume control settings UI",
+    "Sound toggle/mute button (unless trivially added)",
+    "Any backend changes"
   ],
   "imageRequirements": {
-    "required": [
-      "Memory test game icon showing a brain with magnifying glass or eye symbol, flat illustration style matching the app's purple/blue theme (memory-test-icon.dim_128x128.png)"
-    ],
+    "required": [],
     "edits": []
   }
 }

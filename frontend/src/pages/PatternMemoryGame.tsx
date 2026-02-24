@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -10,13 +10,15 @@ import { usePatternMemory } from '../hooks/usePatternMemory';
 import { useGameTimer } from '../hooks/useGameTimer';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useCompleteLevel } from '../hooks/useQueries';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 import { GameType } from '../backend';
 
 export default function PatternMemoryGame() {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
   const principal = identity?.getPrincipal().toString() || 'guest';
-  
+  const { playClick, playSuccess, playError } = useSoundEffects();
+
   const {
     pattern,
     userPattern,
@@ -28,9 +30,11 @@ export default function PatternMemoryGame() {
     resetGame,
     gridSize,
   } = usePatternMemory(1);
-  
+
   const { elapsedTime, isRunning, startTimer, stopTimer, resetTimer } = useGameTimer();
   const completeLevel = useCompleteLevel();
+
+  const prevPhaseRef = useRef(phase);
 
   useEffect(() => {
     if (phase === 'input' && !isRunning && !isComplete) {
@@ -41,7 +45,7 @@ export default function PatternMemoryGame() {
   useEffect(() => {
     if (isComplete && isRunning) {
       stopTimer();
-      
+      playSuccess();
       completeLevel.mutate({
         player: principal,
         gameType: GameType.patternMemory,
@@ -51,7 +55,26 @@ export default function PatternMemoryGame() {
         totalQuestions: BigInt(1),
       });
     }
-  }, [isComplete, isRunning, stopTimer, elapsedTime, principal, completeLevel]);
+  }, [isComplete, isRunning]);
+
+  // Detect wrong submission: phase goes back to input after a failed attempt
+  useEffect(() => {
+    if (prevPhaseRef.current === 'input' && phase === 'input' && attempts > 0) {
+      playError();
+    }
+    prevPhaseRef.current = phase;
+  }, [phase, attempts]);
+
+  const handleCellClickWithSound = (row: number, col: number) => {
+    if (phase === 'input') {
+      playClick();
+      handleCellClick(row, col);
+    }
+  };
+
+  const handleSubmitWithSound = () => {
+    handleSubmit();
+  };
 
   const handleReset = () => {
     resetGame();
@@ -103,14 +126,14 @@ export default function PatternMemoryGame() {
             pattern={pattern}
             userPattern={userPattern}
             phase={phase}
-            onCellClick={handleCellClick}
+            onCellClick={handleCellClickWithSound}
             gridSize={gridSize}
           />
         </div>
 
         <div className="mt-6 flex gap-4">
           {phase === 'input' && (
-            <Button onClick={handleSubmit} className="flex-1">
+            <Button onClick={handleSubmitWithSound} className="flex-1">
               Submit Pattern
             </Button>
           )}

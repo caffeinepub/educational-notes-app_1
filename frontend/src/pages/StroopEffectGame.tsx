@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -9,14 +9,16 @@ import StroopDisplay from '../components/StroopDisplay';
 import { useStroopEffect } from '../hooks/useStroopEffect';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useCompleteLevel } from '../hooks/useQueries';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 import { GameType } from '../backend';
 
 export default function StroopEffectGame() {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
   const principal = identity?.getPrincipal().toString() || 'guest';
-  
-  const level = 1; // Can be extended to support multiple levels
+  const { playClick, playSuccess, playError } = useSoundEffects();
+
+  const level = 1;
   const {
     currentWord,
     currentColor,
@@ -30,13 +32,15 @@ export default function StroopEffectGame() {
     handleColorSelect,
     resetGame,
   } = useStroopEffect(level);
-  
+
   const completeLevel = useCompleteLevel();
+
+  const prevCorrectAnswersRef = useRef(correctAnswers);
+  const prevRoundRef = useRef(round);
 
   useEffect(() => {
     if (isComplete && !completeLevel.isPending) {
-      // Save completion to backend
-      const startTime = BigInt(Date.now() - 30000) * BigInt(1000000); // 30 seconds ago
+      const startTime = BigInt(Date.now() - 30000) * BigInt(1000000);
       completeLevel.mutate({
         player: principal,
         gameType: GameType.stroopEffect,
@@ -46,13 +50,33 @@ export default function StroopEffectGame() {
         totalQuestions: BigInt(30),
       });
     }
-  }, [isComplete, principal, level, correctAnswers, completeLevel]);
+  }, [isComplete]);
+
+  // Detect correct/wrong answer by watching round and correctAnswers change
+  useEffect(() => {
+    if (round > prevRoundRef.current) {
+      if (correctAnswers > prevCorrectAnswersRef.current) {
+        playSuccess();
+      } else {
+        playError();
+      }
+      prevCorrectAnswersRef.current = correctAnswers;
+      prevRoundRef.current = round;
+    }
+  }, [round, correctAnswers]);
+
+  const handleColorSelectWithSound = (color: string) => {
+    playClick();
+    handleColorSelect(color);
+  };
 
   const handleReset = () => {
     resetGame();
+    prevCorrectAnswersRef.current = 0;
+    prevRoundRef.current = 1;
   };
 
-  const totalTime = 30000; // 30 seconds in milliseconds
+  const totalTime = 30000;
   const elapsedTime = totalTime - timeRemaining;
 
   return (
@@ -109,7 +133,7 @@ export default function StroopEffectGame() {
             word={currentWord}
             wordColor={currentColor}
             displayColor={displayColor}
-            onColorSelect={handleColorSelect}
+            onColorSelect={handleColorSelectWithSound}
           />
         )}
 
@@ -139,7 +163,7 @@ export default function StroopEffectGame() {
         {isComplete && (
           <GameScore
             timeTaken={elapsedTime}
-            moves={30 - correctAnswers} // Incorrect answers as "moves"
+            moves={30 - correctAnswers}
             level={level}
             onPlayAgain={handleReset}
             onBackToMenu={() => navigate({ to: '/' })}

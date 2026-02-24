@@ -1,92 +1,82 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-24T11:47:24.169Z",
+  "generatedAt": "2026-02-24T17:33:49.001Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 4,
+    "total": 3,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Add a new 'Memory Test' game type to the backend GameType variant and support saving its game state and high scores alongside existing game types.",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
+        "summary": "Create a custom useSoundEffects hook that generates and plays three short sound effects using the Web Audio API (no external files needed): a soft click/tap sound on every interactive button press, a cheerful success chime on correct answers, and a low buzz/error sound on wrong answers. The hook should expose play functions: playClick(), playSuccess(), playError().",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useSoundEffects.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useSoundEffects.ts"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Create a useMemoryTest custom React hook that manages the Memory Test game logic: displays 10 everyday objects (with emoji + text) for 10 seconds, then hides them and starts a 25-second countdown, accepts user-typed object names one at a time via Enter key, tracks how many of the 10 objects have been correctly recalled, and determines win (all 10 recalled before time runs out) or loss (timer reaches zero).",
+        "summary": "Integrate sound effects into all Section A game pages: CardMatchingGame, MemoryTestGame, PatternMemoryGame, SequenceMemoryGame, SlidingPuzzleGame, StroopEffectGame, and SpeedTypingGame. Call playClick() on every button/tile interaction, playSuccess() on correct answers or level completion, and playError() on wrong answers or game-over states.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useMemoryTest.ts"
+          "frontend/src/pages/CardMatchingGame.tsx",
+          "frontend/src/pages/MemoryTestGame.tsx",
+          "frontend/src/pages/PatternMemoryGame.tsx",
+          "frontend/src/pages/SequenceMemoryGame.tsx",
+          "frontend/src/pages/SlidingPuzzleGame.tsx",
+          "frontend/src/pages/StroopEffectGame.tsx",
+          "frontend/src/pages/SpeedTypingGame.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useMemoryTest.ts"
+          "frontend/src/pages/CardMatchingGame.tsx",
+          "frontend/src/pages/MemoryTestGame.tsx",
+          "frontend/src/pages/PatternMemoryGame.tsx",
+          "frontend/src/pages/SequenceMemoryGame.tsx",
+          "frontend/src/pages/SlidingPuzzleGame.tsx",
+          "frontend/src/pages/StroopEffectGame.tsx",
+          "frontend/src/pages/SpeedTypingGame.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Create a MemoryTestGame page at a new route (e.g., /memory-test) that renders the Memory Test game UI: shows a grid of 10 object cards (emoji + label) during the memorize phase with a 10-second countdown, then hides the objects and shows a search/input bar with a 25-second timer during the recall phase, displays a list of already-recalled objects, and shows a win/loss result screen on completion. Save the result to the backend using the useCompleteLevel mutation hook on game end.",
+        "summary": "Integrate sound effects into all Section B game pages: MissingLetterGame, WordScrambleGame, and FillInTheBlanksGame. Call playClick() on every button press or input submission, playSuccess() on correct answers, and playError() on wrong answers.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/MemoryTestGame.tsx"
+          "frontend/src/pages/MissingLetterGame.tsx",
+          "frontend/src/pages/WordScrambleGame.tsx",
+          "frontend/src/pages/FillInTheBlanksGame.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/MemoryTestGame.tsx"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Register the /memory-test route in App.tsx and add the Memory Test game card to the HomePage below all existing game cards, using a consistent GameCard component with the game's title 'Memory Test', a short description, and an appropriate icon.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/pages/HomePage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/pages/HomePage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Add a difficulty configuration entry for 'memoryTest' in difficultyConfig.ts with appropriate settings across 5 levels (e.g., varying the number of objects shown, or time limits in future levels), defaulting to 10 objects, 10-second memorize phase, and 25-second recall phase at level 1.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/utils/difficultyConfig.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/utils/difficultyConfig.ts"
+          "frontend/src/pages/MissingLetterGame.tsx",
+          "frontend/src/pages/WordScrambleGame.tsx",
+          "frontend/src/pages/FillInTheBlanksGame.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/authorization/MixinAuthorization.mo",
-    "backend/authorization/access-control.mo",
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/memory-test-icon.dim_128x128.png",
-    "frontend/src/App.tsx",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useActor.ts",
-    "frontend/src/hooks/useMemoryTest.ts",
-    "frontend/src/pages/HomePage.tsx",
+    "frontend/src/hooks/useSoundEffects.ts",
+    "frontend/src/pages/CardMatchingGame.tsx",
+    "frontend/src/pages/FillInTheBlanksGame.tsx",
     "frontend/src/pages/MemoryTestGame.tsx",
-    "frontend/src/utils/difficultyConfig.ts",
-    "frontend/src/utils/urlParams.ts",
+    "frontend/src/pages/MissingLetterGame.tsx",
+    "frontend/src/pages/PatternMemoryGame.tsx",
+    "frontend/src/pages/SequenceMemoryGame.tsx",
+    "frontend/src/pages/SlidingPuzzleGame.tsx",
+    "frontend/src/pages/SpeedTypingGame.tsx",
+    "frontend/src/pages/StroopEffectGame.tsx",
+    "frontend/src/pages/WordScrambleGame.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

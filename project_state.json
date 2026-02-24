@@ -1,43 +1,35 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project contains multiple cognitive/brain games including a Stroop Effect game (30 second timer, scoring, levels) and a new Memory Test game being added. Memory Test shows 10 objects for 10 seconds, then a search bar appears with 25 seconds to recall all objects.",
+  "summary": "Educational app ('Memory Increase') with games in Section A and Section B (including Missing Letter game). Features difficulty levels and 'Show Answer' button. Sound effects being added across all games.",
   "architectural_notes": [
-    "Memory Test game must be added below all existing games on the page"
+    "App is a PWA (Progressive Web App) deployed on ICP at https://7qf4a-ziaaa-aaaap-qncea-cai.icp0.io",
+    "App has two sections: Section A and Section B, with games including Missing Letter game"
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Memory test game icon showing a brain with magnifying glass or eye symbol, flat illustration style matching the app's purple/blue theme (memory-test-icon.dim_128x128.png)",
   "existing_features": [
     {
-      "id": "feature-create-a-usememorytest-custom-react-hook-that-manages-the-memory-test-game-logic-displays-10-everyday-objects-with-emoji-text-for-10-seconds-then-hides-them-and-starts-a-25-second-countdown-accepts-user-typed-object-names-one-at-a-time-via-enter-key-tracks-how-many-of-the-10-objects-have-been-correctly-recalled-and-determines-win-all-10-recalled-before-time-runs-out-or-loss-timer-reaches-zero",
-      "title": "Create a useMemoryTest custom React hook that manages the Memory Test game logic: displays 10 everyday objects (with emoji + text) for 10 seconds, then hides them and starts a 25-second countdown, accepts user-typed object names one at a time via Enter key, tracks how many of the 10 objects have been correctly recalled, and determines win (all 10 recalled before time runs out) or loss (timer reaches zero).",
+      "id": "feature-create-a-custom-usesoundeffects-hook-that-generates-and-plays-three-short-sound-effects-using-the-web-audio-api-no-external-files-needed-a-soft-click-tap-sound-on-every-interactive-button-press-a-cheerful-success-chime-on-correct-answers-and-a-low-buzz-error-sound-on-wrong-answers-the-hook-should-expose-play-functions-playclick-playsuccess-playerror",
+      "title": "Create a custom useSoundEffects hook that generates and plays three short sound effects using the Web Audio API (no external files needed): a soft click/tap sound on every interactive button press, a cheerful success chime on correct answers, and a low buzz/error sound on wrong answers. The hook should expose play functions: playClick(), playSuccess(), playError().",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-sound-effects-into-all-section-a-game-pages-cardmatchinggame-memorytestgame-patternmemorygame-sequencememorygame-slidingpuzzlegame-stroopeffectgame-and-speedtypinggame-call-playclick-on-every-button-tile-interaction-playsuccess-on-correct-answers-or-level-completion-and-playerror-on-wrong-answers-or-game-over-states",
+      "title": "Integrate sound effects into all Section A game pages: CardMatchingGame, MemoryTestGame, PatternMemoryGame, SequenceMemoryGame, SlidingPuzzleGame, StroopEffectGame, and SpeedTypingGame. Call playClick() on every button/tile interaction, playSuccess() on correct answers or level completion, and playError() on wrong answers or game-over states.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-memorytestgame-page-at-a-new-route-e-g-memory-test-that-renders-the-memory-test-game-ui-shows-a-grid-of-10-object-cards-emoji-label-during-the-memorize-phase-with-a-10-second-countdown-then-hides-the-objects-and-shows-a-search-input-bar-with-a-25-second-timer-during-the-recall-phase-displays-a-list-of-already-recalled-objects-and-shows-a-win-loss-result-screen-on-completion-save-the-result-to-the-backend-using-the-usecompletelevel-mutation-hook-on-game-end",
-      "title": "Create a MemoryTestGame page at a new route (e.g., /memory-test) that renders the Memory Test game UI: shows a grid of 10 object cards (emoji + label) during the memorize phase with a 10-second countdown, then hides the objects and shows a search/input bar with a 25-second timer during the recall phase, displays a list of already-recalled objects, and shows a win/loss result screen on completion. Save the result to the backend using the useCompleteLevel mutation hook on game end.",
+      "id": "feature-integrate-sound-effects-into-all-section-b-game-pages-missinglettergame-wordscramblegame-and-fillintheblanksgame-call-playclick-on-every-button-press-or-input-submission-playsuccess-on-correct-answers-and-playerror-on-wrong-answers",
+      "title": "Integrate sound effects into all Section B game pages: MissingLetterGame, WordScrambleGame, and FillInTheBlanksGame. Call playClick() on every button press or input submission, playSuccess() on correct answers, and playError() on wrong answers.",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-register-the-memory-test-route-in-app-tsx-and-add-the-memory-test-game-card-to-the-homepage-below-all-existing-game-cards-using-a-consistent-gamecard-component-with-the-game-s-title-memory-test-a-short-description-and-an-appropriate-icon",
-      "title": "Register the /memory-test route in App.tsx and add the Memory Test game card to the HomePage below all existing game cards, using a consistent GameCard component with the game's title 'Memory Test', a short description, and an appropriate icon.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-difficulty-configuration-entry-for-memorytest-in-difficultyconfig-ts-with-appropriate-settings-across-5-levels-e-g-varying-the-number-of-objects-shown-or-time-limits-in-future-levels-defaulting-to-10-objects-10-second-memorize-phase-and-25-second-recall-phase-at-level-1",
-      "title": "Add a difficulty configuration entry for 'memoryTest' in difficultyConfig.ts with appropriate settings across 5 levels (e.g., varying the number of objects shown, or time limits in future levels), defaulting to 10 objects, 10-second memorize phase, and 25-second recall phase at level 1.",
-      "reqIds": [
-        "REQ-5"
       ],
       "version": 1
     }
@@ -45,21 +37,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Memory Test game: show 10 objects for 10 seconds, then search bar for 25 seconds to recall all objects, win if all 10 correct",
+      "summary": "Add short sound effects to all games: click sound on every tap, success sound on correct answer, error sound on wrong answer",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Add a new 'Memory Test' game type to the backend GameType variant and support saving its game state and high scores alongside existing game types.",
-      "reqIds": [
-        "REQ-1"
-      ],
       "status": "pending"
     }
   ],
   "gameProjectType": "2d",
-  "projectName": "Brain Games / Cognitive Games App",
+  "projectName": "Memory Increase",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -10,13 +10,15 @@ import { useSlidingPuzzle } from '../hooks/useSlidingPuzzle';
 import { useGameTimer } from '../hooks/useGameTimer';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useCompleteLevel } from '../hooks/useQueries';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 import { GameType } from '../backend';
 
 export default function SlidingPuzzleGame() {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
   const principal = identity?.getPrincipal().toString() || 'guest';
-  
+  const { playClick, playSuccess } = useSoundEffects();
+
   const { tiles, emptyIndex, moves, isComplete, handleTileClick, resetPuzzle, gridSize } = useSlidingPuzzle(1);
   const { elapsedTime, isRunning, startTimer, stopTimer, resetTimer } = useGameTimer();
   const completeLevel = useCompleteLevel();
@@ -30,7 +32,7 @@ export default function SlidingPuzzleGame() {
   useEffect(() => {
     if (isComplete && isRunning) {
       stopTimer();
-      
+      playSuccess();
       completeLevel.mutate({
         player: principal,
         gameType: GameType.slidingPuzzle,
@@ -40,7 +42,12 @@ export default function SlidingPuzzleGame() {
         totalQuestions: BigInt(1),
       });
     }
-  }, [isComplete, isRunning, stopTimer, elapsedTime, principal, completeLevel]);
+  }, [isComplete, isRunning]);
+
+  const handleTileClickWithSound = (index: number) => {
+    playClick();
+    handleTileClick(index);
+  };
 
   const handleReset = () => {
     resetPuzzle();
@@ -87,7 +94,7 @@ export default function SlidingPuzzleGame() {
               key={index}
               value={tile}
               isEmpty={index === emptyIndex}
-              onClick={() => handleTileClick(index)}
+              onClick={() => handleTileClickWithSound(index)}
             />
           ))}
         </div>

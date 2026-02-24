@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -10,13 +10,15 @@ import { useSequenceMemory } from '../hooks/useSequenceMemory';
 import { useGameTimer } from '../hooks/useGameTimer';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { useCompleteLevel } from '../hooks/useQueries';
+import { useSoundEffects } from '../hooks/useSoundEffects';
 import { GameType } from '../backend';
 
 export default function SequenceMemoryGame() {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
   const principal = identity?.getPrincipal().toString() || 'guest';
-  
+  const { playClick, playSuccess, playError } = useSoundEffects();
+
   const {
     sequence,
     userSequence,
@@ -27,9 +29,11 @@ export default function SequenceMemoryGame() {
     handleItemClick,
     resetGame,
   } = useSequenceMemory(1);
-  
+
   const { elapsedTime, isRunning, startTimer, stopTimer, resetTimer } = useGameTimer();
   const completeLevel = useCompleteLevel();
+
+  const prevAttemptsRef = useRef(0);
 
   useEffect(() => {
     if (phase === 'input' && !isRunning && !isComplete) {
@@ -40,7 +44,7 @@ export default function SequenceMemoryGame() {
   useEffect(() => {
     if (isComplete && isRunning) {
       stopTimer();
-      
+      playSuccess();
       completeLevel.mutate({
         player: principal,
         gameType: GameType.sequenceMemory,
@@ -50,11 +54,27 @@ export default function SequenceMemoryGame() {
         totalQuestions: BigInt(1),
       });
     }
-  }, [isComplete, isRunning, stopTimer, elapsedTime, principal, completeLevel]);
+  }, [isComplete, isRunning]);
+
+  // Detect wrong attempt: attempts increases but isComplete is still false
+  useEffect(() => {
+    if (attempts > prevAttemptsRef.current && !isComplete) {
+      playError();
+    }
+    prevAttemptsRef.current = attempts;
+  }, [attempts, isComplete]);
+
+  const handleItemClickWithSound = (item: string) => {
+    if (phase === 'input') {
+      playClick();
+      handleItemClick(item);
+    }
+  };
 
   const handleReset = () => {
     resetGame();
     resetTimer();
+    prevAttemptsRef.current = 0;
   };
 
   return (
@@ -95,7 +115,7 @@ export default function SequenceMemoryGame() {
               value={item}
               isActive={phase === 'display' && index === currentIndex}
               isSelected={userSequence.includes(item)}
-              onClick={() => handleItemClick(item)}
+              onClick={() => handleItemClickWithSound(item)}
               disabled={phase !== 'input'}
             />
           ))}

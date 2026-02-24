@@ -6,6 +6,10 @@ import PatternMemoryGame from './pages/PatternMemoryGame';
 import SequenceMemoryGame from './pages/SequenceMemoryGame';
 import StroopEffectGame from './pages/StroopEffectGame';
 import MemoryTestGame from './pages/MemoryTestGame';
+import MissingLetterGame from './pages/MissingLetterGame';
+import WordScrambleGame from './pages/WordScrambleGame';
+import FillInTheBlanksGame from './pages/FillInTheBlanksGame';
+import SpeedTypingGame from './pages/SpeedTypingGame';
 import ProgressPage from './pages/ProgressPage';
 import InstallGuide from './pages/InstallGuide';
 import Layout from './components/Layout';
@@ -56,6 +60,30 @@ const memoryTestRoute = createRoute({
   component: MemoryTestGame,
 });
 
+const missingLetterRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/missing-letter',
+  component: MissingLetterGame,
+});
+
+const wordScrambleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/word-scramble',
+  component: WordScrambleGame,
+});
+
+const fillInTheBlanksRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/fill-in-the-blanks',
+  component: FillInTheBlanksGame,
+});
+
+const speedTypingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/speed-typing',
+  component: SpeedTypingGame,
+});
+
 const progressRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/progress',
@@ -76,6 +104,10 @@ const routeTree = rootRoute.addChildren([
   sequenceMemoryRoute,
   stroopEffectRoute,
   memoryTestRoute,
+  missingLetterRoute,
+  wordScrambleRoute,
+  fillInTheBlanksRoute,
+  speedTypingRoute,
   progressRoute,
   installGuideRoute,
 ]);
