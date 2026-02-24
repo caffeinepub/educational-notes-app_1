@@ -89,95 +89,141 @@ export class ExternalBlob {
         return this;
     }
 }
-export type ClassLevel = bigint;
-export interface Note {
-    topic: string;
+export interface ScienceNote {
+    importantPoints: Array<string>;
     content: string;
-    subject: string;
-    classLevel: ClassLevel;
+    chapterNumber: bigint;
+    chapterTitle: string;
+    definitions: Array<string>;
+    examples: Array<string>;
+}
+export interface GameState {
+    score: bigint;
+    currentLevel: bigint;
+    timeTaken: bigint;
+    unlockedPuzzles: Array<string>;
+}
+export interface HighScore {
+    player: string;
+    level: bigint;
+    score: bigint;
+    timeTaken: bigint;
 }
 export interface backendInterface {
-    addNote(classLevel: ClassLevel, subject: string, topic: string, content: string): Promise<bigint>;
-    getAllNotes(): Promise<Array<Note>>;
-    getNote(id: bigint): Promise<Note | null>;
-    getNotesByClass(classLevel: ClassLevel): Promise<Array<Note>>;
-    getNotesBySubject(subject: string): Promise<Array<Note>>;
+    completeLevel(player: string, level: bigint, startTime: bigint, correctAnswers: bigint, totalQuestions: bigint): Promise<void>;
+    getAllChapters(): Promise<Array<ScienceNote>>;
+    getChapter(chapterNumber: bigint): Promise<ScienceNote | null>;
+    getPlayerGameState(player: string): Promise<GameState | null>;
+    getPlayerHighScores(player: string): Promise<Array<HighScore>>;
+    initializeChapters(): Promise<void>;
+    startTimer(): Promise<bigint>;
 }
-import type { Note as _Note } from "./declarations/backend.did.d.ts";
+import type { GameState as _GameState, ScienceNote as _ScienceNote } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addNote(arg0: ClassLevel, arg1: string, arg2: string, arg3: string): Promise<bigint> {
+    async completeLevel(arg0: string, arg1: bigint, arg2: bigint, arg3: bigint, arg4: bigint): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.addNote(arg0, arg1, arg2, arg3);
+                const result = await this.actor.completeLevel(arg0, arg1, arg2, arg3, arg4);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.addNote(arg0, arg1, arg2, arg3);
+            const result = await this.actor.completeLevel(arg0, arg1, arg2, arg3, arg4);
             return result;
         }
     }
-    async getAllNotes(): Promise<Array<Note>> {
+    async getAllChapters(): Promise<Array<ScienceNote>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getAllNotes();
+                const result = await this.actor.getAllChapters();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getAllNotes();
+            const result = await this.actor.getAllChapters();
             return result;
         }
     }
-    async getNote(arg0: bigint): Promise<Note | null> {
+    async getChapter(arg0: bigint): Promise<ScienceNote | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.getNote(arg0);
+                const result = await this.actor.getChapter(arg0);
                 return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getNote(arg0);
+            const result = await this.actor.getChapter(arg0);
             return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
         }
     }
-    async getNotesByClass(arg0: ClassLevel): Promise<Array<Note>> {
+    async getPlayerGameState(arg0: string): Promise<GameState | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.getNotesByClass(arg0);
+                const result = await this.actor.getPlayerGameState(arg0);
+                return from_candid_opt_n2(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPlayerGameState(arg0);
+            return from_candid_opt_n2(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPlayerHighScores(arg0: string): Promise<Array<HighScore>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPlayerHighScores(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getNotesByClass(arg0);
+            const result = await this.actor.getPlayerHighScores(arg0);
             return result;
         }
     }
-    async getNotesBySubject(arg0: string): Promise<Array<Note>> {
+    async initializeChapters(): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.getNotesBySubject(arg0);
+                const result = await this.actor.initializeChapters();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getNotesBySubject(arg0);
+            const result = await this.actor.initializeChapters();
+            return result;
+        }
+    }
+    async startTimer(): Promise<bigint> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.startTimer();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.startTimer();
             return result;
         }
     }
 }
-function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_Note]): Note | null {
+function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_ScienceNote]): ScienceNote | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_GameState]): GameState | null {
     return value.length === 0 ? null : value[0];
 }
 export interface CreateActorOptions {

@@ -1,132 +1,250 @@
 import Map "mo:core/Map";
-import Nat "mo:core/Nat";
-import Iter "mo:core/Iter";
-import Array "mo:core/Array";
 import Text "mo:core/Text";
+import Nat "mo:core/Nat";
+import Array "mo:core/Array";
+import Iter "mo:core/Iter";
+import Time "mo:core/Time";
+import Order "mo:core/Order";
+import List "mo:core/List";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
-  type ClassLevel = Nat; // 6-12
-
-  type Note = {
-    classLevel : ClassLevel;
-    subject : Text;
-    topic : Text;
+  type ScienceNote = {
+    chapterNumber : Nat;
+    chapterTitle : Text;
     content : Text;
+    importantPoints : [Text];
+    definitions : [Text];
+    examples : [Text];
   };
 
+  type GameState = {
+    currentLevel : Nat;
+    unlockedPuzzles : [Text];
+    timeTaken : Int;
+    score : Nat;
+  };
+
+  type HighScore = {
+    player : Text;
+    level : Nat;
+    timeTaken : Int;
+    score : Nat;
+  };
+
+  let notes = Map.empty<Nat, ScienceNote>();
   var nextId = 1;
-  let notes = Map.empty<Nat, Note>();
+  let gameStates = Map.empty<Text, GameState>();
+  let highScores = Map.empty<Text, List.List<HighScore>>();
 
-  // Seed data
-  let seedData : [Note] = [
-    // Mathematics
-    {
-      classLevel = 6;
-      subject = "Mathematics";
-      topic = "Fractions";
-      content = "A fraction represents a part of a whole. It consists of a numerator and a denominator.";
-    },
-    {
-      classLevel = 8;
-      subject = "Mathematics";
-      topic = "Linear Equations";
-      content = "Linear equations are algebraic equations in which each term has an exponent of one.";
-    },
-    // Science
-    {
-      classLevel = 7;
-      subject = "Science";
-      topic = "Photosynthesis";
-      content = "Photosynthesis is the process by which green plants make their own food using sunlight.";
-    },
-    {
-      classLevel = 9;
-      subject = "Science";
-      topic = "Atoms and Molecules";
-      content = "Atoms are the basic building blocks of matter. Molecules are combinations of atoms bonded together.";
-    },
-    // English
-    {
-      classLevel = 10;
-      subject = "English";
-      topic = "Grammar - Tenses";
-      content = "Tenses indicate the time of action. English has three main tenses: past, present, and future.";
-    },
-    {
-      classLevel = 11;
-      subject = "English";
-      topic = "Essay Writing";
-      content = "Essays should have an introduction, body, and conclusion. Organize your thoughts clearly.";
-    },
-    // Social Studies
-    {
-      classLevel = 6;
-      subject = "Social Studies";
-      topic = "Ancient Civilizations";
-      content = "Ancient civilizations include Mesopotamia, Egypt, Indus Valley, and China.";
-    },
-    {
-      classLevel = 12;
-      subject = "Social Studies";
-      topic = "Indian Constitution";
-      content = "The Constitution is the supreme law of India, adopted in 1949 and enacted in 1950.";
-    },
-    // Hindi
-    {
-      classLevel = 8;
-      subject = "Hindi";
-      topic = "संधि (Sandhi)";
-      content = "संधि का अर्थ है - दो ध्वनियों का मिलन, जिससे नई ध्वनि उत्पन्न होती है।";
-    },
-    {
-      classLevel = 10;
-      subject = "Hindi";
-      topic = "मुहावरे (Idioms)";
-      content = "मुहावरे भाषा को रोचक और प्रभावशाली बनाते हैं। जैसे - आँख का तारा होना।";
-    },
-  ];
+  public shared ({ caller }) func initializeChapters() : async () {
+    notes.clear();
+    nextId := 1;
 
-  for (note in seedData.values()) {
-    notes.add(nextId, note);
-    nextId += 1;
-  };
+    let newChapters = [
+      {
+        chapterNumber = 1;
+        chapterTitle = "पौधे (Plants)";
+        content = "पौधों के विकास, उनके भाग, और जीवन चक्र के बारे में संपूर्ण जानकारी। इसमें पौधों की वृद्धि, स्टेम, रूट, लीफ और उनके कार्य को विस्तार से बताया गया है।";
+        importantPoints = [
+          "पौधों के हिस्से: जड़, तना, पत्ती, फूल, फल",
+          "फोटोसिंथेसिस प्रक्रिया",
+          "पानी और पोषक तत्वों का ट्रांसपोर्टेशन",
+        ];
+        definitions = [
+          "फोटोसिंथेसिस: वह प्रक्रिया जिसमें पौधे सूर्य के प्रकाश से आहार बनाते हैं",
+          "स्टेम: पौधे का हिस्सा जो जल और पोषक तत्व पहुंचाता है",
+        ];
+        examples = [
+          "पत्तियों में फोटोसिंथेसिस होता है",
+          "शाखाएँ पौधे को सपोर्ट करती हैं",
+        ];
+      },
+      {
+        chapterNumber = 2;
+        chapterTitle = "शारीरिक गतियाँ (Body Movements)";
+        content = "मानव शरीर की हड्डियाँ, मांसपेशियाँ, और विभिन्न अंगों की गतियाँ। हड्डियों की संरचना, मांसपेशियों के प्रकार, और खेल संबंधित चर्चा।";
+        importantPoints = [
+          "हड्डियाँ शरीर को संरचना देती हैं",
+          "जोड़ों के प्रकार: बॉल और सॉकेट, हिंग",
+          "मांसपेशियाँ गति में मदद करती हैं",
+        ];
+        definitions = [
+          "हड्डियाँ: ताकतवर संरचना जो शरीर को आकार देती हैं",
+          "जोड़: हड्डियों को जोड़ने वाली संरचना",
+        ];
+        examples = [
+          "घुटना हिंग जोड़ का उदाहरण है",
+          "कंधे बॉल और सॉकेट जोड़ हैं",
+        ];
+      },
+      {
+        chapterNumber = 3;
+        chapterTitle = "प्रकाश, छाया और परावर्तन (Light, Shadows & Reflections)";
+        content = "प्रकाश के स्त्रोत, छाया का निर्माण, और परावर्तन की प्रक्रिया। इसके मुख्य नियमों एवं उपयोग के उदाहरण।";
+        importantPoints = [
+          "प्रकाश सीधी रेखा में चलता है",
+          "अंधकार में छाया नहीं बनती",
+          "परावर्तन: प्रकाश का दिशा बदलना",
+        ];
+        definitions = [
+          "प्रकाश स्त्रोत: प्रकाश उत्पन्न करने वाली वस्तु",
+          "छाया: प्रकाश अवरुद्ध होने से बनती है",
+        ];
+        examples = [
+          "दर्पण में स्पष्ट परावर्तन होता है",
+          "सूरज से सबसे तेज प्रकाश मिलता है",
+        ];
+      },
+      {
+        chapterNumber = 4;
+        chapterTitle = "बिजली और सर्किट (Electricity & Circuits)";
+        content = "बिजली के मुख्य सिद्धांत, सर्किट के आवश्यक तत्व, और किस प्रकार बिजली उपकरणों को चलाती है। कंडक्टर और इंसुलेटर का अध्ययन।";
+        importantPoints = [
+          "सर्किट: बिजली का प्रवाह",
+          "कंडक्टर, इंसुलेटर की पहचान",
+          "सुरक्षा और सावधानियाँ",
+        ];
+        definitions = [
+          "सर्किट: बिजली प्रवाहित करने वाला पथ",
+          "कंडक्टर: बिजली प्रवाहित करने वाली सामग्री",
+        ];
+        examples = [
+          "तार कंडक्टर हैं, प्लास्टिक इंसुलेटर है",
+          "बिजली उपकरण सर्किट से चलते हैं",
+        ];
+      },
+    ];
 
-  public shared ({ caller }) func addNote(classLevel : ClassLevel, subject : Text, topic : Text, content : Text) : async Nat {
-    let note : Note = {
-      classLevel;
-      subject;
-      topic;
-      content;
+    for (chapter in newChapters.values()) {
+      notes.add(nextId, chapter);
+      nextId += 1;
     };
-    let id = nextId;
-    notes.add(id, note);
-    nextId += 1;
-    id;
   };
 
-  public query ({ caller }) func getNote(id : Nat) : async ?Note {
-    notes.get(id);
+  // Chapter Queries
+  public query ({ caller }) func getChapter(chapterNumber : Nat) : async ?ScienceNote {
+    notes.get(chapterNumber);
   };
 
-  public query ({ caller }) func getNotesByClass(classLevel : ClassLevel) : async [Note] {
-    let filtered = notes.values().toArray().filter(
-      func(note) {
-        note.classLevel == classLevel;
-      }
-    );
-    filtered;
-  };
-
-  public query ({ caller }) func getNotesBySubject(subject : Text) : async [Note] {
-    let filtered = notes.values().toArray().filter(
-      func(note) {
-        note.subject.contains(#text subject);
-      }
-    );
-    filtered;
-  };
-
-  public query ({ caller }) func getAllNotes() : async [Note] {
+  public query ({ caller }) func getAllChapters() : async [ScienceNote] {
     notes.values().toArray();
+  };
+
+  // Game State Management
+  public shared ({ caller }) func startTimer() : async Int {
+    Time.now();
+  };
+
+  public shared ({ caller }) func completeLevel(player : Text, level : Nat, startTime : Int, correctAnswers : Nat, totalQuestions : Nat) : async () {
+    let endTime : Int = Time.now();
+    let timeTaken = endTime - startTime;
+
+    let score = calculateScore(timeTaken, correctAnswers, totalQuestions);
+
+    let unlockedPuzzles = updateUnlockedPuzzles(player, level);
+
+    let newState : GameState = {
+      currentLevel = level;
+      unlockedPuzzles;
+      timeTaken;
+      score;
+    };
+
+    gameStates.add(player, newState);
+    updateHighScores(player, level, timeTaken, score);
+  };
+
+  func calculateScore(timeTaken : Int, correctAnswers : Nat, totalQuestions : Nat) : Nat {
+    let timeScore = if (timeTaken < 600000_000_000) { 100 }
+    else if (timeTaken < 1200000_000_000) { 60 } else {
+      30;
+    };
+    let accuracyScore = (correctAnswers * 100) / totalQuestions;
+    if (totalQuestions > 0) {
+      ((timeScore + accuracyScore) / 2) * ((totalQuestions * 100) / 50);
+    } else {
+      0;
+    };
+  };
+
+  func updateUnlockedPuzzles(player : Text, level : Nat) : [Text] {
+    let basePuzzles = ["Quiz 1", "Math Worksheet 1"];
+    if (level == 2) { basePuzzles.concat(["Puzzle 2"]) } else if (level == 3) {
+      basePuzzles.concat(["Puzzle 2", "Puzzle 3"]);
+    } else if (level == 4) {
+      basePuzzles.concat(["Puzzle 2", "Puzzle 3", "Puzzle 4"]);
+    } else { basePuzzles };
+  };
+
+  func compare(scoresA : HighScore, scoresB : HighScore) : Order.Order {
+    if (scoresA.score > scoresB.score) { #less }
+    else if (scoresA.score < scoresB.score) { #greater }
+    else {
+      if (scoresA.timeTaken < scoresB.timeTaken) { #less } else {
+        #equal;
+      };
+    };
+  };
+
+  func updateHighScores(player : Text, level : Nat, timeTaken : Int, score : Nat) {
+    let newScore : HighScore = {
+      player;
+      level;
+      timeTaken;
+      score;
+    };
+
+    switch (highScores.get(player)) {
+      case (null) {
+        let newHighScoreList = List.empty<HighScore>();
+        newHighScoreList.add(newScore);
+        highScores.add(player, newHighScoreList);
+      };
+      case (?playerScores) {
+        if (playerScores.size() >= 10) {
+          let currentHighScores = playerScores.toArray();
+          let minScore = currentHighScores.foldLeft(currentHighScores[0].score, func(acc, hs) { if (hs.score < acc) { hs.score } else {
+            acc;
+          } });
+          let maxTime = currentHighScores.foldLeft(currentHighScores[0].timeTaken, func(acc, hs) { if (hs.timeTaken > acc) { hs.timeTaken } else {
+            acc;
+          } });
+
+          if ((score == minScore and timeTaken < maxTime) or score > minScore) {
+            let filteredScores = List.empty<HighScore>();
+            var count = 0;
+            for (scoreIter in currentHighScores.values()) {
+              if (count < 9) { filteredScores.add(scoreIter) } else {
+                ();
+              };
+              count += 1;
+            };
+            filteredScores.add(newScore);
+            let sortedScores = filteredScores.toArray();
+            playerScores.clear();
+            for (score in sortedScores.values()) {
+              playerScores.add(score);
+            };
+            highScores.add(player, playerScores);
+          };
+        } else {
+          playerScores.add(newScore);
+        };
+      };
+    };
+  };
+
+  // Queries
+  public query ({ caller }) func getPlayerGameState(player : Text) : async ?GameState {
+    gameStates.get(player);
+  };
+
+  public query ({ caller }) func getPlayerHighScores(player : Text) : async [HighScore] {
+    switch (highScores.get(player)) {
+      case (null) { [] };
+      case (?highScoreList) { highScoreList.toArray() };
+    };
   };
 };

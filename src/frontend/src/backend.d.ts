@@ -7,17 +7,32 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export type ClassLevel = bigint;
-export interface Note {
-    topic: string;
+export interface ScienceNote {
+    importantPoints: Array<string>;
     content: string;
-    subject: string;
-    classLevel: ClassLevel;
+    chapterNumber: bigint;
+    chapterTitle: string;
+    definitions: Array<string>;
+    examples: Array<string>;
+}
+export interface GameState {
+    score: bigint;
+    currentLevel: bigint;
+    timeTaken: bigint;
+    unlockedPuzzles: Array<string>;
+}
+export interface HighScore {
+    player: string;
+    level: bigint;
+    score: bigint;
+    timeTaken: bigint;
 }
 export interface backendInterface {
-    addNote(classLevel: ClassLevel, subject: string, topic: string, content: string): Promise<bigint>;
-    getAllNotes(): Promise<Array<Note>>;
-    getNote(id: bigint): Promise<Note | null>;
-    getNotesByClass(classLevel: ClassLevel): Promise<Array<Note>>;
-    getNotesBySubject(subject: string): Promise<Array<Note>>;
+    completeLevel(player: string, level: bigint, startTime: bigint, correctAnswers: bigint, totalQuestions: bigint): Promise<void>;
+    getAllChapters(): Promise<Array<ScienceNote>>;
+    getChapter(chapterNumber: bigint): Promise<ScienceNote | null>;
+    getPlayerGameState(player: string): Promise<GameState | null>;
+    getPlayerHighScores(player: string): Promise<Array<HighScore>>;
+    initializeChapters(): Promise<void>;
+    startTimer(): Promise<bigint>;
 }

@@ -8,47 +8,85 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const ClassLevel = IDL.Nat;
-export const Note = IDL.Record({
-  'topic' : IDL.Text,
+export const ScienceNote = IDL.Record({
+  'importantPoints' : IDL.Vec(IDL.Text),
   'content' : IDL.Text,
-  'subject' : IDL.Text,
-  'classLevel' : ClassLevel,
+  'chapterNumber' : IDL.Nat,
+  'chapterTitle' : IDL.Text,
+  'definitions' : IDL.Vec(IDL.Text),
+  'examples' : IDL.Vec(IDL.Text),
+});
+export const GameState = IDL.Record({
+  'score' : IDL.Nat,
+  'currentLevel' : IDL.Nat,
+  'timeTaken' : IDL.Int,
+  'unlockedPuzzles' : IDL.Vec(IDL.Text),
+});
+export const HighScore = IDL.Record({
+  'player' : IDL.Text,
+  'level' : IDL.Nat,
+  'score' : IDL.Nat,
+  'timeTaken' : IDL.Int,
 });
 
 export const idlService = IDL.Service({
-  'addNote' : IDL.Func(
-      [ClassLevel, IDL.Text, IDL.Text, IDL.Text],
-      [IDL.Nat],
+  'completeLevel' : IDL.Func(
+      [IDL.Text, IDL.Nat, IDL.Int, IDL.Nat, IDL.Nat],
+      [],
       [],
     ),
-  'getAllNotes' : IDL.Func([], [IDL.Vec(Note)], ['query']),
-  'getNote' : IDL.Func([IDL.Nat], [IDL.Opt(Note)], ['query']),
-  'getNotesByClass' : IDL.Func([ClassLevel], [IDL.Vec(Note)], ['query']),
-  'getNotesBySubject' : IDL.Func([IDL.Text], [IDL.Vec(Note)], ['query']),
+  'getAllChapters' : IDL.Func([], [IDL.Vec(ScienceNote)], ['query']),
+  'getChapter' : IDL.Func([IDL.Nat], [IDL.Opt(ScienceNote)], ['query']),
+  'getPlayerGameState' : IDL.Func([IDL.Text], [IDL.Opt(GameState)], ['query']),
+  'getPlayerHighScores' : IDL.Func([IDL.Text], [IDL.Vec(HighScore)], ['query']),
+  'initializeChapters' : IDL.Func([], [], []),
+  'startTimer' : IDL.Func([], [IDL.Int], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const ClassLevel = IDL.Nat;
-  const Note = IDL.Record({
-    'topic' : IDL.Text,
+  const ScienceNote = IDL.Record({
+    'importantPoints' : IDL.Vec(IDL.Text),
     'content' : IDL.Text,
-    'subject' : IDL.Text,
-    'classLevel' : ClassLevel,
+    'chapterNumber' : IDL.Nat,
+    'chapterTitle' : IDL.Text,
+    'definitions' : IDL.Vec(IDL.Text),
+    'examples' : IDL.Vec(IDL.Text),
+  });
+  const GameState = IDL.Record({
+    'score' : IDL.Nat,
+    'currentLevel' : IDL.Nat,
+    'timeTaken' : IDL.Int,
+    'unlockedPuzzles' : IDL.Vec(IDL.Text),
+  });
+  const HighScore = IDL.Record({
+    'player' : IDL.Text,
+    'level' : IDL.Nat,
+    'score' : IDL.Nat,
+    'timeTaken' : IDL.Int,
   });
   
   return IDL.Service({
-    'addNote' : IDL.Func(
-        [ClassLevel, IDL.Text, IDL.Text, IDL.Text],
-        [IDL.Nat],
+    'completeLevel' : IDL.Func(
+        [IDL.Text, IDL.Nat, IDL.Int, IDL.Nat, IDL.Nat],
+        [],
         [],
       ),
-    'getAllNotes' : IDL.Func([], [IDL.Vec(Note)], ['query']),
-    'getNote' : IDL.Func([IDL.Nat], [IDL.Opt(Note)], ['query']),
-    'getNotesByClass' : IDL.Func([ClassLevel], [IDL.Vec(Note)], ['query']),
-    'getNotesBySubject' : IDL.Func([IDL.Text], [IDL.Vec(Note)], ['query']),
+    'getAllChapters' : IDL.Func([], [IDL.Vec(ScienceNote)], ['query']),
+    'getChapter' : IDL.Func([IDL.Nat], [IDL.Opt(ScienceNote)], ['query']),
+    'getPlayerGameState' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(GameState)],
+        ['query'],
+      ),
+    'getPlayerHighScores' : IDL.Func(
+        [IDL.Text],
+        [IDL.Vec(HighScore)],
+        ['query'],
+      ),
+    'initializeChapters' : IDL.Func([], [], []),
+    'startTimer' : IDL.Func([], [IDL.Int], []),
   });
 };
 

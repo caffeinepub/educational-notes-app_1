@@ -1,42 +1,57 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { Note } from '../backend';
+import type { GameState, HighScore } from '../backend';
 
-export function useGetAllNotes() {
+export function useGetPlayerGameState(player: string) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<Note[]>({
-    queryKey: ['notes', 'all'],
+  return useQuery<GameState | null>({
+    queryKey: ['gameState', player],
     queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllNotes();
+      if (!actor) return null;
+      return actor.getPlayerGameState(player);
     },
-    enabled: !!actor && !isFetching,
+    enabled: !!actor && !isFetching && !!player,
   });
 }
 
-export function useGetNotesByClass(classLevel: number) {
+export function useGetPlayerHighScores(player: string) {
   const { actor, isFetching } = useActor();
 
-  return useQuery<Note[]>({
-    queryKey: ['notes', 'class', classLevel],
+  return useQuery<HighScore[]>({
+    queryKey: ['highScores', player],
     queryFn: async () => {
       if (!actor) return [];
-      return actor.getNotesByClass(BigInt(classLevel));
+      return actor.getPlayerHighScores(player);
     },
-    enabled: !!actor && !isFetching && classLevel >= 6 && classLevel <= 12,
+    enabled: !!actor && !isFetching && !!player,
   });
 }
 
-export function useGetNotesBySubject(subject: string) {
-  const { actor, isFetching } = useActor();
+export function useCompleteLevel() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
 
-  return useQuery<Note[]>({
-    queryKey: ['notes', 'subject', subject],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getNotesBySubject(subject);
+  return useMutation({
+    mutationFn: async ({
+      player,
+      level,
+      startTime,
+      correctAnswers,
+      totalQuestions,
+    }: {
+      player: string;
+      level: bigint;
+      startTime: bigint;
+      correctAnswers: bigint;
+      totalQuestions: bigint;
+    }) => {
+      if (!actor) throw new Error('Actor not initialized');
+      await actor.completeLevel(player, level, startTime, correctAnswers, totalQuestions);
     },
-    enabled: !!actor && !isFetching && !!subject,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['gameState', variables.player] });
+      queryClient.invalidateQueries({ queryKey: ['highScores', variables.player] });
+    },
   });
 }

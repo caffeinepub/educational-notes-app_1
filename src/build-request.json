@@ -1,136 +1,235 @@
 {
   "kind": "build_request",
-  "title": "Build educational notes app for classes 6-12",
-  "projectName": "Study Notes",
+  "title": "Build Memory Puzzle Game with Multiple Game Types",
+  "projectName": "Brain Puzzle",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a backend data model to store educational notes with fields for class level (6-12), subject name, topic title, and note content",
-      "target": "backend",
+      "text": "Create a card matching memory game where players flip cards to find matching pairs, with a grid that starts at 4x4 and expands as difficulty increases",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2",
+          "msg-3"
+        ],
+        "quotes": [
+          "Multiple Puzzle Types: Jigsaw puzzles, sliding puzzles, pattern matching, aur sequence memory",
+          "Card matching game"
         ]
       },
       "acceptanceCriteria": [
-        "Data model supports class levels from 6 to 12",
-        "Each note has subject, topic, and content fields",
-        "Notes can be retrieved by class level and subject"
+        "Card grid displays face-down cards that flip on click",
+        "Matched pairs remain face-up",
+        "Unmatched pairs flip back after brief delay",
+        "Grid size increases with difficulty level"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement backend methods to add, retrieve, and list notes filtered by class level and subject",
-      "target": "backend",
+      "text": "Implement a sliding puzzle game where players rearrange numbered tiles by sliding them into an empty space to restore correct order",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "sliding puzzles",
+          "Sliding puzzle game"
         ]
       },
       "acceptanceCriteria": [
-        "Method to add new notes with validation",
-        "Method to get all notes for a specific class",
-        "Method to get all notes for a specific subject",
-        "Method to get notes filtered by both class and subject"
+        "Grid displays numbered tiles with one empty space",
+        "Tiles adjacent to empty space can slide into it",
+        "Puzzle is solvable from shuffled starting state",
+        "Victory condition detects correct tile order"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Create a home page with navigation to browse notes by class level (6, 7, 8, 9, 10, 11, 12)",
+      "text": "Build a pattern memory game where players must replicate increasingly complex visual patterns shown briefly then hidden",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "pattern matching",
+          "Pattern memory puzzle"
         ]
       },
       "acceptanceCriteria": [
-        "Display all class levels as clickable cards or buttons",
-        "Clicking a class navigates to that class's subjects view",
-        "Clear visual hierarchy showing class organization"
+        "Pattern displays briefly then hides",
+        "Player attempts to recreate pattern",
+        "System validates player input against original pattern",
+        "Pattern complexity increases with level"
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Create a subjects listing page that displays all available subjects for the selected class",
+      "text": "Create a sequence memory game where players must remember and repeat sequences of items in correct order",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "sequence memory",
+          "Sequence memory puzzle"
         ]
       },
       "acceptanceCriteria": [
-        "Shows all subjects available for the selected class",
-        "Each subject is clickable to view its notes",
-        "Display breadcrumb or back navigation to return to class selection"
+        "Sequence displays one item at a time",
+        "Player must repeat sequence in correct order",
+        "Incorrect order results in failure",
+        "Sequence length increases with difficulty"
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Create a notes viewer page that displays all notes/topics for the selected class and subject combination",
+      "text": "Implement automatic progressive difficulty system that increases challenge after each completed level across all puzzle types",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2"
+        ],
+        "quotes": [
+          "Auto Progressive Difficulty: Game automatically harder hota jayega jaise player progress karega",
+          "Automatic progressive difficulty system"
         ]
       },
       "acceptanceCriteria": [
-        "Lists all available notes/topics for the selected filters",
-        "Each note shows its title and can be expanded to view content",
-        "Navigation to go back to subject selection",
-        "Clean, readable formatting for note content"
+        "Difficulty level increases after successful puzzle completion",
+        "Each puzzle type adjusts appropriately (more cards, larger grids, longer sequences)",
+        "Difficulty progression is consistent across game types",
+        "System tracks current difficulty level"
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Seed the backend with sample educational notes covering major subjects (Mathematics, Science, English, Social Studies, Hindi) for classes 6-12",
-      "target": "backend",
+      "text": "Add score tracking system with timer that records completion time and calculates scores based on speed and accuracy",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-2"
+        ],
+        "quotes": [
+          "Score tracking aur progress system",
+          "Score tracking, timer, aur level progress"
         ]
       },
       "acceptanceCriteria": [
-        "At least 3-5 sample notes per subject per class level",
-        "Notes contain meaningful educational content relevant to the class level",
-        "Coverage includes core subjects taught in Indian schools"
+        "Timer starts when puzzle begins",
+        "Score calculated based on completion time and moves/attempts",
+        "Scores display after puzzle completion",
+        "High scores persist across sessions"
       ]
     },
     {
       "id": "REQ-7",
-      "text": "Design a creative educational theme with warm, academic colors (avoid blue and purple), clear typography suitable for reading study material, and a consistent visual style that promotes learning",
-      "target": "frontend",
+      "text": "Create level progress tracking system that shows player advancement through difficulty levels and unlocked puzzle types",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-2"
+        ],
+        "quotes": [
+          "Level progress tracking",
+          "level progress system"
         ]
       },
       "acceptanceCriteria": [
-        "Cohesive color scheme appropriate for educational content",
-        "Typography optimized for readability of study notes",
-        "Layout supports easy navigation between classes and subjects",
-        "Visual style is consistent across all pages"
+        "Current level displays for each puzzle type",
+        "Progress indicator shows advancement",
+        "Level data persists in backend",
+        "Player can view overall progress across all puzzle types"
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "text": "Integrate Internet Identity authentication for secure user login and personalized game data",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Internet Identity se secure login",
+          "Internet Identity authentication"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Login button triggers Internet Identity flow",
+        "Authenticated users can save progress",
+        "User identity persists across sessions",
+        "Logout functionality available"
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "text": "Build Motoko backend to store game state, high scores, and player progress with queries to retrieve player-specific data",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Backend Storage: Motoko mein game state aur high scores save honge",
+          "Backend storage for game state and high scores using Motoko"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend stores individual player game states",
+        "High scores saved per player and puzzle type",
+        "Level progress persists across sessions",
+        "Query functions retrieve player-specific data"
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "text": "Design a modern, responsive game interface using React and Tailwind CSS with clean visual hierarchy and engaging brain training theme",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-2"
+        ],
+        "quotes": [
+          "Beautiful Interface: React + Tailwind CSS se modern UI",
+          "Clean, user-friendly interface"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Interface is responsive across device sizes",
+        "Visual theme conveys brain training and cognitive improvement",
+        "Clear navigation between puzzle types",
+        "Game controls are intuitive and accessible"
       ]
     }
   ],
   "constraints": [
-    "Use only Motoko for backend implementation",
-    "Use React with TypeScript and Tailwind CSS for frontend",
-    "All notes must be stored in the backend canister",
-    "Support exactly classes 6 through 12, no other grade levels"
+    "Must use single-actor Motoko backend architecture",
+    "Frontend must use React with TypeScript and Tailwind CSS",
+    "Authentication must use Internet Identity only",
+    "Do not modify immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, components/ui)"
   ],
   "nonGoals": [
-    "User authentication or personalized accounts",
-    "Note editing or contribution by users",
-    "Search functionality across notes",
-    "Downloadable PDF or offline access",
-    "Multimedia content like videos or interactive quizzes",
-    "Real-time collaboration features"
+    "Multiplayer or competitive features",
+    "Social media integration",
+    "External AI or machine learning analysis",
+    "Mobile native app development",
+    "Third-party authentication providers beyond Internet Identity"
   ],
   "imageRequirements": {
     "required": [
-      "Educational book stack illustration with warm tones for the home page hero section (books-hero.dim_1200x600.png)",
-      "Simple notebook icon for representing individual notes (notebook-icon.dim_64x64.png)"
+      "Brain icon with puzzle pieces for app logo (brain-logo.dim_128x128.png)",
+      "Card back design with neural network pattern for memory matching game (card-back.dim_200x200.png)",
+      "Abstract geometric pattern background for pattern memory game (pattern-bg.dim_800x600.png)",
+      "Trophy icon for high score display (trophy.dim_64x64.png)"
     ],
     "edits": []
   }

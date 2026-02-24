@@ -1,106 +1,263 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Educational Notes App for Classes 6-12",
+  "title": "Build Memory Puzzle Game with Multiple Game Types",
   "requirements": [
     {
-      "id": "REQ-3",
-      "summary": "Create home page with navigation to browse notes by class level (6-12)",
+      "id": "REQ-1",
+      "summary": "Create a card matching memory game with expandable difficulty grid",
       "acceptanceCriteria": [
-        "Display all class levels as clickable cards or buttons",
-        "Clicking a class navigates to that class's subjects view",
-        "Clear visual hierarchy showing class organization"
+        "Card grid displays face-down cards that flip on click",
+        "Matched pairs remain face-up",
+        "Unmatched pairs flip back after brief delay",
+        "Grid size increases with difficulty level"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/HomePage.tsx",
+          "path": "frontend/src/pages/CardMatchingGame.tsx",
           "operation": "create",
-          "description": "Create the home page component that displays class levels 6 through 12 as navigable cards. Include the generated hero image from frontend/public/assets/generated/books-hero.dim_1200x600.png as a banner. Each class card should link to /class/:classLevel route to view subjects for that class. Use warm academic color scheme avoiding blue and purple."
+          "description": "Create card matching game page with grid of flippable cards. Use the generated card-back.dim_200x200.png asset from frontend/public/assets/generated/card-back.dim_200x200.png for card back design. Implement flip animation, match detection, grid size scaling based on difficulty level (4x4 starting, expanding with levels), and game state management including move counter and timer."
         },
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wire the HomePage component into the main application router at the root path (/). Add routes for /class/:classLevel and /class/:classLevel/subject/:subject to support navigation flow. Ensure HomePage is the default landing page."
+          "path": "frontend/src/components/CardGrid.tsx",
+          "operation": "create",
+          "description": "Create reusable card grid component that renders responsive grid of card components with configurable dimensions. Handle card flip events, match validation, and visual feedback for matched/unmatched pairs."
+        },
+        {
+          "path": "frontend/src/components/Card.tsx",
+          "operation": "create",
+          "description": "Create individual card component with flip animation, face-up/face-down states, and click handler. Reference the generated card-back.dim_200x200.png asset from frontend/public/assets/generated/card-back.dim_200x200.png for the card back visual."
+        },
+        {
+          "path": "frontend/src/hooks/useCardGame.ts",
+          "operation": "create",
+          "description": "Create custom hook managing card game state including card positions, flip states, match tracking, move counter, and game completion detection. Implement logic for pair matching, card reset after failed match, and difficulty-based grid generation."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Implement sliding puzzle game with tile rearrangement mechanics",
+      "acceptanceCriteria": [
+        "Grid displays numbered tiles with one empty space",
+        "Tiles adjacent to empty space can slide into it",
+        "Puzzle is solvable from shuffled starting state",
+        "Victory condition detects correct tile order"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SlidingPuzzleGame.tsx",
+          "operation": "create",
+          "description": "Create sliding puzzle game page with numbered tile grid and empty space. Implement tile sliding mechanics, solvable shuffle algorithm, victory detection, move counter, and timer. Grid size scales with difficulty level."
+        },
+        {
+          "path": "frontend/src/components/SlidingTile.tsx",
+          "operation": "create",
+          "description": "Create tile component displaying number with slide animation. Handle click events for adjacent tiles and visual states for empty space and numbered tiles."
+        },
+        {
+          "path": "frontend/src/hooks/useSlidingPuzzle.ts",
+          "operation": "create",
+          "description": "Create custom hook managing sliding puzzle state including tile positions, empty space location, move validation, solvable shuffle generation, and victory condition checking. Implement difficulty-based grid sizing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Build pattern memory game with brief display and replication mechanics",
+      "acceptanceCriteria": [
+        "Pattern displays briefly then hides",
+        "Player attempts to recreate pattern",
+        "System validates player input against original pattern",
+        "Pattern complexity increases with level"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/PatternMemoryGame.tsx",
+          "operation": "create",
+          "description": "Create pattern memory game page with grid for pattern display and input. Use the generated pattern-bg.dim_800x600.png asset from frontend/public/assets/generated/pattern-bg.dim_800x600.png as background visual. Implement timed pattern display, input collection phase, validation logic, and difficulty-based pattern complexity scaling."
+        },
+        {
+          "path": "frontend/src/components/PatternGrid.tsx",
+          "operation": "create",
+          "description": "Create pattern grid component displaying colored or highlighted cells for memorization. Support both display mode (showing pattern) and input mode (player recreation) with visual feedback."
+        },
+        {
+          "path": "frontend/src/hooks/usePatternMemory.ts",
+          "operation": "create",
+          "description": "Create custom hook managing pattern generation, display timing, input collection, validation against original pattern, and difficulty-based complexity scaling (grid size, number of highlighted cells)."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Create subjects listing page for selected class",
+      "summary": "Create sequence memory game with sequential item display and replication",
       "acceptanceCriteria": [
-        "Shows all subjects available for the selected class",
-        "Each subject is clickable to view its notes",
-        "Display breadcrumb or back navigation to return to class selection"
+        "Sequence displays one item at a time",
+        "Player must repeat sequence in correct order",
+        "Incorrect order results in failure",
+        "Sequence length increases with difficulty"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SubjectsPage.tsx",
+          "path": "frontend/src/pages/SequenceMemoryGame.tsx",
           "operation": "create",
-          "description": "Create the subjects listing page component that fetches notes for the selected class using getNotesByClass backend method. Extract unique subjects from the returned notes and display them as clickable cards. Include breadcrumb navigation showing 'Home > Class X'. Each subject card should navigate to /class/:classLevel/subject/:subject route."
+          "description": "Create sequence memory game page with sequential item display and player input collection. Implement timed sequence playback, input phase, order validation, visual feedback for correct/incorrect attempts, and difficulty-based sequence length scaling."
         },
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Register the SubjectsPage component in the router at path /class/:classLevel. Ensure proper route parameter extraction for classLevel."
+          "path": "frontend/src/components/SequenceItem.tsx",
+          "operation": "create",
+          "description": "Create sequence item component with highlight animation for display phase and clickable state for input phase. Support various visual representations (colors, shapes, numbers)."
+        },
+        {
+          "path": "frontend/src/hooks/useSequenceMemory.ts",
+          "operation": "create",
+          "description": "Create custom hook managing sequence generation, playback timing, input collection, order validation, and difficulty-based sequence length scaling. Track player attempts and provide feedback."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Create notes viewer page for selected class and subject",
+      "summary": "Implement automatic progressive difficulty system across all puzzle types",
       "acceptanceCriteria": [
-        "Lists all available notes/topics for the selected filters",
-        "Each note shows its title and can be expanded to view content",
-        "Navigation to go back to subject selection",
-        "Clean, readable formatting for note content"
+        "Difficulty level increases after successful puzzle completion",
+        "Each puzzle type adjusts appropriately (more cards, larger grids, longer sequences)",
+        "Difficulty progression is consistent across game types",
+        "System tracks current difficulty level"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/NotesPage.tsx",
+          "path": "frontend/src/hooks/useDifficulty.ts",
           "operation": "create",
-          "description": "Create the notes viewer page that fetches all notes using getAllNotes backend method and filters them by the selected class level and subject from route parameters. Display notes as expandable cards showing topic titles with the notebook icon from frontend/public/assets/generated/notebook-icon.dim_64x64.png. Include breadcrumb navigation showing 'Home > Class X > Subject'. Use typography optimized for reading study material with proper spacing and line height."
+          "description": "Create custom hook managing difficulty progression across all puzzle types. Track current level per puzzle type, implement level-up logic on completion, provide difficulty parameters (grid size, sequence length) based on current level, and persist difficulty state."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/utils/difficultyConfig.ts",
+          "operation": "create",
+          "description": "Create difficulty configuration utility defining progression parameters for each puzzle type including grid sizes, card counts, sequence lengths, pattern complexity, and timing adjustments per level."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add score tracking system with timer and speed/accuracy calculation",
+      "acceptanceCriteria": [
+        "Timer starts when puzzle begins",
+        "Score calculated based on completion time and moves/attempts",
+        "Scores display after puzzle completion",
+        "High scores persist across sessions"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useGameTimer.ts",
+          "operation": "create",
+          "description": "Create custom hook managing game timer with start, pause, stop, and elapsed time tracking. Integrate with backend startTimer method for server-side timestamp synchronization."
+        },
+        {
+          "path": "frontend/src/hooks/useScoreCalculation.ts",
+          "operation": "create",
+          "description": "Create custom hook calculating scores based on completion time, number of moves/attempts, and difficulty level. Implement scoring formula rewarding speed and accuracy."
+        },
+        {
+          "path": "frontend/src/components/GameScore.tsx",
+          "operation": "create",
+          "description": "Create score display component showing completion time, moves/attempts, calculated score, and high score comparison. Use the generated trophy.dim_64x64.png asset from frontend/public/assets/generated/trophy.dim_64x64.png for high score indicator. Include visual celebrations for new high scores."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Register the NotesPage component in the router at path /class/:classLevel/subject/:subject. Ensure proper extraction of both classLevel and subject route parameters."
-        },
-        {
-          "path": "frontend/src/components/NoteCard.tsx",
-          "operation": "create",
-          "description": "Create a reusable NoteCard component that displays a note with expandable/collapsible content. Show the notebook icon from frontend/public/assets/generated/notebook-icon.dim_64x64.png alongside the topic title. When expanded, render the note content with proper formatting for readability. Use warm academic colors for the card design."
+          "description": "Add React Query hooks for fetching player high scores using getPlayerHighScores backend method and mutation hook for completing levels with completeLevel backend method. Invalidate score queries after level completion."
         }
       ]
     },
     {
       "id": "REQ-7",
-      "summary": "Design creative educational theme with warm academic colors and clear typography",
+      "summary": "Create level progress tracking system with persistence",
       "acceptanceCriteria": [
-        "Cohesive color scheme appropriate for educational content",
-        "Typography optimized for readability of study notes",
-        "Layout supports easy navigation between classes and subjects",
-        "Visual style is consistent across all pages"
+        "Current level displays for each puzzle type",
+        "Progress indicator shows advancement",
+        "Level data persists in backend",
+        "Player can view overall progress across all puzzle types"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ProgressTracker.tsx",
+          "operation": "create",
+          "description": "Create progress tracking component displaying current level, unlocked puzzle types, and overall advancement indicators for all game types. Show visual progress bars or level indicators."
+        },
+        {
+          "path": "frontend/src/pages/ProgressPage.tsx",
+          "operation": "create",
+          "description": "Create dedicated progress page displaying comprehensive player statistics including levels per puzzle type, high scores, completion history, and unlocked content. Fetch data using getPlayerGameState backend method."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add React Query hook for fetching player game state using getPlayerGameState backend method. Handle loading states and data synchronization for level progress and unlocked puzzles."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Integrate Internet Identity authentication for secure login",
+      "acceptanceCriteria": [
+        "Login button triggers Internet Identity flow",
+        "Authenticated users can save progress",
+        "User identity persists across sessions",
+        "Logout functionality available"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Update layout header to include Internet Identity login/logout button. Display authenticated user status and show brain-logo.dim_128x128.png from frontend/public/assets/generated/brain-logo.dim_128x128.png as app logo. Use existing useInternetIdentity hook for authentication state and actions."
+        },
+        {
+          "path": "frontend/src/components/AuthGuard.tsx",
+          "operation": "create",
+          "description": "Create authentication guard component that wraps game pages requiring login. Redirect unauthenticated users to login prompt using useInternetIdentity hook. Allow guest play with warning about unsaved progress."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Design modern responsive game interface with brain training theme",
+      "acceptanceCriteria": [
+        "Interface is responsive across device sizes",
+        "Visual theme conveys brain training and cognitive improvement",
+        "Clear navigation between puzzle types",
+        "Game controls are intuitive and accessible"
       ],
       "file_operations": [
         {
           "path": "frontend/src/index.css",
           "operation": "modify",
-          "description": "Define the global educational theme using warm academic colors (avoid blue and purple). Include color palette with earth tones, warm oranges, greens, and browns suitable for learning. Set base typography with clear, readable fonts optimized for study content with appropriate line heights and spacing."
-        },
-        {
-          "path": "frontend/tailwind.config.js",
-          "operation": "modify",
-          "description": "Extend Tailwind configuration with custom educational theme colors matching the warm academic palette defined in index.css. Add custom font families suitable for educational content readability. Configure spacing and typography scales to support easy reading of study notes."
+          "description": "Update CSS variables and Tailwind configuration to implement brain training theme with cognitive improvement color palette (purples, blues, energizing accents). Maintain existing OKLCH color space approach and add brain/puzzle visual motifs."
         },
         {
           "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Update layout component to reflect brain training theme. Replace existing educational app title with 'Brain Puzzle' branding and use brain-logo.dim_128x128.png from frontend/public/assets/generated/brain-logo.dim_128x128.png. Update footer attribution for puzzle game context."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Transform existing landing page into puzzle game selector showing all available puzzle types (Card Matching, Sliding Puzzle, Pattern Memory, Sequence Memory) with visual cards, descriptions, and current level indicators. Add hero section with brain training messaging and cognitive improvement benefits."
+        },
+        {
+          "path": "frontend/src/components/GameCard.tsx",
           "operation": "create",
-          "description": "Create a Layout component that wraps all pages with consistent header, navigation structure, and footer. Include branding elements and apply the warm educational theme consistently. Provide breadcrumb navigation support that can be used across SubjectsPage and NotesPage."
+          "description": "Create game type selection card component displaying puzzle type name, description, current level, high score preview, and play button. Use consistent card styling with hover effects and accessibility features."
+        },
+        {
+          "path": "frontend/src/components/GameControls.tsx",
+          "operation": "create",
+          "description": "Create reusable game controls component with pause, restart, hint (where applicable), and quit buttons. Ensure controls are accessible, responsive, and consistently styled across all game types."
         },
         {
           "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Wrap all route components with the Layout component to ensure consistent visual style and navigation across the entire application."
+          "description": "Update router configuration to include routes for all puzzle game pages (CardMatchingGame, SlidingPuzzleGame, PatternMemoryGame, SequenceMemoryGame, ProgressPage). Update home route to use new HomePage game selector. Wrap game routes with AuthGuard component for authenticated access."
         }
       ]
     }

@@ -1,41 +1,87 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Educational notes app for students with comprehensive study material covering all subjects for classes 6 to 12, allowing browsing by class and subject",
-  "architectural_notes": [],
+  "summary": "Memory puzzle game with multiple puzzle types (card matching, sliding puzzle, pattern memory, sequence memory) that automatically increases difficulty as player progresses. Features brain training focus with score tracking, timer, and level progress system.",
+  "architectural_notes": [
+    "Frontend: React + TypeScript with Tailwind CSS for UI",
+    "Backend: Motoko for game state and score persistence",
+    "Authentication: Internet Identity for secure login",
+    "Game Design: Progressive difficulty - automatically increases after each level completion",
+    "Brain Training Focus: Multiple puzzle types designed to improve memory and cognitive skills"
+  ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- Educational book stack illustration with warm tones for the home page hero section (books-hero.dim_1200x600.png)\n- Simple notebook icon for representing individual notes (notebook-icon.dim_64x64.png)",
+  "imageRequirements": "## Required Images\n- Brain icon with puzzle pieces for app logo (brain-logo.dim_128x128.png)\n- Card back design with neural network pattern for memory matching game (card-back.dim_200x200.png)\n- Abstract geometric pattern background for pattern memory game (pattern-bg.dim_800x600.png)\n- Trophy icon for high score display (trophy.dim_64x64.png)",
   "existing_features": [
     {
-      "id": "feature-create-a-home-page-with-navigation-to-browse-notes-by-class-level-6-7-8-9-10-11-12",
-      "title": "Create a home page with navigation to browse notes by class level (6, 7, 8, 9, 10, 11, 12)",
+      "id": "feature-create-a-card-matching-memory-game-where-players-flip-cards-to-find-matching-pairs-with-a-grid-that-starts-at-4x4-and-expands-as-difficulty-increases",
+      "title": "Create a card matching memory game where players flip cards to find matching pairs, with a grid that starts at 4x4 and expands as difficulty increases",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-sliding-puzzle-game-where-players-rearrange-numbered-tiles-by-sliding-them-into-an-empty-space-to-restore-correct-order",
+      "title": "Implement a sliding puzzle game where players rearrange numbered tiles by sliding them into an empty space to restore correct order",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-pattern-memory-game-where-players-must-replicate-increasingly-complex-visual-patterns-shown-briefly-then-hidden",
+      "title": "Build a pattern memory game where players must replicate increasingly complex visual patterns shown briefly then hidden",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-subjects-listing-page-that-displays-all-available-subjects-for-the-selected-class",
-      "title": "Create a subjects listing page that displays all available subjects for the selected class",
+      "id": "feature-create-a-sequence-memory-game-where-players-must-remember-and-repeat-sequences-of-items-in-correct-order",
+      "title": "Create a sequence memory game where players must remember and repeat sequences of items in correct order",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-notes-viewer-page-that-displays-all-notes-topics-for-the-selected-class-and-subject-combination",
-      "title": "Create a notes viewer page that displays all notes/topics for the selected class and subject combination",
+      "id": "feature-implement-automatic-progressive-difficulty-system-that-increases-challenge-after-each-completed-level-across-all-puzzle-types",
+      "title": "Implement automatic progressive difficulty system that increases challenge after each completed level across all puzzle types",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-design-a-creative-educational-theme-with-warm-academic-colors-avoid-blue-and-purple-clear-typography-suitable-for-reading-study-material-and-a-consistent-visual-style-that-promotes-learning",
-      "title": "Design a creative educational theme with warm, academic colors (avoid blue and purple), clear typography suitable for reading study material, and a consistent visual style that promotes learning",
+      "id": "feature-add-score-tracking-system-with-timer-that-records-completion-time-and-calculates-scores-based-on-speed-and-accuracy",
+      "title": "Add score tracking system with timer that records completion time and calculates scores based on speed and accuracy",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-level-progress-tracking-system-that-shows-player-advancement-through-difficulty-levels-and-unlocked-puzzle-types",
+      "title": "Create level progress tracking system that shows player advancement through difficulty levels and unlocked puzzle types",
       "reqIds": [
         "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-integrate-internet-identity-authentication-for-secure-user-login-and-personalized-game-data",
+      "title": "Integrate Internet Identity authentication for secure user login and personalized game data",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-design-a-modern-responsive-game-interface-using-react-and-tailwind-css-with-clean-visual-hierarchy-and-engaging-brain-training-theme",
+      "title": "Design a modern, responsive game interface using React and Tailwind CSS with clean visual hierarchy and engaging brain training theme",
+      "reqIds": [
+        "REQ-10"
       ],
       "version": 1
     }
@@ -43,49 +89,74 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Notes content for classes 6 to 12 across all subjects",
+      "summary": "Card matching puzzle game",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Browse notes by class level (6-12)",
+      "summary": "Sliding puzzle game",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Browse notes by subject",
+      "summary": "Pattern memory puzzle",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Create a backend data model to store educational notes with fields for class level (6-12), subject name, topic title, and note content",
-      "reqIds": [
-        "REQ-1"
-      ],
+      "summary": "Sequence memory puzzle",
+      "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-5",
-      "summary": "Implement backend methods to add, retrieve, and list notes filtered by class level and subject",
+      "summary": "Automatic progressive difficulty system",
       "reqIds": [
-        "REQ-2"
+        "AR-1",
+        "AR-2",
+        "AR-3",
+        "AR-4"
       ],
       "status": "pending"
     },
     {
+      "id": "AR-6",
+      "summary": "Score tracking and timer system",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Level progress tracking",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Internet Identity authentication",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
       "id": "AR-9",
-      "summary": "Seed the backend with sample educational notes covering major subjects (Mathematics, Science, English, Social Studies, Hindi) for classes 6-12",
+      "summary": "Backend storage for game state and high scores using Motoko",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Build Motoko backend to store game state, high scores, and player progress with queries to retrieve player-specific data",
       "reqIds": [
-        "REQ-6"
+        "REQ-9"
       ],
       "status": "pending"
     }
   ],
-  "gameProjectType": "none",
-  "projectName": "Educational Notes App",
+  "gameProjectType": "2d",
+  "projectName": "Memory Puzzle Game",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

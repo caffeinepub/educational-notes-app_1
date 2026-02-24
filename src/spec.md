@@ -1,15 +1,18 @@
 # Specification
 
 ## Summary
-**Goal:** Build an educational notes application for classes 6-12 with organized browsing by class level and subject.
+**Goal:** Build a comprehensive brain training puzzle game with multiple puzzle types (card matching, sliding puzzle, pattern memory, sequence memory), progressive difficulty, score tracking, and Internet Identity authentication.
 
 **Planned changes:**
-- Create backend data model to store notes with class level (6-12), subject, topic, and content fields
-- Implement backend methods to add and retrieve notes filtered by class and subject
-- Build home page with navigation cards for each class level (6-12)
-- Create subjects listing page showing available subjects for selected class
-- Build notes viewer page displaying all topics for selected class and subject with expandable content
-- Seed backend with sample educational notes covering Mathematics, Science, English, Social Studies, and Hindi for all class levels
-- Design educational theme with warm academic colors (avoiding blue/purple), readable typography, and consistent visual style
+- Create card matching memory game with expandable grid (4x4 base)
+- Implement sliding puzzle with numbered tiles
+- Build pattern memory game with visual pattern replication
+- Add sequence memory game with order-based challenges
+- Implement automatic progressive difficulty system across all puzzle types
+- Add score tracking with timer and performance-based scoring
+- Create level progress tracking system
+- Integrate Internet Identity authentication for secure login
+- Build Motoko backend to store game state, high scores, and player progress
+- Design modern, responsive UI using React and Tailwind CSS with brain training theme
 
-**User-visible outcome:** Users can browse educational notes by selecting a class level, then a subject, and view organized study material with clear navigation and readable formatting.
+**User-visible outcome:** Users can play four different types of brain training puzzle games, each with increasing difficulty levels, while their progress and high scores are saved securely through Internet Identity authentication.

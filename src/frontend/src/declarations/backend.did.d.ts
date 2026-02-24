@@ -10,19 +10,37 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export type ClassLevel = bigint;
-export interface Note {
-  'topic' : string,
+export interface GameState {
+  'score' : bigint,
+  'currentLevel' : bigint,
+  'timeTaken' : bigint,
+  'unlockedPuzzles' : Array<string>,
+}
+export interface HighScore {
+  'player' : string,
+  'level' : bigint,
+  'score' : bigint,
+  'timeTaken' : bigint,
+}
+export interface ScienceNote {
+  'importantPoints' : Array<string>,
   'content' : string,
-  'subject' : string,
-  'classLevel' : ClassLevel,
+  'chapterNumber' : bigint,
+  'chapterTitle' : string,
+  'definitions' : Array<string>,
+  'examples' : Array<string>,
 }
 export interface _SERVICE {
-  'addNote' : ActorMethod<[ClassLevel, string, string, string], bigint>,
-  'getAllNotes' : ActorMethod<[], Array<Note>>,
-  'getNote' : ActorMethod<[bigint], [] | [Note]>,
-  'getNotesByClass' : ActorMethod<[ClassLevel], Array<Note>>,
-  'getNotesBySubject' : ActorMethod<[string], Array<Note>>,
+  'completeLevel' : ActorMethod<
+    [string, bigint, bigint, bigint, bigint],
+    undefined
+  >,
+  'getAllChapters' : ActorMethod<[], Array<ScienceNote>>,
+  'getChapter' : ActorMethod<[bigint], [] | [ScienceNote]>,
+  'getPlayerGameState' : ActorMethod<[string], [] | [GameState]>,
+  'getPlayerHighScores' : ActorMethod<[string], Array<HighScore>>,
+  'initializeChapters' : ActorMethod<[], undefined>,
+  'startTimer' : ActorMethod<[], bigint>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

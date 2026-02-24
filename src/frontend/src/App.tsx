@@ -1,7 +1,10 @@
-import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet } from '@tanstack/react-router';
+import { createRouter, createRoute, createRootRoute, RouterProvider } from '@tanstack/react-router';
 import HomePage from './pages/HomePage';
-import SubjectsPage from './pages/SubjectsPage';
-import NotesPage from './pages/NotesPage';
+import CardMatchingGame from './pages/CardMatchingGame';
+import SlidingPuzzleGame from './pages/SlidingPuzzleGame';
+import PatternMemoryGame from './pages/PatternMemoryGame';
+import SequenceMemoryGame from './pages/SequenceMemoryGame';
+import ProgressPage from './pages/ProgressPage';
 import Layout from './components/Layout';
 
 const rootRoute = createRootRoute({
@@ -14,19 +17,44 @@ const indexRoute = createRoute({
   component: HomePage,
 });
 
-const classRoute = createRoute({
+const cardMatchingRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/class/$classLevel',
-  component: SubjectsPage,
+  path: '/card-matching',
+  component: CardMatchingGame,
 });
 
-const notesRoute = createRoute({
+const slidingPuzzleRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/class/$classLevel/subject/$subject',
-  component: NotesPage,
+  path: '/sliding-puzzle',
+  component: SlidingPuzzleGame,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, classRoute, notesRoute]);
+const patternMemoryRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/pattern-memory',
+  component: PatternMemoryGame,
+});
+
+const sequenceMemoryRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sequence-memory',
+  component: SequenceMemoryGame,
+});
+
+const progressRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/progress',
+  component: ProgressPage,
+});
+
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  cardMatchingRoute,
+  slidingPuzzleRoute,
+  patternMemoryRoute,
+  sequenceMemoryRoute,
+  progressRoute,
+]);
 
 const router = createRouter({ routeTree });
 
