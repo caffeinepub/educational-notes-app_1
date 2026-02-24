@@ -1,0 +1,82 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-create-a-usememorytest-custom-react-hook-that-manages-the-memory-test-game-logic-displays-10-everyday-objects-with-emoji-text-for-10-seconds-then-hides-them-and-starts-a-25-second-countdown-accepts-user-typed-object-names-one-at-a-time-via-enter-key-tracks-how-many-of-the-10-objects-have-been-correctly-recalled-and-determines-win-all-10-recalled-before-time-runs-out-or-loss-timer-reaches-zero",
+      "featureTitle": "Create a useMemoryTest custom React hook that manages the Memory Test game logic: displays 10 everyday objects (with emoji + text) for 10 seconds, then hides them and starts a 25-second countdown, accepts user-typed object names one at a time via Enter key, tracks how many of the 10 objects have been correctly recalled, and determines win (all 10 recalled before time runs out) or loss (timer reaches zero).",
+      "files": [
+        "frontend/src/hooks/useMemoryTest.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-memorytestgame-page-at-a-new-route-e-g-memory-test-that-renders-the-memory-test-game-ui-shows-a-grid-of-10-object-cards-emoji-label-during-the-memorize-phase-with-a-10-second-countdown-then-hides-the-objects-and-shows-a-search-input-bar-with-a-25-second-timer-during-the-recall-phase-displays-a-list-of-already-recalled-objects-and-shows-a-win-loss-result-screen-on-completion-save-the-result-to-the-backend-using-the-usecompletelevel-mutation-hook-on-game-end",
+      "featureTitle": "Create a MemoryTestGame page at a new route (e.g., /memory-test) that renders the Memory Test game UI: shows a grid of 10 object cards (emoji + label) during the memorize phase with a 10-second countdown, then hides the objects and shows a search/input bar with a 25-second timer during the recall phase, displays a list of already-recalled objects, and shows a win/loss result screen on completion. Save the result to the backend using the useCompleteLevel mutation hook on game end.",
+      "files": [
+        "frontend/src/pages/MemoryTestGame.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-register-the-memory-test-route-in-app-tsx-and-add-the-memory-test-game-card-to-the-homepage-below-all-existing-game-cards-using-a-consistent-gamecard-component-with-the-game-s-title-memory-test-a-short-description-and-an-appropriate-icon",
+      "featureTitle": "Register the /memory-test route in App.tsx and add the Memory Test game card to the HomePage below all existing game cards, using a consistent GameCard component with the game's title 'Memory Test', a short description, and an appropriate icon.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/HomePage.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-difficulty-configuration-entry-for-memorytest-in-difficultyconfig-ts-with-appropriate-settings-across-5-levels-e-g-varying-the-number-of-objects-shown-or-time-limits-in-future-levels-defaulting-to-10-objects-10-second-memorize-phase-and-25-second-recall-phase-at-level-1",
+      "featureTitle": "Add a difficulty configuration entry for 'memoryTest' in difficultyConfig.ts with appropriate settings across 5 levels (e.g., varying the number of objects shown, or time limits in future levels), defaulting to 10 objects, 10-second memorize phase, and 25-second recall phase at level 1.",
+      "files": [
+        "frontend/src/utils/difficultyConfig.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

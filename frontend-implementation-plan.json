@@ -1,0 +1,90 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Add Memory Test Game to Brain Training App",
+  "requirements": [
+    {
+      "id": "REQ-2",
+      "summary": "Create useMemoryTest custom React hook that manages Memory Test game logic with memorize and recall phases",
+      "acceptanceCriteria": [
+        "Hook exposes game phase: 'memorize' | 'recall' | 'won' | 'lost'",
+        "During 'memorize' phase, 10 objects are visible with a 10-second countdown",
+        "After 10 seconds, phase transitions to 'recall' and objects are hidden",
+        "During 'recall' phase, a 25-second countdown is active",
+        "User can type an object name, press Enter, and the hook validates it (case-insensitive)",
+        "Correctly recalled objects are tracked and displayed",
+        "Phase transitions to 'won' when all 10 objects are correctly recalled",
+        "Phase transitions to 'lost' when the 25-second timer expires",
+        "Hook provides a reset function to restart the game"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/hooks/useMemoryTest.ts",
+          "operation": "create",
+          "description": "Create custom React hook that manages Memory Test game state. Hook generates 10 everyday objects (emoji + text label) at level 1, starts with a 'memorize' phase showing objects for 10 seconds with countdown, transitions to 'recall' phase hiding objects and starting a 25-second countdown timer, validates user-typed object names (case-insensitive, one at a time via Enter key), tracks correctly recalled objects, determines win when all 10 are recalled or loss when timer expires, and provides reset function. Use difficultyConfig to fetch configuration (objectCount, memorizeTime, recallTime) for the current level."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Create MemoryTestGame page with memorize/recall UI phases and result screens, saving completion to backend",
+      "acceptanceCriteria": [
+        "Route /memory-test renders the MemoryTestGame page",
+        "Memorize phase shows 10 object cards in a responsive grid with emoji and text label, and a visible 10-second countdown",
+        "After 10 seconds, cards disappear and a text input (search bar) appears",
+        "Recall phase shows the 25-second timer prominently",
+        "User can type an object name and press Enter to submit; correctly recalled objects appear in a list below the input",
+        "Invalid or duplicate entries are silently ignored or show a subtle error",
+        "Win screen appears when all 10 objects are recalled; loss screen appears when the timer expires",
+        "Game result is saved to the backend via useCompleteLevel",
+        "Restart button resets the game back to the memorize phase",
+        "Back-to-menu button navigates to the home page"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/MemoryTestGame.tsx",
+          "operation": "create",
+          "description": "Create Memory Test game page component that uses useMemoryTest hook to manage game state. During memorize phase, render a responsive grid of 10 object cards (emoji + label) with a prominent 10-second countdown timer. After memorize phase ends, hide cards and display a search/input bar (text input with Enter key submission) and 25-second countdown timer for the recall phase. Display a list of correctly recalled objects below the input. Show a win result screen when all 10 objects are recalled, or loss screen when timer expires. Include restart button (calls reset function) and back-to-menu button (navigates to /). Save game completion to backend using the useCompleteLevel mutation hook from frontend/src/hooks/useQueries.ts when game ends (won or lost). Use consistent styling with other game pages (CardMatchingGame.tsx, SlidingPuzzleGame.tsx, etc.)."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Register /memory-test route in App.tsx and add Memory Test game card to HomePage",
+      "acceptanceCriteria": [
+        "App.tsx includes a route for /memory-test pointing to MemoryTestGame page",
+        "HomePage displays a Memory Test GameCard below all existing game cards",
+        "GameCard shows title 'Memory Test', a short description, and an icon",
+        "Clicking the card navigates to /memory-test"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new route for /memory-test that renders the MemoryTestGame page component. Import MemoryTestGame from pages/MemoryTestGame.tsx and register it in the router configuration alongside existing game routes (card-matching, sliding-puzzle, pattern-memory, sequence-memory, stroop-effect)."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Add a new GameCard component for Memory Test game below all existing game cards (Card Matching, Sliding Puzzle, Pattern Memory, Sequence Memory, Stroop Effect). Use the generated icon image at workspace file path frontend/public/assets/generated/memory-test-icon.dim_128x128.png. Set title to 'Memory Test', provide a short description (e.g., 'Remember objects and recall them from memory'), and configure the card to navigate to /memory-test when clicked. Maintain consistent styling with other GameCard components on the page."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Add difficulty configuration for memoryTest game type with 5 levels",
+      "acceptanceCriteria": [
+        "difficultyConfig.ts exports configuration for memoryTest game type",
+        "Level 1 config specifies 10 objects, 10-second memorize timer, 25-second recall timer",
+        "5 levels are defined with progressively increasing difficulty"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/utils/difficultyConfig.ts",
+          "operation": "modify",
+          "description": "Add a new memoryTest configuration entry to the difficultyConfig export. Define 5 levels with progressively increasing difficulty. Level 1 should specify objectCount: 10, memorizeTime: 10 (seconds), recallTime: 25 (seconds). Increase difficulty in subsequent levels by adjusting objectCount (e.g., 12, 15, 18, 20), reducing memorizeTime (e.g., 10, 9, 8, 7, 6 seconds), or reducing recallTime (e.g., 25, 23, 20, 18, 15 seconds). Follow the same structure and naming conventions as existing game type configurations (cardMatching, slidingPuzzle, patternMemory, sequenceMemory, stroopEffect)."
+        }
+      ]
+    }
+  ]
+}
