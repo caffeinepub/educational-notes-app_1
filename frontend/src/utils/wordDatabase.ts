@@ -1,46 +1,17 @@
-export type Difficulty = 'easy' | 'hard';
-export type WordCategory = 'animals' | 'fruits' | 'dailyUse';
+export const easyWords = [
+  'cat', 'dog', 'sun', 'run', 'hat', 'bat', 'map', 'cup', 'pen', 'box',
+  'ant', 'bee', 'cow', 'egg', 'fan', 'gem', 'hen', 'ink', 'jam', 'key',
+  'lip', 'mud', 'net', 'oak', 'pig', 'rat', 'sea', 'tin', 'urn', 'van',
+];
 
-export interface WordEntry {
-  word: string;
-  category: WordCategory;
-  difficulty: Difficulty;
-}
+export const hardWords = [
+  'elephant', 'giraffe', 'dolphin', 'penguin', 'leopard', 'panther',
+  'butterfly', 'crocodile', 'kangaroo', 'flamingo', 'porcupine', 'chameleon',
+  'strawberry', 'pineapple', 'blueberry', 'watermelon', 'raspberry', 'blackberry',
+  'umbrella', 'calendar', 'computer', 'keyboard', 'notebook', 'telephone',
+];
 
-// Easy words: 3-5 letters
-const easyAnimals = ['cat', 'dog', 'cow', 'hen', 'pig', 'fox', 'owl', 'bee', 'ant', 'bat', 'rat', 'elk'];
-const easyFruits = ['fig', 'plum', 'lime', 'pear', 'kiwi', 'date', 'guava', 'mango', 'grape', 'peach', 'lemon', 'melon'];
-const easyDailyUse = ['book', 'pen', 'cup', 'bag', 'key', 'door', 'lamp', 'desk', 'soap', 'comb', 'fork', 'bowl'];
-
-// Hard words: 6+ letters
-const hardAnimals = ['elephant', 'giraffe', 'dolphin', 'penguin', 'leopard', 'cheetah', 'gorilla', 'hamster', 'panther', 'buffalo', 'ostrich', 'peacock'];
-const hardFruits = ['apricot', 'avocado', 'coconut', 'papaya', 'mango', 'pineapple', 'blueberry', 'raspberry', 'strawberry', 'watermelon', 'pomegranate', 'dragonfruit'];
-const hardDailyUse = ['blanket', 'kitchen', 'cabinet', 'curtain', 'pillow', 'mirror', 'bottle', 'scissors', 'umbrella', 'calendar', 'notebook', 'backpack'];
-
-export const wordDatabase = {
-  easy: {
-    animals: easyAnimals,
-    fruits: easyFruits,
-    dailyUse: easyDailyUse,
-  },
-  hard: {
-    animals: hardAnimals,
-    fruits: hardFruits,
-    dailyUse: hardDailyUse,
-  },
-};
-
-export function getAllWords(difficulty: Difficulty): string[] {
-  const db = wordDatabase[difficulty];
-  return [...db.animals, ...db.fruits, ...db.dailyUse];
-}
-
-export function getRandomWord(difficulty: Difficulty): string {
-  const words = getAllWords(difficulty);
-  return words[Math.floor(Math.random() * words.length)];
-}
-
-export function getRandomWordFromAll(): string {
-  const allWords = [...getAllWords('easy'), ...getAllWords('hard')];
-  return allWords[Math.floor(Math.random() * allWords.length)];
+export function getRandomWord(difficulty: 'easy' | 'hard'): string {
+  const list = difficulty === 'easy' ? easyWords : hardWords;
+  return list[Math.floor(Math.random() * list.length)];
 }

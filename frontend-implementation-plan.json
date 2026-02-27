@@ -1,101 +1,191 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add short sound effects to all games",
+  "title": "Rebuild Memory Increase Brain Training Game App",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Create a custom useSoundEffects hook that generates and plays three short sound effects using the Web Audio API: a soft click/tap sound on every interactive button press, a cheerful success chime on correct answers, and a low buzz/error sound on wrong answers",
+      "summary": "Rebuild and redeploy the entire Memory Increase Brain Training Game application frontend to ensure all games, navigation, authentication, and PWA features work with the new canister deployment",
       "acceptanceCriteria": [
-        "useSoundEffects hook is created at frontend/src/hooks/useSoundEffects.ts",
-        "playClick() produces a short, soft tap sound",
-        "playSuccess() produces a short, cheerful success chime",
-        "playError() produces a short buzz/error sound",
-        "All sounds are generated programmatically via Web Audio API — no audio files required",
-        "Hook handles cases where AudioContext is not available gracefully (no crash)"
+        "App deploys successfully with a new canister ID",
+        "New live URL opens the Memory Increase app without 'Canister ID not resolved' error",
+        "All existing games (Card Matching, Memory Test, Pattern Memory, Sequence Memory, Sliding Puzzle, Stroop Effect, Speed Typing, Word Scramble, Missing Letter, Fill in the Blanks) are accessible",
+        "Home page loads with all game cards visible",
+        "Backend actor initializes correctly with user profile and high score functionality",
+        "Background music controls work in the header",
+        "Progress page loads and shows player stats when logged in",
+        "PWA manifest and service worker are active so users can install via 'Add to Home Screen'"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useSoundEffects.ts",
-          "operation": "create",
-          "description": "Create a custom React hook that uses the Web Audio API to generate three short sound effects programmatically. Implement playClick() to produce a soft tap sound (high-frequency short sine wave with quick decay), playSuccess() to produce a cheerful success chime (ascending frequency tones with pleasant decay), and playError() to produce a low buzz/error sound (low-frequency descending tone with abrupt decay). All sounds must be under 500ms duration. Include graceful error handling for environments where AudioContext is unavailable, returning no-op functions in that case. Use useCallback to memoize the play functions."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Integrate sound effects into all Section A game pages: CardMatchingGame, MemoryTestGame, PatternMemoryGame, SequenceMemoryGame, SlidingPuzzleGame, StroopEffectGame, and SpeedTypingGame",
-      "acceptanceCriteria": [
-        "CardMatchingGame plays click on card flip, success on match found, error on mismatch",
-        "MemoryTestGame plays click on input submission, success on correct recall, error on wrong recall",
-        "PatternMemoryGame plays click on cell toggle, success on correct pattern, error on incorrect pattern",
-        "SequenceMemoryGame plays click on sequence item tap, success on correct sequence, error on wrong sequence",
-        "SlidingPuzzleGame plays click on tile move, success on puzzle completion",
-        "StroopEffectGame plays click on color button, success on correct color selection, error on wrong color selection",
-        "SpeedTypingGame plays success on game completion with good accuracy, error on game over with low accuracy"
-      ],
-      "file_operations": [
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Verify all game routes are registered correctly in the router configuration, ensuring paths match the navigation links used throughout the app (home, card-matching, memory-test, pattern-memory, sequence-memory, sliding-puzzle, stroop-effect, speed-typing, word-scramble, missing-letter, fill-in-blanks, progress, install-guide). Confirm RouterProvider is properly wired."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "modify",
+          "description": "Verify the Layout component correctly renders the header with branding, background music controls, progress navigation link, and login/logout button using the authorization component's useInternetIdentity hook. Ensure the Outlet renders child routes and the layout structure supports all game pages."
+        },
+        {
+          "path": "frontend/src/pages/HomePage.tsx",
+          "operation": "modify",
+          "description": "Verify the home page displays all 10 game cards organized into Memory Games and Language Games sections. Ensure each GameCard component links to the correct game route and displays the player's current level from fetched game state. Confirm navigation wiring to all game pages is complete."
+        },
         {
           "path": "frontend/src/pages/CardMatchingGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() when a card is clicked (onCardClick callback). Call playSuccess() when a matching pair is found (inside the effect that detects matched cards). Call playError() when two cards do not match (inside the mismatch detection logic before flipping cards back)."
+          "description": "Verify the card matching game page correctly uses useCardGame hook, renders the CardGrid component, displays GameControls, plays sound effects, tracks time with useGameTimer, and submits level completion to the backend via the completeLevel mutation when all pairs are matched."
         },
         {
           "path": "frontend/src/pages/MemoryTestGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() when the user submits an answer (on form submission or button click). Call playSuccess() when the answer is correct (after successful recall validation). Call playError() when the answer is wrong or the game ends in failure."
+          "description": "Verify the memory test game page correctly uses useMemoryTest hook, displays memorization and recall phases, handles countdown timers, validates user input, plays sound effects, and submits results to the backend via completeMemoryTest when the game ends."
         },
         {
           "path": "frontend/src/pages/PatternMemoryGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() on every cell toggle interaction in the input phase. Call playSuccess() when the user successfully reproduces the correct pattern. Call playError() when the submitted pattern is incorrect."
+          "description": "Verify the pattern memory game page correctly uses usePatternMemory hook, renders the PatternGrid component for both display and input phases, tracks attempts and elapsed time, plays sound effects, and submits level completion to the backend when the pattern is correctly reproduced."
         },
         {
           "path": "frontend/src/pages/SequenceMemoryGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() when the user taps a sequence item during the recall phase. Call playSuccess() when the user completes the sequence correctly. Call playError() when the user selects the wrong sequence item and the game ends."
+          "description": "Verify the sequence memory game page correctly uses useSequenceMemory hook, renders SequenceItem components for display and input phases, tracks attempts and time, plays sound effects, and submits level completion to the backend when the sequence is correctly reproduced."
         },
         {
           "path": "frontend/src/pages/SlidingPuzzleGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() on every tile move (inside the handleTileClick callback). Call playSuccess() when the puzzle is successfully completed (when isPuzzleComplete becomes true)."
+          "description": "Verify the sliding puzzle game page correctly uses useSlidingPuzzle hook, renders the SlidingTile grid, tracks moves and elapsed time, plays sound effects, and submits level completion to the backend when the puzzle is solved."
         },
         {
           "path": "frontend/src/pages/StroopEffectGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() when the user clicks any color button. Call playSuccess() when the selected color is correct. Call playError() when the selected color is incorrect."
+          "description": "Verify the Stroop effect game page correctly uses useStroopEffect hook, renders the StroopDisplay component with color word and buttons, tracks score and rounds, plays sound effects on correct/wrong answers, and submits level completion to the backend when the game ends."
         },
         {
           "path": "frontend/src/pages/SpeedTypingGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playSuccess() when the game completes with good accuracy (e.g., accuracy >= 80%). Call playError() when the game ends with low accuracy (e.g., accuracy < 80%)."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Integrate sound effects into all Section B game pages: MissingLetterGame, WordScrambleGame, and FillInTheBlanksGame",
-      "acceptanceCriteria": [
-        "MissingLetterGame plays click on submit/check button, success on correct letter, error on wrong letter",
-        "WordScrambleGame plays click on submit, success on correct unscramble, error on wrong guess",
-        "FillInTheBlanksGame plays click on submit/check, success on correct answer, error on wrong answer",
-        "Show Answer button in MissingLetterGame plays a neutral click sound (not success/error)"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/MissingLetterGame.tsx",
-          "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() when the Check button is clicked. Call playSuccess() when the user's answer is correct. Call playError() when the answer is wrong. Also call playClick() (neutral) when the Show Answer button is clicked, without success or error sounds."
+          "description": "Verify the speed typing game page correctly uses useSpeedTyping hook, displays target text with per-character color feedback, tracks WPM and accuracy in real-time, manages the 60-second countdown timer, plays sound effects, and shows results when time expires."
         },
         {
           "path": "frontend/src/pages/WordScrambleGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() when the user submits their guess (on form submission or button click). Call playSuccess() when the guess matches the correct word. Call playError() when the guess is incorrect."
+          "description": "Verify the word scramble game page correctly uses useWordScramble hook, displays scrambled letters, validates user input, tracks score and streak, plays sound effects, and supports keyboard input for answer submission."
+        },
+        {
+          "path": "frontend/src/pages/MissingLetterGame.tsx",
+          "operation": "modify",
+          "description": "Verify the missing letter game page correctly uses useMissingLetter hook, displays partially masked words with difficulty selection, validates answers, tracks score and streak, plays sound effects, and provides answer reveal functionality."
         },
         {
           "path": "frontend/src/pages/FillInTheBlanksGame.tsx",
           "operation": "modify",
-          "description": "Import and use the useSoundEffects hook. Call playClick() when the Check or Submit button is clicked. Call playSuccess() when the user's answer is correct. Call playError() when the answer is wrong."
+          "description": "Verify the fill-in-the-blanks game page correctly uses useFillInTheBlanks hook, displays sentences with blank inputs, validates user answers, tracks score and streak, plays sound effects, and reveals correct answers on wrong guesses."
+        },
+        {
+          "path": "frontend/src/pages/ProgressPage.tsx",
+          "operation": "modify",
+          "description": "Verify the progress page correctly uses the authorization component's useInternetIdentity hook to check authentication status, fetches player game state and high scores using useQueries hooks, displays current level/score/time/unlocked puzzles for authenticated users, and shows a login prompt for unauthenticated users."
+        },
+        {
+          "path": "frontend/src/pages/InstallGuide.tsx",
+          "operation": "modify",
+          "description": "Verify the install guide page correctly displays step-by-step PWA installation instructions for Chrome desktop, Chrome mobile, and Safari iOS, ensuring the content is accessible and properly formatted."
+        },
+        {
+          "path": "frontend/src/hooks/useInternetIdentity.ts",
+          "operation": "modify",
+          "description": "Verify the useInternetIdentity hook and InternetIdentityProvider correctly initialize the AuthClient, expose login/logout functions, manage identity state, and clear cached application data on logout. Ensure the authorization component's authentication requirements are met."
+        },
+        {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "Verify the useActor hook correctly creates authenticated or anonymous backend actors using TanStack Query, caches the actor instance, and invalidates dependent queries when the actor changes. Ensure it properly initializes the first admin as required by the authorization component."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Verify the React Query hooks for fetching player game state (getPlayerGameState) and high scores (getPlayerHighScores) are correctly wired to the backend actor, and the completeLevel mutation hook properly submits level completion results. Ensure queries depend on the actor being available."
+        },
+        {
+          "path": "frontend/src/hooks/useBackgroundMusic.ts",
+          "operation": "modify",
+          "description": "Verify the useBackgroundMusic hook correctly manages the looping audio element, provides play/pause toggle and volume controls, and exposes state (isPlaying, volume) to consumers. Ensure it works with the Layout header controls."
+        },
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Verify the application entry point correctly mounts the React app wrapped with QueryClientProvider (for TanStack Query) and InternetIdentityProvider (from the authorization component), ensuring all providers are properly nested and the app renders correctly."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Verify the HTML entry point includes all required meta tags, Open Graph/Twitter card metadata, PWA manifest link, icon links (including the generated app-icon-192.dim_192x192.png and app-icon-512.dim_512x512.png from frontend/public/assets/generated/), and JSON-LD structured data for SEO."
+        },
+        {
+          "path": "frontend/public/manifest.json",
+          "operation": "modify",
+          "description": "Verify the PWA manifest defines the correct app name ('Memory Increase'), start_url, display mode ('standalone'), theme colors, background color, and icon references (using the generated app-icon-192.dim_192x192.png and app-icon-512.dim_512x512.png from assets/generated/). Ensure shortcuts for card matching and progress pages are correctly configured."
+        },
+        {
+          "path": "frontend/public/service-worker.js",
+          "operation": "modify",
+          "description": "Verify the service worker implements cache-first strategy for static assets (CSS, JS, images) and network-first strategy for HTML/scripts, includes install-time pre-caching of critical resources, and performs old cache cleanup on activation. Ensure it correctly handles requests for generated assets under frontend/public/assets/generated/."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Verify the global CSS file correctly imports Tailwind base, components, and utilities, defines light and dark mode CSS custom properties for the brain-training theme (purple/cyan/pink color tokens), and includes the card-flip animation utility used by the Card component."
+        },
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Verify the Tailwind configuration correctly sets up dark mode, custom OKLCH-based color tokens matching the theme, border radius, fonts, accordion animations, and registers the typography, container-queries, and animate plugins required by the UI components."
+        },
+        {
+          "path": "frontend/src/components/GameCard.tsx",
+          "operation": "modify",
+          "description": "Verify the GameCard component correctly displays game icon, title, description, current level from props, and a Play button that navigates to the game route. Ensure it's used on the home page for all 10 games."
+        },
+        {
+          "path": "frontend/src/components/CardGrid.tsx",
+          "operation": "modify",
+          "description": "Verify the CardGrid component correctly renders a responsive grid of Card components for the card matching game, delegating click handlers and flip/match state to the parent page component."
+        },
+        {
+          "path": "frontend/src/components/Card.tsx",
+          "operation": "modify",
+          "description": "Verify the Card component correctly implements 3D flip transforms to show front (emoji/value) and back (image using the generated card-back.dim_200x200.png from frontend/public/assets/generated/) faces, and responds to click events from the parent."
+        },
+        {
+          "path": "frontend/src/components/PatternGrid.tsx",
+          "operation": "modify",
+          "description": "Verify the PatternGrid component correctly renders a grid of toggle cells for the pattern memory game, displays either the target pattern (during memorization) or the user's input (during recall), and handles cell toggle events."
+        },
+        {
+          "path": "frontend/src/components/SequenceItem.tsx",
+          "operation": "modify",
+          "description": "Verify the SequenceItem component correctly renders a button cell for the sequence memory game with visual states for active (highlighted during display), selected (user clicked), and disabled conditions."
+        },
+        {
+          "path": "frontend/src/components/SlidingTile.tsx",
+          "operation": "modify",
+          "description": "Verify the SlidingTile component correctly renders either a numbered button tile or an empty placeholder for the blank space in the sliding puzzle, and handles click events to move tiles."
+        },
+        {
+          "path": "frontend/src/components/StroopDisplay.tsx",
+          "operation": "modify",
+          "description": "Verify the StroopDisplay component correctly displays a color word in mismatched ink color and renders four color-selection buttons for the Stroop effect game, handling answer selection events."
+        },
+        {
+          "path": "frontend/src/components/GameControls.tsx",
+          "operation": "modify",
+          "description": "Verify the GameControls component correctly provides Restart and Home navigation buttons used within all game pages, ensuring navigation links are correctly wired to the router."
+        },
+        {
+          "path": "frontend/src/components/GameScore.tsx",
+          "operation": "modify",
+          "description": "Verify the GameScore component correctly displays a modal dialog with player's time, moves, and calculated score upon game completion, and provides Play Again and Menu action buttons that navigate correctly."
         }
       ]
     }

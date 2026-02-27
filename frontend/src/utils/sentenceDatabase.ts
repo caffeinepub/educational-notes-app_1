@@ -1,35 +1,35 @@
-export interface SentenceEntry {
+export interface Sentence {
   text: string;
   answer: string;
-  category: string;
 }
 
-export const sentenceDatabase: SentenceEntry[] = [
-  // Animals
-  { text: 'The ___ is the king of the jungle.', answer: 'lion', category: 'animals' },
-  { text: 'A ___ has a very long neck.', answer: 'giraffe', category: 'animals' },
-  { text: 'The ___ is the largest land animal.', answer: 'elephant', category: 'animals' },
-  { text: 'A ___ can change its color to blend in.', answer: 'chameleon', category: 'animals' },
-  { text: 'The ___ is known for its black and white stripes.', answer: 'zebra', category: 'animals' },
-  { text: 'A ___ sleeps hanging upside down in caves.', answer: 'bat', category: 'animals' },
-  { text: 'The ___ is the fastest land animal.', answer: 'cheetah', category: 'animals' },
-  { text: 'A ___ builds a dam in rivers.', answer: 'beaver', category: 'animals' },
-  // Fruits
-  { text: 'A ___ a day keeps the doctor away.', answer: 'apple', category: 'fruits' },
-  { text: 'The ___ is a tropical fruit with a spiky skin.', answer: 'pineapple', category: 'fruits' },
-  { text: 'A ___ is a yellow curved fruit.', answer: 'banana', category: 'fruits' },
-  { text: 'The ___ is a large green fruit with red flesh inside.', answer: 'watermelon', category: 'fruits' },
-  { text: 'A ___ is a small red fruit often used in pies.', answer: 'cherry', category: 'fruits' },
-  { text: 'The ___ is a citrus fruit that is very sour.', answer: 'lemon', category: 'fruits' },
-  { text: 'A ___ is a purple fruit that grows in clusters.', answer: 'grape', category: 'fruits' },
-  { text: 'The ___ is a fuzzy fruit with a pit inside.', answer: 'peach', category: 'fruits' },
-  // Daily Use
-  { text: 'We use a ___ to write on paper.', answer: 'pen', category: 'daily use' },
-  { text: 'We read a ___ to learn new things.', answer: 'book', category: 'daily use' },
-  { text: 'We use a ___ to cut paper.', answer: 'scissors', category: 'daily use' },
-  { text: 'We carry things in a ___.', answer: 'bag', category: 'daily use' },
-  { text: 'We use a ___ to brush our teeth.', answer: 'toothbrush', category: 'daily use' },
-  { text: 'We look at our reflection in a ___.', answer: 'mirror', category: 'daily use' },
-  { text: 'We use an ___ when it rains.', answer: 'umbrella', category: 'daily use' },
-  { text: 'We sleep on a soft ___ at night.', answer: 'pillow', category: 'daily use' },
+export const sentences: Sentence[] = [
+  { text: 'The ___ is a man\'s best friend.', answer: 'dog' },
+  { text: 'The ___ gives us milk.', answer: 'cow' },
+  { text: 'A ___ has a very long neck.', answer: 'giraffe' },
+  { text: 'The ___ is the king of the jungle.', answer: 'lion' },
+  { text: 'We eat ___ for breakfast.', answer: 'eggs' },
+  { text: 'An ___ a day keeps the doctor away.', answer: 'apple' },
+  { text: 'The ___ is a large grey animal with a trunk.', answer: 'elephant' },
+  { text: 'A ___ has black and white stripes.', answer: 'zebra' },
+  { text: 'We use a ___ to write.', answer: 'pen' },
+  { text: 'The ___ shines during the day.', answer: 'sun' },
+  { text: 'Fish live in the ___.', answer: 'water' },
+  { text: 'Birds have ___ to fly.', answer: 'wings' },
+  { text: 'We read ___ to learn.', answer: 'books' },
+  { text: 'The ___ is a fruit that is yellow and curved.', answer: 'banana' },
+  { text: 'A ___ is a small animal that hops.', answer: 'frog' },
+  { text: 'We use ___ to cut paper.', answer: 'scissors' },
+  { text: 'The ___ is the largest planet.', answer: 'Jupiter' },
+  { text: 'A ___ is a place where we borrow books.', answer: 'library' },
+  { text: 'We breathe ___ to survive.', answer: 'air' },
+  { text: 'The ___ is a cold season.', answer: 'winter' },
+  { text: 'A ___ is a vehicle with two wheels.', answer: 'bicycle' },
+  { text: 'We use ___ to tell time.', answer: 'clock' },
+  { text: 'The ___ is a red fruit.', answer: 'strawberry' },
+  { text: 'A ___ is a place where we swim.', answer: 'pool' },
 ];
+
+export function getRandomSentence(): Sentence {
+  return sentences[Math.floor(Math.random() * sentences.length)];
+}

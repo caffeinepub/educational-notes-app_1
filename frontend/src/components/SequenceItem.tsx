@@ -1,25 +1,26 @@
+import React from 'react';
+
 interface SequenceItemProps {
-  value: string;
+  item: string;
   isActive: boolean;
   isSelected: boolean;
+  isDisabled: boolean;
   onClick: () => void;
-  disabled: boolean;
 }
 
-export default function SequenceItem({ value, isActive, isSelected, onClick, disabled }: SequenceItemProps) {
+export default function SequenceItem({ item, isActive, isSelected, isDisabled, onClick }: SequenceItemProps) {
   return (
     <button
       onClick={onClick}
-      disabled={disabled}
-      className={`
-        aspect-square rounded-lg text-4xl font-bold transition-all duration-300
-        ${isActive ? 'bg-gradient-to-br from-primary to-accent text-white scale-110 shadow-lg' : ''}
-        ${isSelected ? 'bg-accent text-accent-foreground' : 'bg-card border-2 border-border'}
-        ${!disabled && !isActive ? 'hover:scale-105 hover:shadow-md cursor-pointer' : ''}
-        ${disabled ? 'cursor-not-allowed opacity-50' : ''}
+      disabled={isDisabled}
+      className={`w-16 h-16 rounded-2xl text-2xl font-bold border-2 transition-all duration-150 select-none
+        ${isActive ? 'bg-primary border-primary text-primary-foreground scale-110 shadow-xl' : ''}
+        ${isSelected && !isActive ? 'bg-accent border-accent text-accent-foreground scale-105' : ''}
+        ${!isActive && !isSelected ? 'bg-surface border-border hover:border-primary/50 text-foreground' : ''}
+        ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105'}
       `}
     >
-      {value}
+      {item}
     </button>
   );
 }

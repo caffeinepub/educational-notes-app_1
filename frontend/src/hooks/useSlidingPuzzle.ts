@@ -1,102 +1,80 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getDifficultyConfig } from '../utils/difficultyConfig';
+import { useState, useCallback } from 'react';
 
-export function useSlidingPuzzle(level: number) {
-  const config = getDifficultyConfig('slidingPuzzle', level);
-  const gridSize = config.gridSize;
-  const totalTiles = gridSize * gridSize;
+function generateSolvable(size: number): number[] {
+  const total = size * size;
+  let tiles: number[];
+  do {
+    tiles = shuffle(Array.from({ length: total }, (_, i) => i));
+  } while (!isSolvable(tiles, size));
+  return tiles;
+}
 
-  const [tiles, setTiles] = useState<number[]>([]);
-  const [emptyIndex, setEmptyIndex] = useState(totalTiles - 1);
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function isSolvable(tiles: number[], size: number): boolean {
+  let inversions = 0;
+  const flat = tiles.filter((t) => t !== 0);
+  for (let i = 0; i < flat.length; i++) {
+    for (let j = i + 1; j < flat.length; j++) {
+      if (flat[i] > flat[j]) inversions++;
+    }
+  }
+  if (size % 2 === 1) return inversions % 2 === 0;
+  const emptyRow = Math.floor(tiles.indexOf(0) / size);
+  const fromBottom = size - emptyRow;
+  return (fromBottom % 2 === 0) !== (inversions % 2 === 0);
+}
+
+function isSolved(tiles: number[]): boolean {
+  for (let i = 0; i < tiles.length - 1; i++) {
+    if (tiles[i] !== i + 1) return false;
+  }
+  return tiles[tiles.length - 1] === 0;
+}
+
+export default function useSlidingPuzzle(level: number) {
+  const size = level <= 2 ? 3 : 4;
+
+  const generateTiles = useCallback(() => generateSolvable(size), [size]);
+
+  const [tiles, setTiles] = useState<number[]>(generateTiles);
   const [moves, setMoves] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
 
-  const isSolvable = useCallback((arr: number[], size: number) => {
-    let inversions = 0;
-    for (let i = 0; i < arr.length - 1; i++) {
-      for (let j = i + 1; j < arr.length; j++) {
-        if (arr[i] && arr[j] && arr[i] > arr[j]) {
-          inversions++;
-        }
-      }
-    }
-    
-    if (size % 2 === 1) {
-      return inversions % 2 === 0;
-    } else {
-      const emptyRow = Math.floor(arr.indexOf(0) / size);
-      return (inversions + emptyRow) % 2 === 1;
-    }
-  }, []);
+  const emptyIndex = tiles.indexOf(0);
 
-  const generatePuzzle = useCallback(() => {
-    let newTiles: number[];
-    do {
-      newTiles = Array.from({ length: totalTiles - 1 }, (_, i) => i + 1);
-      newTiles.push(0);
-      
-      for (let i = newTiles.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newTiles[i], newTiles[j]] = [newTiles[j], newTiles[i]];
-      }
-    } while (!isSolvable(newTiles, gridSize));
-    
-    return newTiles;
-  }, [totalTiles, gridSize, isSolvable]);
-
-  useEffect(() => {
-    const newTiles = generatePuzzle();
-    setTiles(newTiles);
-    setEmptyIndex(newTiles.indexOf(0));
+  const resetPuzzle = useCallback(() => {
+    setTiles(generateTiles());
     setMoves(0);
     setIsComplete(false);
-  }, [generatePuzzle]);
+  }, [generateTiles]);
 
-  const checkComplete = useCallback((currentTiles: number[]) => {
-    for (let i = 0; i < currentTiles.length - 1; i++) {
-      if (currentTiles[i] !== i + 1) return false;
-    }
-    return currentTiles[currentTiles.length - 1] === 0;
-  }, []);
-
-  const handleTileClick = useCallback((index: number) => {
-    const row = Math.floor(index / gridSize);
-    const col = index % gridSize;
-    const emptyRow = Math.floor(emptyIndex / gridSize);
-    const emptyCol = emptyIndex % gridSize;
+  const moveTile = useCallback((index: number) => {
+    const empty = tiles.indexOf(0);
+    const row = Math.floor(index / size);
+    const col = index % size;
+    const emptyRow = Math.floor(empty / size);
+    const emptyCol = empty % size;
 
     const isAdjacent =
       (Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
       (Math.abs(col - emptyCol) === 1 && row === emptyRow);
 
-    if (isAdjacent) {
-      const newTiles = [...tiles];
-      [newTiles[index], newTiles[emptyIndex]] = [newTiles[emptyIndex], newTiles[index]];
-      setTiles(newTiles);
-      setEmptyIndex(index);
-      setMoves((prev) => prev + 1);
+    if (!isAdjacent) return;
 
-      if (checkComplete(newTiles)) {
-        setIsComplete(true);
-      }
-    }
-  }, [tiles, emptyIndex, gridSize, checkComplete]);
-
-  const resetPuzzle = useCallback(() => {
-    const newTiles = generatePuzzle();
+    const newTiles = [...tiles];
+    [newTiles[index], newTiles[empty]] = [newTiles[empty], newTiles[index]];
     setTiles(newTiles);
-    setEmptyIndex(newTiles.indexOf(0));
-    setMoves(0);
-    setIsComplete(false);
-  }, [generatePuzzle]);
+    setMoves((m) => m + 1);
+    if (isSolved(newTiles)) setIsComplete(true);
+  }, [tiles, size]);
 
-  return {
-    tiles,
-    emptyIndex,
-    moves,
-    isComplete,
-    handleTileClick,
-    resetPuzzle,
-    gridSize,
-  };
+  return { tiles, moves, isComplete, emptyIndex, size, moveTile, resetPuzzle };
 }

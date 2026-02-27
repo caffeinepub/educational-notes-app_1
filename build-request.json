@@ -1,87 +1,43 @@
 {
   "kind": "build_request",
-  "title": "Add short sound effects to all games",
+  "title": "Rebuild Memory Increase Brain Training Game App",
   "projectName": "Memory Increase",
-  "priority": "normal",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a custom useSoundEffects hook that generates and plays three short sound effects using the Web Audio API (no external files needed): a soft click/tap sound on every interactive button press, a cheerful success chime on correct answers, and a low buzz/error sound on wrong answers. The hook should expose play functions: playClick(), playSuccess(), playError().",
-      "target": "frontend",
+      "text": "Rebuild and redeploy the entire Memory Increase Brain Training Game application — frontend and backend — to generate a fresh canister deployment with a new working live URL.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-last"
         ],
         "quotes": [
-          "Har click par — ek halka sa click/tap sound",
-          "Sahi jawab par — cheerful success sound",
-          "Galat jawab par — error/buzz sound",
-          "sirf short sound effect"
+          "Memory increas app rebuild karo"
         ]
       },
       "acceptanceCriteria": [
-        "useSoundEffects hook is created at frontend/src/hooks/useSoundEffects.ts",
-        "playClick() produces a short, soft tap sound",
-        "playSuccess() produces a short, cheerful success chime",
-        "playError() produces a short buzz/error sound",
-        "All sounds are generated programmatically via Web Audio API — no audio files required",
-        "Hook handles cases where AudioContext is not available gracefully (no crash)"
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Integrate sound effects into all Section A game pages: CardMatchingGame, MemoryTestGame, PatternMemoryGame, SequenceMemoryGame, SlidingPuzzleGame, StroopEffectGame, and SpeedTypingGame. Call playClick() on every button/tile interaction, playSuccess() on correct answers or level completion, and playError() on wrong answers or game-over states.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-recent"
-        ],
-        "quotes": [
-          "Saare game mein sound add karo",
-          "Section A aur Section B dono mein kaam karega"
-        ]
-      },
-      "acceptanceCriteria": [
-        "CardMatchingGame plays click on card flip, success on match found, error on mismatch",
-        "MemoryTestGame plays click on input submission, success on correct recall, error on wrong recall",
-        "PatternMemoryGame plays click on cell toggle, success on correct pattern, error on incorrect pattern",
-        "SequenceMemoryGame plays click on sequence item tap, success on correct sequence, error on wrong sequence",
-        "SlidingPuzzleGame plays click on tile move, success on puzzle completion",
-        "StroopEffectGame plays click on color button, success on correct color selection, error on wrong color selection",
-        "SpeedTypingGame plays success on game completion with good accuracy, error on game over with low accuracy"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Integrate sound effects into all Section B game pages: MissingLetterGame, WordScrambleGame, and FillInTheBlanksGame. Call playClick() on every button press or input submission, playSuccess() on correct answers, and playError() on wrong answers.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-recent"
-        ],
-        "quotes": [
-          "Saare game mein sound add karo",
-          "Section A aur Section B dono mein kaam karega"
-        ]
-      },
-      "acceptanceCriteria": [
-        "MissingLetterGame plays click on submit/check button, success on correct letter, error on wrong letter",
-        "WordScrambleGame plays click on submit, success on correct unscramble, error on wrong guess",
-        "FillInTheBlanksGame plays click on submit/check, success on correct answer, error on wrong answer",
-        "Show Answer button in MissingLetterGame plays a neutral click sound (not success/error)"
+        "App deploys successfully with a new canister ID",
+        "New live URL opens the Memory Increase app without 'Canister ID not resolved' error",
+        "All existing games (Card Matching, Memory Test, Pattern Memory, Sequence Memory, Sliding Puzzle, Stroop Effect, Speed Typing, Word Scramble, Missing Letter, Fill in the Blanks) are accessible",
+        "Home page loads with all game cards visible",
+        "Backend actor initializes correctly with user profile and high score functionality",
+        "Background music controls work in the header",
+        "Progress page loads and shows player stats when logged in",
+        "PWA manifest and service worker are active so users can install via 'Add to Home Screen'"
       ]
     }
   ],
   "constraints": [
-    "Use Web Audio API only — no external audio files or CDN-hosted sounds",
-    "Sound effects must be short (under 500ms) so they do not interfere with gameplay",
-    "Do not modify any files in frontend/src/hooks/useInternetIdentity.ts, useActor.ts, main.tsx, or frontend/src/components/ui"
+    "Preserve all existing game logic, hooks, and components exactly as they are",
+    "Do not change the backend data model or Motoko actor structure",
+    "Do not modify immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, components/ui)"
   ],
   "nonGoals": [
-    "Background music or looping audio",
-    "Volume control settings UI",
-    "Sound toggle/mute button (unless trivially added)",
-    "Any backend changes"
+    "Adding new games or features",
+    "Publishing to Google Play Store",
+    "Changing the visual design or theme",
+    "Any backend schema migration"
   ],
   "imageRequirements": {
     "required": [],

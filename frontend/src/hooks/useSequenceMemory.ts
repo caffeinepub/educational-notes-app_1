@@ -1,106 +1,79 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getDifficultyConfig } from '../utils/difficultyConfig';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
-type Phase = 'display' | 'input' | 'complete';
+const ITEMS = ['🔴', '🟡', '🟢', '🔵', '🟣', '🟠', '⚫', '⚪'];
 
-export function useSequenceMemory(level: number) {
-  const config = getDifficultyConfig('sequenceMemory', level);
-  const sequenceLength = config.sequenceLength || 4;
+function generateSequence(length: number): string[] {
+  return Array.from({ length }, () => ITEMS[Math.floor(Math.random() * ITEMS.length)]);
+}
 
-  const [sequence, setSequence] = useState<string[]>([]);
-  const [userSequence, setUserSequence] = useState<string[]>([]);
-  const [phase, setPhase] = useState<Phase>('display');
+export default function useSequenceMemory(level: number) {
+  const seqLength = Math.min(3 + level, 10);
+  const displayInterval = Math.max(500, 1000 - level * 50);
+
+  const [sequence, setSequence] = useState<string[]>(() => generateSequence(seqLength));
+  const [phase, setPhase] = useState<'display' | 'input' | 'won' | 'lost'>('display');
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const [userInput, setUserInput] = useState<string[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const generateSequence = useCallback(() => {
-    const items = ['🔴', '🟢', '🔵', '🟡', '🟣', '🟠', '⚫', '⚪'];
-    const newSequence: string[] = [];
-    for (let i = 0; i < sequenceLength; i++) {
-      newSequence.push(items[Math.floor(Math.random() * items.length)]);
-    }
-    return newSequence;
-  }, [sequenceLength]);
+  const playSequence = useCallback((seq: string[]) => {
+    setPhase('display');
+    setActiveIndex(-1);
+    let i = 0;
+    const show = () => {
+      if (i < seq.length) {
+        setActiveIndex(i);
+        timerRef.current = setTimeout(() => {
+          setActiveIndex(-1);
+          timerRef.current = setTimeout(() => {
+            i++;
+            show();
+          }, 200);
+        }, displayInterval);
+      } else {
+        setPhase('input');
+        setUserInput([]);
+        setCurrentIndex(0);
+      }
+    };
+    timerRef.current = setTimeout(show, 500);
+  }, [displayInterval]);
 
   useEffect(() => {
-    const newSequence = generateSequence();
-    setSequence(newSequence);
-    setUserSequence([]);
-    setPhase('display');
-    setCurrentIndex(0);
-    setAttempts(0);
-    setIsComplete(false);
-
-    let index = 0;
-    const interval = setInterval(() => {
-      index++;
-      if (index < newSequence.length) {
-        setCurrentIndex(index);
-      } else {
-        clearInterval(interval);
-        setTimeout(() => {
-          setPhase('input');
-          setCurrentIndex(-1);
-        }, 500);
-      }
-    }, 800);
-
-    return () => clearInterval(interval);
-  }, [generateSequence]);
+    playSequence(sequence);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, []);
 
   const handleItemClick = useCallback((item: string) => {
-    const newUserSequence = [...userSequence, item];
-    setUserSequence(newUserSequence);
-
-    if (newUserSequence.length === sequence.length) {
-      setAttempts((prev) => prev + 1);
-      
-      const isCorrect = newUserSequence.every((val, idx) => val === sequence[idx]);
-      
-      if (isCorrect) {
-        setPhase('complete');
-        setIsComplete(true);
-      } else {
-        setTimeout(() => {
-          setUserSequence([]);
-        }, 1000);
-      }
+    if (phase !== 'input') return;
+    const newInput = [...userInput, item];
+    setUserInput(newInput);
+    const idx = newInput.length - 1;
+    if (sequence[idx] !== item) {
+      setAttempts((a) => a + 1);
+      setPhase('lost');
+      return;
     }
-  }, [userSequence, sequence]);
+    if (newInput.length === sequence.length) {
+      setPhase('won');
+      setIsComplete(true);
+    }
+    setCurrentIndex(newInput.length);
+  }, [phase, userInput, sequence]);
 
-  const resetGame = useCallback(() => {
-    const newSequence = generateSequence();
-    setSequence(newSequence);
-    setUserSequence([]);
-    setPhase('display');
+  const reset = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    const newSeq = generateSequence(seqLength);
+    setSequence(newSeq);
+    setUserInput([]);
     setCurrentIndex(0);
     setAttempts(0);
     setIsComplete(false);
+    playSequence(newSeq);
+  }, [seqLength, playSequence]);
 
-    let index = 0;
-    const interval = setInterval(() => {
-      index++;
-      if (index < newSequence.length) {
-        setCurrentIndex(index);
-      } else {
-        clearInterval(interval);
-        setTimeout(() => {
-          setPhase('input');
-          setCurrentIndex(-1);
-        }, 500);
-      }
-    }, 800);
-  }, [generateSequence]);
-
-  return {
-    sequence,
-    userSequence,
-    phase,
-    currentIndex,
-    attempts,
-    isComplete,
-    handleItemClick,
-    resetGame,
-  };
+  return { sequence, phase, activeIndex, userInput, currentIndex, attempts, isComplete, items: ITEMS, handleItemClick, reset };
 }

@@ -1,192 +1,111 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { getDifficultyConfig } from '../utils/difficultyConfig';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
-export type MemoryTestPhase = 'memorize' | 'recall' | 'won' | 'lost';
-
-export interface MemoryObject {
-  id: number;
-  emoji: string;
-  label: string;
-}
-
-const ALL_OBJECTS: Omit<MemoryObject, 'id'>[] = [
-  { emoji: '🍎', label: 'Apple' },
-  { emoji: '🚗', label: 'Car' },
-  { emoji: '📚', label: 'Book' },
-  { emoji: '🪑', label: 'Chair' },
-  { emoji: '🌙', label: 'Moon' },
-  { emoji: '🎸', label: 'Guitar' },
-  { emoji: '🏠', label: 'House' },
-  { emoji: '✈️', label: 'Plane' },
-  { emoji: '🐶', label: 'Dog' },
-  { emoji: '🌸', label: 'Flower' },
-  { emoji: '⌚', label: 'Watch' },
-  { emoji: '🎩', label: 'Hat' },
-  { emoji: '🍕', label: 'Pizza' },
-  { emoji: '🔑', label: 'Key' },
-  { emoji: '🎈', label: 'Balloon' },
-  { emoji: '🦋', label: 'Butterfly' },
-  { emoji: '🍦', label: 'Ice Cream' },
-  { emoji: '🎯', label: 'Target' },
-  { emoji: '🌈', label: 'Rainbow' },
-  { emoji: '🐱', label: 'Cat' },
+const OBJECTS = [
+  '🍎', '🍊', '🍋', '🍇', '🍓', '🍒', '🥝', '🍑', '🥭', '🍍',
+  '🥥', '🍌', '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼',
 ];
 
-function pickObjects(count: number): MemoryObject[] {
-  const shuffled = [...ALL_OBJECTS].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, count).map((obj, idx) => ({ ...obj, id: idx }));
+function getObjects(count: number): string[] {
+  const shuffled = [...OBJECTS].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
 }
 
-export interface UseMemoryTestReturn {
-  phase: MemoryTestPhase;
-  objects: MemoryObject[];
-  memorizeTimeLeft: number;
-  recallTimeLeft: number;
-  recalledObjects: string[];
-  inputValue: string;
-  invalidInput: boolean;
-  setInputValue: (val: string) => void;
-  submitGuess: () => void;
-  reset: () => void;
-  level: number;
-  correctCount: number;
-}
+export default function useMemoryTest(level: number) {
+  const objectCount = Math.min(5 + level * 2, 15);
+  const memorizeTime = Math.max(5, 12 - level);
+  const recallTime = Math.max(15, 30 - level * 2);
 
-export function useMemoryTest(level: number): UseMemoryTestReturn {
-  const config = getDifficultyConfig('memoryTest', level);
-  const objectCount = config.objectCount ?? 10;
-  const memorizeTime = config.memorizeTime ?? 10;
-  const recallTime = config.recallTime ?? 25;
-
-  const [phase, setPhase] = useState<MemoryTestPhase>('memorize');
-  const [objects, setObjects] = useState<MemoryObject[]>(() => pickObjects(objectCount));
-  const [memorizeTimeLeft, setMemorizeTimeLeft] = useState(memorizeTime);
-  const [recallTimeLeft, setRecallTimeLeft] = useState(recallTime);
-  const [recalledObjects, setRecalledObjects] = useState<string[]>([]);
+  const [objects, setObjects] = useState<string[]>(() => getObjects(objectCount));
+  const [phase, setPhase] = useState<'memorize' | 'recall' | 'won' | 'lost'>('memorize');
+  const [countdown, setCountdown] = useState(memorizeTime);
+  const [guessed, setGuessed] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const [invalidInput, setInvalidInput] = useState(false);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [isComplete, setIsComplete] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const memorizeIntervalRef = useRef<number | null>(null);
-  const recallIntervalRef = useRef<number | null>(null);
-  const invalidTimeoutRef = useRef<number | null>(null);
-
-  // Memorize phase countdown
   useEffect(() => {
-    if (phase !== 'memorize') return;
-
-    memorizeIntervalRef.current = window.setInterval(() => {
-      setMemorizeTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(memorizeIntervalRef.current!);
-          memorizeIntervalRef.current = null;
+    setCountdown(memorizeTime);
+    timerRef.current = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(timerRef.current!);
           setPhase('recall');
+          setCountdown(recallTime);
           return 0;
         }
-        return prev - 1;
+        return c - 1;
       });
     }, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
 
-    return () => {
-      if (memorizeIntervalRef.current) {
-        clearInterval(memorizeIntervalRef.current);
-        memorizeIntervalRef.current = null;
-      }
-    };
-  }, [phase]);
-
-  // Recall phase countdown
   useEffect(() => {
-    if (phase !== 'recall') return;
-
-    recallIntervalRef.current = window.setInterval(() => {
-      setRecallTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(recallIntervalRef.current!);
-          recallIntervalRef.current = null;
-          setPhase('lost');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => {
-      if (recallIntervalRef.current) {
-        clearInterval(recallIntervalRef.current);
-        recallIntervalRef.current = null;
-      }
-    };
+    if (phase === 'recall') {
+      timerRef.current = setInterval(() => {
+        setCountdown((c) => {
+          if (c <= 1) {
+            clearInterval(timerRef.current!);
+            setPhase('lost');
+            setIsComplete(true);
+            return 0;
+          }
+          return c - 1;
+        });
+      }, 1000);
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [phase]);
 
   const submitGuess = useCallback(() => {
-    if (phase !== 'recall') return;
-
-    const trimmed = inputValue.trim().toLowerCase();
-    if (!trimmed) return;
-
-    const match = objects.find((obj) => obj.label.toLowerCase() === trimmed);
-    const alreadyRecalled = recalledObjects.some((r) => r.toLowerCase() === trimmed);
-
-    if (!match || alreadyRecalled) {
-      // Show invalid feedback briefly
-      setInvalidInput(true);
-      if (invalidTimeoutRef.current) clearTimeout(invalidTimeoutRef.current);
-      invalidTimeoutRef.current = window.setTimeout(() => setInvalidInput(false), 800);
-      setInputValue('');
-      return;
-    }
-
-    const newRecalled = [...recalledObjects, match.label];
-    setRecalledObjects(newRecalled);
+    if (!inputValue.trim() || phase !== 'recall') return;
+    const guess = inputValue.trim();
     setInputValue('');
-    setInvalidInput(false);
-
-    if (newRecalled.length === objects.length) {
-      // Stop recall timer
-      if (recallIntervalRef.current) {
-        clearInterval(recallIntervalRef.current);
-        recallIntervalRef.current = null;
+    if (objects.includes(guess) && !guessed.includes(guess)) {
+      const newGuessed = [...guessed, guess];
+      setGuessed(newGuessed);
+      setCorrectAnswers(newGuessed.length);
+      if (newGuessed.length === objects.length) {
+        clearInterval(timerRef.current!);
+        setPhase('won');
+        setIsComplete(true);
       }
-      setPhase('won');
     }
-  }, [phase, inputValue, objects, recalledObjects]);
+  }, [inputValue, phase, objects, guessed]);
 
   const reset = useCallback(() => {
-    // Clear all timers
-    if (memorizeIntervalRef.current) {
-      clearInterval(memorizeIntervalRef.current);
-      memorizeIntervalRef.current = null;
-    }
-    if (recallIntervalRef.current) {
-      clearInterval(recallIntervalRef.current);
-      recallIntervalRef.current = null;
-    }
-    if (invalidTimeoutRef.current) {
-      clearTimeout(invalidTimeoutRef.current);
-      invalidTimeoutRef.current = null;
-    }
-
-    setObjects(pickObjects(objectCount));
+    if (timerRef.current) clearInterval(timerRef.current);
+    const newObjects = getObjects(objectCount);
+    setObjects(newObjects);
     setPhase('memorize');
-    setMemorizeTimeLeft(memorizeTime);
-    setRecallTimeLeft(recallTime);
-    setRecalledObjects([]);
+    setCountdown(memorizeTime);
+    setGuessed([]);
     setInputValue('');
-    setInvalidInput(false);
+    setCorrectAnswers(0);
+    setIsComplete(false);
+    timerRef.current = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(timerRef.current!);
+          setPhase('recall');
+          setCountdown(recallTime);
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
   }, [objectCount, memorizeTime, recallTime]);
 
   return {
-    phase,
     objects,
-    memorizeTimeLeft,
-    recallTimeLeft,
-    recalledObjects,
+    phase,
+    countdown,
+    guessed,
     inputValue,
-    invalidInput,
     setInputValue,
+    correctAnswers,
+    isComplete,
     submitGuess,
     reset,
-    level,
-    correctCount: recalledObjects.length,
   };
 }

@@ -1,72 +1,64 @@
 import { useState, useCallback } from 'react';
-import { getAllWords } from '../utils/wordDatabase';
+import { getRandomWord } from '../utils/wordDatabase';
 
-function shuffleWord(word: string): string {
-  const letters = word.split('');
-  for (let i = letters.length - 1; i > 0; i--) {
+function scramble(word: string): string {
+  const arr = word.split('');
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [letters[i], letters[j]] = [letters[j], letters[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  const scrambled = letters.join('');
-  // Ensure scrambled is different from original (for short words, retry)
-  if (scrambled === word && word.length > 1) return shuffleWord(word);
-  return scrambled;
+  const result = arr.join('');
+  return result === word ? scramble(word) : result;
 }
 
-function getRandomWord(): string {
-  const allWords = [...getAllWords('easy'), ...getAllWords('hard')];
-  return allWords[Math.floor(Math.random() * allWords.length)];
-}
-
-export function useWordScramble() {
-  const [originalWord, setOriginalWord] = useState<string>(() => getRandomWord());
-  const [scrambledWord, setScrambledWord] = useState<string>(() => {
-    const w = getRandomWord();
-    return shuffleWord(w);
+export default function useWordScramble() {
+  const [originalWord, setOriginalWord] = useState(() => getRandomWord('easy'));
+  const [scrambledWord, setScrambledWord] = useState(() => {
+    const w = getRandomWord('easy');
+    return scramble(w);
   });
-  const [userInput, setUserInput] = useState('');
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [wrongAttempt, setWrongAttempt] = useState(false);
+  const [inputValue, setInputValue] = useState('');
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [wrongAttempt, setWrongAttempt] = useState(false);
+  const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null);
 
-  const loadNewWord = useCallback(() => {
-    const word = getRandomWord();
+  const nextWord = useCallback(() => {
+    const word = getRandomWord('easy');
     setOriginalWord(word);
-    setScrambledWord(shuffleWord(word));
-    setUserInput('');
-    setIsCorrect(null);
+    setScrambledWord(scramble(word));
+    setInputValue('');
     setWrongAttempt(false);
+    setFeedback(null);
   }, []);
 
   const handleSubmit = useCallback(() => {
-    if (!userInput.trim()) return;
-    const correct = userInput.trim().toLowerCase() === originalWord.toLowerCase();
-    setIsCorrect(correct);
+    if (!inputValue.trim()) return;
+    const correct = inputValue.trim().toLowerCase() === originalWord.toLowerCase();
     if (correct) {
-      setScore(s => s + 10);
-      setStreak(s => s + 1);
+      setScore((s) => s + 1);
+      setStreak((s) => s + 1);
+      setFeedback('correct');
       setWrongAttempt(false);
-      setTimeout(() => loadNewWord(), 800);
+      setTimeout(nextWord, 800);
     } else {
-      setWrongAttempt(true);
       setStreak(0);
+      setWrongAttempt(true);
+      setFeedback('wrong');
+      setTimeout(() => setFeedback(null), 800);
     }
-  }, [userInput, originalWord, loadNewWord]);
-
-  const nextWord = useCallback(() => {
-    loadNewWord();
-  }, [loadNewWord]);
+    setInputValue('');
+  }, [inputValue, originalWord, nextWord]);
 
   return {
     originalWord,
     scrambledWord,
-    userInput,
-    setUserInput,
-    isCorrect,
-    wrongAttempt,
+    inputValue,
+    setInputValue,
     score,
     streak,
+    wrongAttempt,
+    feedback,
     handleSubmit,
     nextWord,
   };

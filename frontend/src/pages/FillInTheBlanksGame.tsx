@@ -1,42 +1,38 @@
+import React from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Eye, SkipForward } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import GameControls from '../components/GameControls';
-import { useFillInTheBlanks } from '../hooks/useFillInTheBlanks';
-import { useSoundEffects } from '../hooks/useSoundEffects';
+import useFillInTheBlanks from '../hooks/useFillInTheBlanks';
+import useSoundEffects from '../hooks/useSoundEffects';
 
 export default function FillInTheBlanksGame() {
   const navigate = useNavigate();
-  const { playClick, playSuccess, playError } = useSoundEffects();
+  const { playSound } = useSoundEffects();
   const {
     currentSentence,
-    userInput,
-    setUserInput,
-    isCorrect,
-    wrongAttemptCount,
-    showAnswer,
+    inputValue,
+    setInputValue,
     score,
     streak,
+    wrongAttemptCount,
+    feedback,
+    showAnswer,
     handleSubmit,
     handleShowAnswer,
-    nextSentence,
   } = useFillInTheBlanks();
 
   const handleCheckWithSound = () => {
-    playClick();
-    const correct = userInput.trim().toLowerCase() === currentSentence.answer.toLowerCase();
-    if (correct) {
-      playSuccess();
-    } else {
-      playError();
-    }
+    playSound('click');
+    const correct = inputValue.trim().toLowerCase() === currentSentence.answer.toLowerCase();
     handleSubmit();
+    setTimeout(() => playSound(correct ? 'success' : 'error'), 50);
   };
 
   const handleShowAnswerWithSound = () => {
-    playClick();
+    playSound('click');
     handleShowAnswer();
   };
 
@@ -82,8 +78,8 @@ export default function FillInTheBlanksGame() {
                 <p className="text-2xl font-bold text-accent">🔥 {streak}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Category</p>
-                <p className="text-sm font-semibold capitalize">{currentSentence.category}</p>
+                <p className="text-xs text-muted-foreground">Attempts</p>
+                <p className="text-2xl font-bold">{wrongAttemptCount}</p>
               </div>
             </div>
           </CardContent>
@@ -97,9 +93,9 @@ export default function FillInTheBlanksGame() {
               <div className="text-xl font-medium mb-8 leading-relaxed px-4">
                 <span>{parts[0]}</span>
                 <span className="inline-block mx-1 px-3 py-1 rounded-md bg-primary/10 border-b-2 border-primary text-primary font-bold min-w-[80px]">
-                  {showAnswer ? currentSentence.answer : isCorrect === true ? userInput : '___'}
+                  {showAnswer ? currentSentence.answer : feedback === 'correct' ? inputValue : '___'}
                 </span>
-                <span>{parts[1]}</span>
+                <span>{parts[1] ?? ''}</span>
               </div>
 
               {/* Show Answer Reveal */}
@@ -111,46 +107,48 @@ export default function FillInTheBlanksGame() {
               )}
 
               {/* Feedback */}
-              {isCorrect === true && (
+              {feedback === 'correct' && (
                 <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
                   <p className="text-green-600 dark:text-green-400 font-semibold">✅ Correct! Loading next sentence...</p>
                 </div>
               )}
-              {isCorrect === false && !showAnswer && (
+              {feedback === 'wrong' && !showAnswer && (
                 <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30">
                   <p className="text-destructive font-semibold">
                     ❌ Wrong! {wrongAttemptCount >= 2 ? 'You can reveal the answer.' : 'Try again!'}
                   </p>
                 </div>
               )}
+              {feedback === 'revealed' && (
+                <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/30">
+                  <p className="text-accent font-semibold">💡 Answer revealed. Next sentence loading...</p>
+                </div>
+              )}
 
               {/* Input */}
               <div className="flex gap-3 max-w-sm mx-auto">
                 <Input
-                  value={userInput}
-                  onChange={e => setUserInput(e.target.value)}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Type the missing word..."
                   className="text-center text-lg"
-                  disabled={isCorrect === true || showAnswer}
+                  disabled={feedback === 'correct' || showAnswer}
                 />
-                <Button onClick={handleCheckWithSound} disabled={isCorrect === true || showAnswer || !userInput.trim()}>
+                <Button
+                  onClick={handleCheckWithSound}
+                  disabled={feedback === 'correct' || showAnswer || !inputValue.trim()}
+                >
                   Submit
                 </Button>
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-3 justify-center mt-4">
-                {isCorrect === false && !showAnswer && wrongAttemptCount >= 2 && (
+                {feedback === 'wrong' && !showAnswer && wrongAttemptCount >= 2 && (
                   <Button variant="outline" size="sm" onClick={handleShowAnswerWithSound}>
                     <Eye className="h-4 w-4 mr-2" />
                     Show Answer
-                  </Button>
-                )}
-                {(showAnswer || isCorrect === false) && (
-                  <Button variant="outline" size="sm" onClick={nextSentence}>
-                    <SkipForward className="h-4 w-4 mr-2" />
-                    Next Sentence
                   </Button>
                 )}
               </div>
@@ -159,7 +157,7 @@ export default function FillInTheBlanksGame() {
         </Card>
 
         {/* Controls */}
-        <GameControls onRestart={nextSentence} />
+        <GameControls onRestart={() => setInputValue('')} />
       </div>
     </div>
   );

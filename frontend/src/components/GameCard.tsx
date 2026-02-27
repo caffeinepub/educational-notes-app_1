@@ -1,41 +1,61 @@
-import { LucideIcon } from 'lucide-react';
-import { Card, CardContent } from './ui/card';
-import { Button } from './ui/button';
+import React from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { Play } from 'lucide-react';
 
 interface GameCardProps {
   title: string;
   description: string;
-  icon?: LucideIcon;
-  iconImage?: string;
-  color: string;
-  currentLevel: number;
-  onPlay: () => void;
+  icon: LucideIcon;
+  gradientClass?: string;
+  onClick: () => void;
+  level?: number;
 }
 
-export default function GameCard({ title, description, icon: Icon, iconImage, color, currentLevel, onPlay }: GameCardProps) {
+export default function GameCard({
+  title,
+  description,
+  icon: Icon,
+  gradientClass = 'from-primary to-accent',
+  onClick,
+  level,
+}: GameCardProps) {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-start gap-4">
-          <div className={`p-3 rounded-lg bg-gradient-to-br ${color} flex-shrink-0`}>
-            {Icon ? (
-              <Icon className="h-8 w-8 text-white" />
-            ) : iconImage ? (
-              <img src={iconImage} alt={title} className="h-8 w-8" />
-            ) : null}
-          </div>
-          <div className="flex-1">
-            <h3 className="text-xl font-bold mb-2">{title}</h3>
-            <p className="text-sm text-muted-foreground mb-4">{description}</p>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Level {currentLevel}</span>
-              <Button onClick={onPlay} size="sm">
-                Play
-              </Button>
-            </div>
-          </div>
+    <div
+      className="group relative bg-surface rounded-2xl border border-border overflow-hidden cursor-pointer hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+      onClick={onClick}
+    >
+      {/* Gradient top bar */}
+      <div className={`h-1.5 w-full bg-gradient-to-r ${gradientClass}`} />
+
+      <div className="p-5">
+        {/* Icon */}
+        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${gradientClass} flex items-center justify-center mb-4 shadow-md`}>
+          <Icon size={24} className="text-white" />
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Title & Description */}
+        <h3 className="font-bold text-lg text-foreground mb-1 group-hover:text-primary transition-colors">
+          {title}
+        </h3>
+        <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
+          {description}
+        </p>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between">
+          {level !== undefined ? (
+            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+              Level {level}
+            </span>
+          ) : (
+            <span className="text-xs text-muted-foreground">Ready to play</span>
+          )}
+          <button className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gradient-to-r ${gradientClass} text-white text-sm font-semibold shadow hover:opacity-90 transition-opacity`}>
+            <Play size={12} />
+            Play
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }

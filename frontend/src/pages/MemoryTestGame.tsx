@@ -1,396 +1,154 @@
-import { useEffect, useRef, KeyboardEvent } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, RotateCcw, Home, CheckCircle2, XCircle, Eye, Search } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { useMemoryTest } from '../hooks/useMemoryTest';
+import React, { useEffect, useRef } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useCompleteLevel } from '../hooks/useQueries';
-import { useSoundEffects } from '../hooks/useSoundEffects';
-import { GameType } from '../backend';
+import useMemoryTest from '../hooks/useMemoryTest';
+import useSoundEffects from '../hooks/useSoundEffects';
+import { useCompleteMemoryTest } from '../hooks/useQueries';
+import GameControls from '../components/GameControls';
+import { Brain, Clock } from 'lucide-react';
+
+const LEVEL = 1;
 
 export default function MemoryTestGame() {
-  const navigate = useNavigate();
   const { identity } = useInternetIdentity();
-  const principal = identity?.getPrincipal().toString() || 'guest';
-  const { playClick, playSuccess, playError } = useSoundEffects();
-
-  const level = 1;
   const {
-    phase,
-    objects,
-    memorizeTimeLeft,
-    recallTimeLeft,
-    recalledObjects,
-    inputValue,
-    invalidInput,
-    setInputValue,
-    submitGuess,
-    reset,
-    correctCount,
-  } = useMemoryTest(level);
+    objects, phase, countdown, guessed, inputValue, setInputValue,
+    correctAnswers, isComplete, submitGuess, reset,
+  } = useMemoryTest(LEVEL);
+  const { playSound } = useSoundEffects();
+  const { mutate: completeMemoryTest } = useCompleteMemoryTest();
+  const startTimeRef = useRef<number>(Date.now());
 
-  const completeLevel = useCompleteLevel();
-  const savedRef = useRef(false);
-  const startTimeRef = useRef<bigint>(BigInt(Date.now()) * BigInt(1_000_000));
-  const prevPhaseRef = useRef(phase);
-
-  // Reset start time when game resets
   useEffect(() => {
-    if (phase === 'memorize') {
-      startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
-      savedRef.current = false;
-    }
-  }, [phase]);
+    startTimeRef.current = Date.now();
+  }, []);
 
-  // Play sounds on phase change
   useEffect(() => {
-    if (prevPhaseRef.current !== phase) {
-      if (phase === 'won') {
-        playSuccess();
-      } else if (phase === 'lost') {
-        playError();
-      }
-      prevPhaseRef.current = phase;
-    }
-  }, [phase]);
-
-  // Save result when game ends
-  useEffect(() => {
-    if ((phase === 'won' || phase === 'lost') && !savedRef.current && !completeLevel.isPending) {
-      savedRef.current = true;
-      completeLevel.mutate({
-        player: principal,
-        gameType: GameType.memoryTest,
-        level: BigInt(level),
-        startTime: startTimeRef.current,
-        correctAnswers: BigInt(correctCount),
-        totalQuestions: BigInt(objects.length),
+    if (isComplete && identity) {
+      const timeTaken = BigInt(Date.now() - startTimeRef.current) * BigInt(1_000_000);
+      const player = identity.getPrincipal().toString();
+      const score = BigInt(correctAnswers * 100);
+      completeMemoryTest({
+        player,
+        level: BigInt(LEVEL),
+        correctAnswers: BigInt(correctAnswers),
+        streak: BigInt(correctAnswers),
+        hintsUsed: BigInt(0),
+        timeTaken,
+        score,
       });
     }
-  }, [phase, principal, level, correctCount, objects.length, completeLevel]);
+  }, [isComplete]);
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      playClick();
-      submitGuess();
+  const handleSubmit = () => {
+    playSound('click');
+    submitGuess();
+    if (phase === 'recall') {
+      const correct = objects.includes(inputValue.trim()) && !guessed.includes(inputValue.trim());
+      setTimeout(() => playSound(correct ? 'success' : 'error'), 100);
     }
   };
 
-  const handleSubmitClick = () => {
-    playClick();
-    submitGuess();
-  };
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Memory Test</h1>
+          <p className="text-muted-foreground text-sm">Memorize and recall the objects!</p>
+        </div>
+        <GameControls onRestart={reset} />
+      </div>
 
-  const handleReset = () => {
-    savedRef.current = false;
-    reset();
-  };
-
-  // Memorize Phase
-  if (phase === 'memorize') {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" onClick={() => navigate({ to: '/' })}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <h1 className="text-2xl font-bold">Memory Test</h1>
-            <div className="w-20" />
+      {/* Phase: Memorize */}
+      {phase === 'memorize' && (
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-4 text-primary">
+            <Clock size={20} />
+            <span className="text-xl font-bold">{countdown}s</span>
           </div>
-
-          {/* Instructions */}
-          <Card className="mb-6 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center gap-2 justify-center">
-                <Eye className="h-5 w-5 text-primary" />
-                <p className="text-center text-sm font-medium">
-                  Memorize all the objects! They will disappear in{' '}
-                  <span className="text-primary font-bold">{memorizeTimeLeft}s</span>
-                </p>
+          <p className="text-muted-foreground mb-6">Memorize these objects!</p>
+          <div className="grid grid-cols-5 gap-4 max-w-md mx-auto">
+            {objects.map((obj, i) => (
+              <div key={i} className="text-4xl text-center p-2 bg-surface rounded-xl border border-border shadow">
+                {obj}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Countdown Timer */}
-          <div className="text-center mb-6">
-            <div
-              className={`inline-flex items-center justify-center w-20 h-20 rounded-full text-3xl font-bold border-4 transition-colors ${
-                memorizeTimeLeft <= 3
-                  ? 'border-destructive text-destructive bg-destructive/10'
-                  : 'border-primary text-primary bg-primary/10'
-              }`}
-            >
-              {memorizeTimeLeft}
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">seconds to memorize</p>
-          </div>
-
-          {/* Objects Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-            {objects.map((obj) => (
-              <Card
-                key={obj.id}
-                className="text-center border-border hover:border-primary/40 transition-colors"
-              >
-                <CardContent className="pt-4 pb-4 flex flex-col items-center gap-1">
-                  <span className="text-4xl">{obj.emoji}</span>
-                  <span className="text-xs font-medium text-muted-foreground">{obj.label}</span>
-                </CardContent>
-              </Card>
             ))}
           </div>
         </div>
-      </div>
-    );
-  }
+      )}
 
-  // Recall Phase
-  if (phase === 'recall') {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" onClick={() => navigate({ to: '/' })}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-            <h1 className="text-2xl font-bold">Memory Test</h1>
-            <div className="w-20" />
+      {/* Phase: Recall */}
+      {phase === 'recall' && (
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-4 text-accent">
+            <Clock size={20} />
+            <span className="text-xl font-bold">{countdown}s</span>
           </div>
-
-          {/* Timer */}
-          <div className="text-center mb-6">
-            <div
-              className={`inline-flex items-center justify-center w-20 h-20 rounded-full text-3xl font-bold border-4 transition-colors ${
-                recallTimeLeft <= 5
-                  ? 'border-destructive text-destructive bg-destructive/10'
-                  : recallTimeLeft <= 10
-                  ? 'border-yellow-500 text-yellow-500 bg-yellow-500/10'
-                  : 'border-primary text-primary bg-primary/10'
-              }`}
+          <p className="text-muted-foreground mb-4">Type the objects you remember!</p>
+          <div className="flex gap-2 max-w-sm mx-auto mb-6">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              placeholder="Type an emoji or name..."
+              className="flex-1 px-4 py-2 rounded-xl border border-border bg-surface text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <button
+              onClick={handleSubmit}
+              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
             >
-              {recallTimeLeft}
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">seconds remaining</p>
+              Submit
+            </button>
           </div>
-
-          {/* Progress */}
-          <Card className="mb-6 bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
-            <CardContent className="pt-4 pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Search className="h-5 w-5 text-primary" />
-                  <p className="text-sm font-medium">
-                    Recalled:{' '}
-                    <span className="text-primary font-bold">
-                      {correctCount} / {objects.length}
-                    </span>
-                  </p>
-                </div>
-                <p className="text-xs text-muted-foreground">Type object names and press Enter</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Input */}
-          <div className="mb-6">
-            <div className="flex gap-2">
-              <Input
-                autoFocus
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Type an object name..."
-                className={`text-base ${
-                  invalidInput ? 'border-destructive ring-1 ring-destructive' : ''
-                }`}
-              />
-              <Button onClick={handleSubmitClick} disabled={!inputValue.trim()}>
-                Enter
-              </Button>
-            </div>
-            {invalidInput && (
-              <p className="text-xs text-destructive mt-1">
-                Not found or already recalled. Try another!
-              </p>
-            )}
+          <div className="flex flex-wrap gap-2 justify-center">
+            {guessed.map((g, i) => (
+              <span key={i} className="text-2xl bg-green-500/20 border border-green-500/40 rounded-lg px-3 py-1">
+                {g}
+              </span>
+            ))}
           </div>
-
-          {/* Recalled Objects */}
-          {recalledObjects.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-2">Recalled objects:</p>
-              <div className="flex flex-wrap gap-2">
-                {recalledObjects.map((label) => {
-                  const obj = objects.find((o) => o.label === label);
-                  return (
-                    <Badge
-                      key={label}
-                      variant="secondary"
-                      className="text-sm py-1 px-3 bg-primary/10 text-primary border-primary/20"
-                    >
-                      {obj?.emoji} {label}
-                    </Badge>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Restart */}
-          <div className="mt-8">
-            <Button variant="outline" onClick={handleReset} className="w-full gap-2">
-              <RotateCcw className="h-4 w-4" />
-              Restart Game
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Won Screen
-  if (phase === 'won') {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto text-center">
-          <div className="mb-6">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-500/10 border-4 border-green-500 mb-4">
-              <CheckCircle2 className="h-12 w-12 text-green-500" />
-            </div>
-            <h1 className="text-3xl font-bold text-green-500 mb-2">You Won! 🎉</h1>
-            <p className="text-muted-foreground">
-              Amazing! You recalled all <strong>{objects.length}</strong> objects correctly!
-            </p>
-          </div>
-
-          <Card className="mb-6 bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20">
-            <CardContent className="pt-6 pb-6">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Objects Recalled</p>
-                  <p className="text-2xl font-bold text-green-500">
-                    {correctCount}/{objects.length}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Level</p>
-                  <p className="text-2xl font-bold">{level}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recalled Objects Summary */}
-          <div className="mb-6 text-left">
-            <p className="text-sm font-medium text-muted-foreground mb-2">Objects you recalled:</p>
-            <div className="flex flex-wrap gap-2">
-              {recalledObjects.map((label) => {
-                const obj = objects.find((o) => o.label === label);
-                return (
-                  <Badge
-                    key={label}
-                    variant="secondary"
-                    className="text-sm py-1 px-3 bg-green-500/10 text-green-600 border-green-500/20"
-                  >
-                    {obj?.emoji} {label}
-                  </Badge>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            <Button onClick={handleReset} className="w-full gap-2">
-              <RotateCcw className="h-4 w-4" />
-              Play Again
-            </Button>
-            <Button variant="outline" onClick={() => navigate({ to: '/' })} className="w-full gap-2">
-              <Home className="h-4 w-4" />
-              Back to Menu
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Lost Screen
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-md mx-auto text-center">
-        <div className="mb-6">
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-destructive/10 border-4 border-destructive mb-4">
-            <XCircle className="h-12 w-12 text-destructive" />
-          </div>
-          <h1 className="text-3xl font-bold text-destructive mb-2">Time's Up! ⏰</h1>
-          <p className="text-muted-foreground">
-            You recalled <strong>{correctCount}</strong> out of <strong>{objects.length}</strong>{' '}
-            objects.
+          <p className="text-sm text-muted-foreground mt-4">
+            {correctAnswers} / {objects.length} recalled
           </p>
         </div>
+      )}
 
-        <Card className="mb-6 bg-gradient-to-br from-destructive/10 to-red-500/10 border-destructive/20">
-          <CardContent className="pt-6 pb-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Recalled</p>
-                <p className="text-2xl font-bold text-destructive">
-                  {correctCount}/{objects.length}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Level</p>
-                <p className="text-2xl font-bold">{level}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Phase: Won */}
+      {phase === 'won' && (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-2xl font-bold text-primary mb-2">Excellent!</h2>
+          <p className="text-muted-foreground mb-6">You recalled all {objects.length} objects!</p>
+          <button
+            onClick={reset}
+            className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
+          >
+            Play Again
+          </button>
+        </div>
+      )}
 
-        {/* Show all objects */}
-        <div className="mb-6 text-left">
-          <p className="text-sm font-medium text-muted-foreground mb-2">The objects were:</p>
-          <div className="flex flex-wrap gap-2">
-            {objects.map((obj) => {
-              const wasRecalled = recalledObjects.some(
-                (r) => r.toLowerCase() === obj.label.toLowerCase()
-              );
-              return (
-                <Badge
-                  key={obj.id}
-                  variant="secondary"
-                  className={`text-sm py-1 px-3 ${
-                    wasRecalled
-                      ? 'bg-green-500/10 text-green-600 border-green-500/20'
-                      : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {obj.emoji} {obj.label}
-                  {wasRecalled && ' ✓'}
-                </Badge>
-              );
-            })}
+      {/* Phase: Lost */}
+      {phase === 'lost' && (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">⏰</div>
+          <h2 className="text-2xl font-bold text-destructive mb-2">Time's Up!</h2>
+          <p className="text-muted-foreground mb-2">You recalled {correctAnswers} / {objects.length} objects.</p>
+          <div className="flex flex-wrap gap-2 justify-center mb-6">
+            {objects.map((obj, i) => (
+              <span key={i} className={`text-2xl rounded-lg px-3 py-1 border ${guessed.includes(obj) ? 'bg-green-500/20 border-green-500/40' : 'bg-red-500/20 border-red-500/40'}`}>
+                {obj}
+              </span>
+            ))}
           </div>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <Button onClick={handleReset} className="w-full gap-2">
-            <RotateCcw className="h-4 w-4" />
+          <button
+            onClick={reset}
+            className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
+          >
             Try Again
-          </Button>
-          <Button variant="outline" onClick={() => navigate({ to: '/' })} className="w-full gap-2">
-            <Home className="h-4 w-4" />
-            Back to Menu
-          </Button>
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

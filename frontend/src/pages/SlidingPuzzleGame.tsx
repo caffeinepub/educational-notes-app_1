@@ -1,118 +1,115 @@
-import { useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
+import React, { useEffect } from 'react';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import useSlidingPuzzle from '../hooks/useSlidingPuzzle';
+import useGameTimer from '../hooks/useGameTimer';
+import useSoundEffects from '../hooks/useSoundEffects';
+import useScoreCalculation from '../hooks/useScoreCalculation';
+import { useCompleteLevel } from '../hooks/useQueries';
+import { GameType } from '../backend';
 import SlidingTile from '../components/SlidingTile';
 import GameControls from '../components/GameControls';
 import GameScore from '../components/GameScore';
-import { useSlidingPuzzle } from '../hooks/useSlidingPuzzle';
-import { useGameTimer } from '../hooks/useGameTimer';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useCompleteLevel } from '../hooks/useQueries';
-import { useSoundEffects } from '../hooks/useSoundEffects';
-import { GameType } from '../backend';
+import { Timer, Move } from 'lucide-react';
+
+const LEVEL = 1;
 
 export default function SlidingPuzzleGame() {
-  const navigate = useNavigate();
   const { identity } = useInternetIdentity();
-  const principal = identity?.getPrincipal().toString() || 'guest';
-  const { playClick, playSuccess } = useSoundEffects();
-
-  const { tiles, emptyIndex, moves, isComplete, handleTileClick, resetPuzzle, gridSize } = useSlidingPuzzle(1);
-  const { elapsedTime, isRunning, startTimer, stopTimer, resetTimer } = useGameTimer();
-  const completeLevel = useCompleteLevel();
-
-  useEffect(() => {
-    if (tiles.length > 0 && !isRunning && !isComplete) {
-      startTimer();
-    }
-  }, [tiles, isRunning, isComplete, startTimer]);
+  const { tiles, moves, isComplete, emptyIndex, size, moveTile, resetPuzzle } = useSlidingPuzzle(LEVEL);
+  const { elapsed, start, stop, reset: resetTimer } = useGameTimer();
+  const { playSound } = useSoundEffects();
+  const { calculateScore } = useScoreCalculation();
+  const { mutate: completeLevel } = useCompleteLevel();
+  const [showScore, setShowScore] = React.useState(false);
+  const [finalScore, setFinalScore] = React.useState(0);
+  const startTimeRef = React.useRef<bigint>(BigInt(0));
 
   useEffect(() => {
-    if (isComplete && isRunning) {
-      stopTimer();
-      playSuccess();
-      completeLevel.mutate({
-        player: principal,
-        gameType: GameType.slidingPuzzle,
-        level: BigInt(1),
-        startTime: BigInt(Date.now() - elapsedTime) * BigInt(1000000),
-        correctAnswers: BigInt(1),
-        totalQuestions: BigInt(1),
-      });
-    }
-  }, [isComplete, isRunning]);
+    start();
+    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
+  }, []);
 
-  const handleTileClickWithSound = (index: number) => {
-    playClick();
-    handleTileClick(index);
+  useEffect(() => {
+    if (isComplete) {
+      stop();
+      const score = calculateScore(elapsed, moves, LEVEL);
+      setFinalScore(score);
+      setShowScore(true);
+      playSound('success');
+      if (identity) {
+        completeLevel({
+          player: identity.getPrincipal().toString(),
+          gameType: GameType.slidingPuzzle,
+          level: BigInt(LEVEL),
+          startTime: startTimeRef.current,
+          correctAnswers: BigInt(1),
+          totalQuestions: BigInt(1),
+        });
+      }
+    }
+  }, [isComplete]);
+
+  const handleTileClick = (index: number) => {
+    playSound('click');
+    moveTile(index);
   };
 
-  const handleReset = () => {
+  const handleRestart = () => {
     resetPuzzle();
     resetTimer();
-    startTimer();
+    setShowScore(false);
+    start();
+    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={() => navigate({ to: '/' })}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">Sliding Puzzle</h1>
-          <div className="w-20" />
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Sliding Puzzle</h1>
+          <p className="text-muted-foreground text-sm">Arrange tiles in order!</p>
         </div>
-
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-around text-center">
-              <div>
-                <p className="text-sm text-muted-foreground">Time</p>
-                <p className="text-2xl font-bold">{Math.floor(elapsedTime / 1000)}s</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Moves</p>
-                <p className="text-2xl font-bold">{moves}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div
-          className="grid gap-2 mx-auto bg-card p-4 rounded-lg border border-border"
-          style={{
-            gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-            maxWidth: `${gridSize * 100}px`,
-          }}
-        >
-          {tiles.map((tile, index) => (
-            <SlidingTile
-              key={index}
-              value={tile}
-              isEmpty={index === emptyIndex}
-              onClick={() => handleTileClickWithSound(index)}
-            />
-          ))}
-        </div>
-
-        <div className="mt-6">
-          <GameControls onRestart={handleReset} />
-        </div>
-
-        {isComplete && (
-          <GameScore
-            timeTaken={elapsedTime}
-            moves={moves}
-            level={1}
-            onPlayAgain={handleReset}
-            onBackToMenu={() => navigate({ to: '/' })}
-          />
-        )}
+        <GameControls onRestart={handleRestart} />
       </div>
+
+      <div className="flex items-center gap-6 mb-6 bg-surface rounded-xl p-4 border border-border">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Timer size={16} />
+          <span className="font-mono font-bold text-foreground">
+            {Math.floor(elapsed / 60000)}:{String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0')}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Move size={16} />
+          <span className="font-bold text-foreground">{moves} moves</span>
+        </div>
+      </div>
+
+      <div
+        className="grid gap-2 mx-auto"
+        style={{
+          gridTemplateColumns: `repeat(${size}, 1fr)`,
+          maxWidth: `${size * 80}px`,
+        }}
+      >
+        {tiles.map((tile, index) => (
+          <div key={index} style={{ aspectRatio: '1' }}>
+            <SlidingTile
+              value={tile}
+              isEmpty={tile === 0}
+              onClick={() => handleTileClick(index)}
+            />
+          </div>
+        ))}
+      </div>
+
+      <GameScore
+        isOpen={showScore}
+        timeTaken={elapsed}
+        moves={moves}
+        score={finalScore}
+        onPlayAgain={handleRestart}
+      />
     </div>
   );
 }

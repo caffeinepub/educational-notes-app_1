@@ -1,151 +1,110 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, RotateCcw } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
+import useCardGame from '../hooks/useCardGame';
+import useGameTimer from '../hooks/useGameTimer';
+import useSoundEffects from '../hooks/useSoundEffects';
+import useScoreCalculation from '../hooks/useScoreCalculation';
+import { useCompleteLevel } from '../hooks/useQueries';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { GameType } from '../backend';
 import CardGrid from '../components/CardGrid';
 import GameControls from '../components/GameControls';
 import GameScore from '../components/GameScore';
-import { useCardGame } from '../hooks/useCardGame';
-import { useGameTimer } from '../hooks/useGameTimer';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useCompleteLevel } from '../hooks/useQueries';
-import { useSoundEffects } from '../hooks/useSoundEffects';
-import { GameType } from '../backend';
+import { Timer, Layers } from 'lucide-react';
+
+const LEVEL = 1;
 
 export default function CardMatchingGame() {
   const navigate = useNavigate();
   const { identity } = useInternetIdentity();
-  const principal = identity?.getPrincipal().toString() || 'guest';
-  const { playClick, playSuccess, playError } = useSoundEffects();
-
-  const { cards, flippedIndices, matchedPairs, moves, isComplete, handleCardClick, resetGame, gridSize } = useCardGame(1);
-  const { elapsedTime, isRunning, startTimer, stopTimer, resetTimer } = useGameTimer();
-  const completeLevel = useCompleteLevel();
-
-  const prevMatchedPairsRef = useRef(0);
-  const prevMovesRef = useRef(0);
-
-  useEffect(() => {
-    if (cards.length > 0 && !isRunning && !isComplete) {
-      startTimer();
-    }
-  }, [cards, isRunning, isComplete, startTimer]);
+  const { cards, flippedIndices, gridSize, moves, isComplete, handleCardClick, reset } = useCardGame(LEVEL);
+  const { elapsed, start, stop, reset: resetTimer } = useGameTimer();
+  const { playSound } = useSoundEffects();
+  const { calculateScore } = useScoreCalculation();
+  const { mutate: completeLevel } = useCompleteLevel();
+  const startTimeRef = useRef<bigint>(BigInt(0));
+  const [showScore, setShowScore] = React.useState(false);
+  const [finalScore, setFinalScore] = React.useState(0);
 
   useEffect(() => {
-    if (isComplete && isRunning) {
-      stopTimer();
-      playSuccess();
-      const totalPairs = cards.length / 2;
-      completeLevel.mutate({
-        player: principal,
-        gameType: GameType.cardMatching,
-        level: BigInt(1),
-        startTime: BigInt(Date.now() - elapsedTime) * BigInt(1000000),
-        correctAnswers: BigInt(matchedPairs),
-        totalQuestions: BigInt(totalPairs),
-      });
-    }
-  }, [isComplete, isRunning]);
-
-  // Detect match vs mismatch when flippedIndices resets after 2 cards
-  useEffect(() => {
-    if (matchedPairs > prevMatchedPairsRef.current) {
-      playSuccess();
-      prevMatchedPairsRef.current = matchedPairs;
-    }
-  }, [matchedPairs]);
+    start();
+    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
+  }, []);
 
   useEffect(() => {
-    // When moves increases but matchedPairs didn't, it was a mismatch
-    if (moves > prevMovesRef.current) {
-      if (matchedPairs === prevMatchedPairsRef.current) {
-        // Will be detected after flippedIndices clears — use a small delay check
-        const currentMoves = moves;
-        const currentMatched = matchedPairs;
-        setTimeout(() => {
-          if (currentMoves === moves && currentMatched === matchedPairs) {
-            playError();
-          }
-        }, 600);
+    if (isComplete) {
+      stop();
+      const score = calculateScore(elapsed, moves, LEVEL);
+      setFinalScore(score);
+      setShowScore(true);
+      playSound('success');
+      if (identity) {
+        const player = identity.getPrincipal().toString();
+        completeLevel({
+          player,
+          gameType: GameType.cardMatching,
+          level: BigInt(LEVEL),
+          startTime: startTimeRef.current,
+          correctAnswers: BigInt(gridSize / 2),
+          totalQuestions: BigInt(gridSize / 2),
+        });
       }
-      prevMovesRef.current = moves;
     }
-  }, [moves]);
+  }, [isComplete]);
 
-  const handleCardClickWithSound = (index: number) => {
-    playClick();
+  const handleClick = (index: number) => {
+    playSound('click');
     handleCardClick(index);
   };
 
-  const handleReset = () => {
-    resetGame();
+  const handleRestart = () => {
+    reset();
     resetTimer();
-    startTimer();
-    prevMatchedPairsRef.current = 0;
-    prevMovesRef.current = 0;
+    setShowScore(false);
+    start();
+    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={() => navigate({ to: '/' })}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">Card Matching</h1>
-          <div className="w-20" />
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Card Matching</h1>
+          <p className="text-muted-foreground text-sm">Find all matching pairs!</p>
         </div>
-
-        {/* Game Stats */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-around text-center">
-              <div>
-                <p className="text-sm text-muted-foreground">Time</p>
-                <p className="text-2xl font-bold">{Math.floor(elapsedTime / 1000)}s</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Moves</p>
-                <p className="text-2xl font-bold">{moves}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Pairs</p>
-                <p className="text-2xl font-bold">
-                  {matchedPairs}/{cards.length / 2}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Game Board */}
-        <CardGrid
-          cards={cards}
-          flippedIndices={flippedIndices}
-          matchedPairs={matchedPairs}
-          onCardClick={handleCardClickWithSound}
-          gridSize={gridSize}
-        />
-
-        {/* Controls */}
-        <div className="mt-6">
-          <GameControls onRestart={handleReset} />
-        </div>
-
-        {/* Completion Modal */}
-        {isComplete && (
-          <GameScore
-            timeTaken={elapsedTime}
-            moves={moves}
-            level={1}
-            onPlayAgain={handleReset}
-            onBackToMenu={() => navigate({ to: '/' })}
-          />
-        )}
+        <GameControls onRestart={handleRestart} />
       </div>
+
+      <div className="flex items-center gap-6 mb-6 bg-surface rounded-xl p-4 border border-border">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Timer size={16} />
+          <span className="font-mono font-bold text-foreground">
+            {Math.floor(elapsed / 60000)}:{String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0')}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Layers size={16} />
+          <span className="font-bold text-foreground">{moves} moves</span>
+        </div>
+        <div className="ml-auto text-sm text-muted-foreground">
+          {cards.filter((c) => c.isMatched).length / 2} / {gridSize / 2} pairs
+        </div>
+      </div>
+
+      <CardGrid
+        cards={cards}
+        flippedIndices={flippedIndices}
+        gridSize={gridSize}
+        onCardClick={handleClick}
+      />
+
+      <GameScore
+        isOpen={showScore}
+        timeTaken={elapsed}
+        moves={moves}
+        score={finalScore}
+        onPlayAgain={handleRestart}
+      />
     </div>
   );
 }

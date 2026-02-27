@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface CardProps {
   value: string;
   isFlipped: boolean;
@@ -7,53 +9,37 @@ interface CardProps {
 
 export default function Card({ value, isFlipped, isMatched, onClick }: CardProps) {
   return (
-    <button
+    <div
+      className={`card-container cursor-pointer select-none ${isMatched ? 'opacity-60 pointer-events-none' : ''}`}
       onClick={onClick}
-      disabled={isFlipped || isMatched}
-      className={`
-        aspect-square rounded-lg transition-all duration-300 transform
-        ${isFlipped || isMatched ? 'rotate-y-180' : ''}
-        ${isMatched ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105 cursor-pointer'}
-        ${!isFlipped && !isMatched ? 'hover:shadow-lg' : ''}
-      `}
-      style={{
-        transformStyle: 'preserve-3d',
-        perspective: '1000px',
-      }}
+      style={{ perspective: '600px' }}
     >
       <div
-        className="relative w-full h-full"
+        className="card-inner relative w-full h-full transition-transform duration-500"
         style={{
           transformStyle: 'preserve-3d',
           transform: isFlipped || isMatched ? 'rotateY(180deg)' : 'rotateY(0deg)',
-          transition: 'transform 0.6s',
         }}
       >
-        {/* Card Back */}
+        {/* Back face */}
         <div
-          className="absolute inset-0 rounded-lg flex items-center justify-center"
-          style={{
-            backfaceVisibility: 'hidden',
-          }}
+          className="card-face absolute inset-0 rounded-xl flex items-center justify-center bg-gradient-to-br from-primary to-accent shadow-md"
+          style={{ backfaceVisibility: 'hidden' }}
         >
           <img
             src="/assets/generated/card-back.dim_200x200.png"
-            alt="Card back"
-            className="w-full h-full object-cover rounded-lg"
+            alt="card back"
+            className="w-10 h-10 opacity-80"
           />
         </div>
-
-        {/* Card Front */}
+        {/* Front face */}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center text-4xl font-bold text-white shadow-lg"
-          style={{
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-          }}
+          className="card-face absolute inset-0 rounded-xl flex items-center justify-center bg-surface border-2 border-primary shadow-md text-3xl"
+          style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
         >
           {value}
         </div>
       </div>
-    </button>
+    </div>
   );
 }

@@ -1,84 +1,41 @@
 import { useCallback } from 'react';
 
-function getAudioContext(): AudioContext | null {
-  try {
-    const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioCtx) return null;
-    return new AudioCtx();
-  } catch {
-    return null;
-  }
-}
-
-export function useSoundEffects() {
-  const playClick = useCallback(() => {
-    const ctx = getAudioContext();
-    if (!ctx) return;
+export default function useSoundEffects() {
+  const playSound = useCallback((type: 'click' | 'success' | 'error') => {
     try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = ctx.createOscillator();
       const gainNode = ctx.createGain();
+
       oscillator.connect(gainNode);
       gainNode.connect(ctx.destination);
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(800, ctx.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(600, ctx.currentTime + 0.05);
-      gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.08);
-      oscillator.onended = () => ctx.close();
+
+      if (type === 'click') {
+        oscillator.frequency.setValueAtTime(440, ctx.currentTime);
+        gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.1);
+      } else if (type === 'success') {
+        oscillator.frequency.setValueAtTime(523, ctx.currentTime);
+        oscillator.frequency.setValueAtTime(659, ctx.currentTime + 0.1);
+        oscillator.frequency.setValueAtTime(784, ctx.currentTime + 0.2);
+        gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.4);
+      } else if (type === 'error') {
+        oscillator.frequency.setValueAtTime(200, ctx.currentTime);
+        oscillator.frequency.setValueAtTime(150, ctx.currentTime + 0.1);
+        gainNode.gain.setValueAtTime(0.15, ctx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.3);
+      }
     } catch {
-      ctx.close();
+      // AudioContext not available
     }
   }, []);
 
-  const playSuccess = useCallback(() => {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    try {
-      const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
-      notes.forEach((freq, i) => {
-        const oscillator = ctx.createOscillator();
-        const gainNode = ctx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        oscillator.type = 'sine';
-        const startTime = ctx.currentTime + i * 0.08;
-        oscillator.frequency.setValueAtTime(freq, startTime);
-        gainNode.gain.setValueAtTime(0, startTime);
-        gainNode.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
-        oscillator.start(startTime);
-        oscillator.stop(startTime + 0.15);
-        if (i === notes.length - 1) {
-          oscillator.onended = () => ctx.close();
-        }
-      });
-    } catch {
-      ctx.close();
-    }
-  }, []);
-
-  const playError = useCallback(() => {
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    try {
-      const oscillator = ctx.createOscillator();
-      const gainNode = ctx.createGain();
-      oscillator.connect(gainNode);
-      gainNode.connect(ctx.destination);
-      oscillator.type = 'sawtooth';
-      oscillator.frequency.setValueAtTime(220, ctx.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.3);
-      gainNode.gain.setValueAtTime(0.2, ctx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-      oscillator.start(ctx.currentTime);
-      oscillator.stop(ctx.currentTime + 0.3);
-      oscillator.onended = () => ctx.close();
-    } catch {
-      ctx.close();
-    }
-  }, []);
-
-  return { playClick, playSuccess, playError };
+  return { playSound };
 }

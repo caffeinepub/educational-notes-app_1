@@ -1,99 +1,78 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getDifficultyConfig } from '../utils/difficultyConfig';
+import { useState, useCallback } from 'react';
 
-interface CardData {
+const EMOJIS = ['🍎', '🍊', '🍋', '🍇', '🍓', '🍒', '🥝', '🍑', '🥭', '🍍', '🥥', '🍌'];
+
+interface CardItem {
   id: number;
   value: string;
   isFlipped: boolean;
   isMatched: boolean;
 }
 
-export function useCardGame(level: number) {
-  const config = getDifficultyConfig('cardMatching', level);
-  const gridSize = config.gridSize;
-  const totalCards = gridSize * gridSize;
-  const totalPairs = totalCards / 2;
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
-  const [cards, setCards] = useState<CardData[]>([]);
+export default function useCardGame(level: number) {
+  const pairCount = Math.min(6 + level * 2, 12);
+  const gridSize = pairCount * 2;
+
+  const generateCards = useCallback((): CardItem[] => {
+    const selected = EMOJIS.slice(0, pairCount);
+    const pairs = [...selected, ...selected];
+    return shuffle(pairs).map((value, id) => ({ id, value, isFlipped: false, isMatched: false }));
+  }, [pairCount]);
+
+  const [cards, setCards] = useState<CardItem[]>(generateCards);
   const [flippedIndices, setFlippedIndices] = useState<number[]>([]);
-  const [matchedPairs, setMatchedPairs] = useState(0);
   const [moves, setMoves] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
-
-  const generateCards = useCallback(() => {
-    const emojis = ['🎮', '🎯', '🎨', '🎭', '🎪', '🎬', '🎸', '🎹', '🎺', '🎻', '🎲', '🎰', '🏀', '⚽', '🏈', '⚾'];
-    const selectedEmojis = emojis.slice(0, totalPairs);
-    const cardValues = [...selectedEmojis, ...selectedEmojis];
-    
-    // Shuffle cards
-    const shuffled = cardValues
-      .map((value, index) => ({ id: index, value, isFlipped: false, isMatched: false }))
-      .sort(() => Math.random() - 0.5);
-    
-    return shuffled;
-  }, [totalPairs]);
-
-  useEffect(() => {
-    setCards(generateCards());
-    setFlippedIndices([]);
-    setMatchedPairs(0);
-    setMoves(0);
-    setIsComplete(false);
-  }, [generateCards]);
+  const [isChecking, setIsChecking] = useState(false);
 
   const handleCardClick = useCallback((index: number) => {
-    if (flippedIndices.length === 2 || cards[index].isMatched || flippedIndices.includes(index)) {
-      return;
-    }
+    if (isChecking || cards[index].isMatched || flippedIndices.includes(index)) return;
+    if (flippedIndices.length === 2) return;
 
-    const newFlippedIndices = [...flippedIndices, index];
-    setFlippedIndices(newFlippedIndices);
+    const newFlipped = [...flippedIndices, index];
+    setFlippedIndices(newFlipped);
 
-    if (newFlippedIndices.length === 2) {
-      setMoves((prev) => prev + 1);
-      const [firstIndex, secondIndex] = newFlippedIndices;
-      
-      if (cards[firstIndex].value === cards[secondIndex].value) {
-        // Match found
+    if (newFlipped.length === 2) {
+      setMoves((m) => m + 1);
+      setIsChecking(true);
+      const [a, b] = newFlipped;
+      if (cards[a].value === cards[b].value) {
         setTimeout(() => {
           setCards((prev) =>
-            prev.map((card, i) =>
-              i === firstIndex || i === secondIndex ? { ...card, isMatched: true } : card
-            )
+            prev.map((c, i) => (i === a || i === b ? { ...c, isMatched: true } : c))
           );
-          setMatchedPairs((prev) => prev + 1);
           setFlippedIndices([]);
-          
-          // Check if game is complete
-          if (matchedPairs + 1 === totalPairs) {
-            setIsComplete(true);
-          }
+          setIsChecking(false);
+          setIsComplete((prev) => {
+            const matched = cards.filter((c) => c.isMatched).length + 2;
+            return matched === cards.length;
+          });
         }, 500);
       } else {
-        // No match
         setTimeout(() => {
           setFlippedIndices([]);
+          setIsChecking(false);
         }, 1000);
       }
     }
-  }, [flippedIndices, cards, matchedPairs, totalPairs]);
+  }, [cards, flippedIndices, isChecking]);
 
-  const resetGame = useCallback(() => {
+  const reset = useCallback(() => {
     setCards(generateCards());
     setFlippedIndices([]);
-    setMatchedPairs(0);
     setMoves(0);
     setIsComplete(false);
+    setIsChecking(false);
   }, [generateCards]);
 
-  return {
-    cards,
-    flippedIndices,
-    matchedPairs,
-    moves,
-    isComplete,
-    handleCardClick,
-    resetGame,
-    gridSize,
-  };
+  return { cards, flippedIndices, gridSize, moves, isComplete, handleCardClick, reset };
 }

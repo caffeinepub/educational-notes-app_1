@@ -1,54 +1,30 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useRef, useCallback } from 'react';
 
-export function useGameTimer() {
-  const [elapsedTime, setElapsedTime] = useState(0);
+export default function useGameTimer() {
+  const [elapsed, setElapsed] = useState(0);
   const [isRunning, setIsRunning] = useState(false);
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  const startTimer = useCallback(() => {
-    if (!isRunning) {
-      startTimeRef.current = Date.now() - elapsedTime;
-      setIsRunning(true);
-    }
-  }, [isRunning, elapsedTime]);
+  const start = useCallback(() => {
+    if (isRunning) return;
+    startTimeRef.current = Date.now() - elapsed;
+    setIsRunning(true);
+    intervalRef.current = setInterval(() => {
+      setElapsed(Date.now() - startTimeRef.current);
+    }, 100);
+  }, [isRunning, elapsed]);
 
-  const stopTimer = useCallback(() => {
+  const stop = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
     setIsRunning(false);
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
   }, []);
 
-  const resetTimer = useCallback(() => {
-    setElapsedTime(0);
+  const reset = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
     setIsRunning(false);
-    if (intervalRef.current !== null) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
+    setElapsed(0);
   }, []);
 
-  useEffect(() => {
-    if (isRunning) {
-      intervalRef.current = window.setInterval(() => {
-        setElapsedTime(Date.now() - startTimeRef.current);
-      }, 100);
-    }
-
-    return () => {
-      if (intervalRef.current !== null) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [isRunning]);
-
-  return {
-    elapsedTime,
-    isRunning,
-    startTimer,
-    stopTimer,
-    resetTimer,
-  };
+  return { elapsed, isRunning, start, stop, reset };
 }

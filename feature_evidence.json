@@ -2,55 +2,32 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-custom-usesoundeffects-hook-that-generates-and-plays-three-short-sound-effects-using-the-web-audio-api-no-external-files-needed-a-soft-click-tap-sound-on-every-interactive-button-press-a-cheerful-success-chime-on-correct-answers-and-a-low-buzz-error-sound-on-wrong-answers-the-hook-should-expose-play-functions-playclick-playsuccess-playerror",
-      "featureTitle": "Create a custom useSoundEffects hook that generates and plays three short sound effects using the Web Audio API (no external files needed): a soft click/tap sound on every interactive button press, a cheerful success chime on correct answers, and a low buzz/error sound on wrong answers. The hook should expose play functions: playClick(), playSuccess(), playError().",
+      "featureId": "feature-rebuild-and-redeploy-the-entire-memory-increase-brain-training-game-application-frontend-and-backend-to-generate-a-fresh-canister-deployment-with-a-new-working-live-url",
+      "featureTitle": "Rebuild and redeploy the entire Memory Increase Brain Training Game application — frontend and backend — to generate a fresh canister deployment with a new working live URL.",
       "files": [
-        "frontend/src/hooks/useSoundEffects.ts"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-integrate-sound-effects-into-all-section-a-game-pages-cardmatchinggame-memorytestgame-patternmemorygame-sequencememorygame-slidingpuzzlegame-stroopeffectgame-and-speedtypinggame-call-playclick-on-every-button-tile-interaction-playsuccess-on-correct-answers-or-level-completion-and-playerror-on-wrong-answers-or-game-over-states",
-      "featureTitle": "Integrate sound effects into all Section A game pages: CardMatchingGame, MemoryTestGame, PatternMemoryGame, SequenceMemoryGame, SlidingPuzzleGame, StroopEffectGame, and SpeedTypingGame. Call playClick() on every button/tile interaction, playSuccess() on correct answers or level completion, and playError() on wrong answers or game-over states.",
-      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/Card.tsx",
+        "frontend/src/components/CardGrid.tsx",
+        "frontend/src/components/GameCard.tsx",
+        "frontend/src/components/GameControls.tsx",
+        "frontend/src/components/GameScore.tsx",
+        "frontend/src/components/Layout.tsx",
+        "frontend/src/components/PatternGrid.tsx",
+        "frontend/src/components/SequenceItem.tsx",
+        "frontend/src/components/SlidingTile.tsx",
+        "frontend/src/components/StroopDisplay.tsx",
+        "frontend/src/hooks/useBackgroundMusic.ts",
+        "frontend/src/hooks/useQueries.ts",
         "frontend/src/pages/CardMatchingGame.tsx",
+        "frontend/src/pages/FillInTheBlanksGame.tsx",
+        "frontend/src/pages/HomePage.tsx",
         "frontend/src/pages/MemoryTestGame.tsx",
+        "frontend/src/pages/MissingLetterGame.tsx",
         "frontend/src/pages/PatternMemoryGame.tsx",
         "frontend/src/pages/SequenceMemoryGame.tsx",
         "frontend/src/pages/SlidingPuzzleGame.tsx",
         "frontend/src/pages/SpeedTypingGame.tsx",
-        "frontend/src/pages/StroopEffectGame.tsx"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-integrate-sound-effects-into-all-section-b-game-pages-missinglettergame-wordscramblegame-and-fillintheblanksgame-call-playclick-on-every-button-press-or-input-submission-playsuccess-on-correct-answers-and-playerror-on-wrong-answers",
-      "featureTitle": "Integrate sound effects into all Section B game pages: MissingLetterGame, WordScrambleGame, and FillInTheBlanksGame. Call playClick() on every button press or input submission, playSuccess() on correct answers, and playError() on wrong answers.",
-      "files": [
-        "frontend/src/pages/FillInTheBlanksGame.tsx",
-        "frontend/src/pages/MissingLetterGame.tsx",
+        "frontend/src/pages/StroopEffectGame.tsx",
         "frontend/src/pages/WordScrambleGame.tsx"
       ],
       "components": [
@@ -62,7 +39,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-3"
+        "REQ-1"
       ],
       "confidence": "high"
     }

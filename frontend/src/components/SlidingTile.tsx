@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface SlidingTileProps {
   value: number;
   isEmpty: boolean;
@@ -6,13 +8,13 @@ interface SlidingTileProps {
 
 export default function SlidingTile({ value, isEmpty, onClick }: SlidingTileProps) {
   if (isEmpty) {
-    return <div className="aspect-square rounded-lg bg-muted/30" />;
+    return <div className="w-full h-full rounded-xl bg-muted/30 border-2 border-dashed border-border" />;
   }
 
   return (
     <button
       onClick={onClick}
-      className="aspect-square rounded-lg bg-gradient-to-br from-primary to-accent text-white font-bold text-2xl hover:scale-105 transition-transform shadow-md hover:shadow-lg"
+      className="w-full h-full rounded-xl bg-gradient-to-br from-primary to-accent text-primary-foreground font-bold text-xl shadow-md hover:shadow-lg hover:scale-95 transition-all duration-150 border-2 border-primary/30"
     >
       {value}
     </button>

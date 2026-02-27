@@ -1,35 +1,21 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Educational app ('Memory Increase') with games in Section A and Section B (including Missing Letter game). Features difficulty levels and 'Show Answer' button. Sound effects being added across all games.",
+  "summary": "Memory Increase - Brain Training Game app project on ICP (Internet Computer Platform). User wants to rebuild the app to get a new working link after experiencing 'Canister ID not resolved' errors.",
   "architectural_notes": [
-    "App is a PWA (Progressive Web App) deployed on ICP at https://7qf4a-ziaaa-aaaap-qncea-cai.icp0.io",
-    "App has two sections: Section A and Section B, with games including Missing Letter game"
+    "App is deployed on Internet Computer (ICP) blockchain as a PWA web app",
+    "Live app link: https://7qf4a-ziaaa-aaaap-qncea-cai.icp0.io (experiencing Canister ID not resolved errors)"
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "'Canister ID not resolved' error when accessing live app link - ICP server issue"
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-create-a-custom-usesoundeffects-hook-that-generates-and-plays-three-short-sound-effects-using-the-web-audio-api-no-external-files-needed-a-soft-click-tap-sound-on-every-interactive-button-press-a-cheerful-success-chime-on-correct-answers-and-a-low-buzz-error-sound-on-wrong-answers-the-hook-should-expose-play-functions-playclick-playsuccess-playerror",
-      "title": "Create a custom useSoundEffects hook that generates and plays three short sound effects using the Web Audio API (no external files needed): a soft click/tap sound on every interactive button press, a cheerful success chime on correct answers, and a low buzz/error sound on wrong answers. The hook should expose play functions: playClick(), playSuccess(), playError().",
+      "id": "feature-rebuild-and-redeploy-the-entire-memory-increase-brain-training-game-application-frontend-and-backend-to-generate-a-fresh-canister-deployment-with-a-new-working-live-url",
+      "title": "Rebuild and redeploy the entire Memory Increase Brain Training Game application — frontend and backend — to generate a fresh canister deployment with a new working live URL.",
       "reqIds": [
         "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-integrate-sound-effects-into-all-section-a-game-pages-cardmatchinggame-memorytestgame-patternmemorygame-sequencememorygame-slidingpuzzlegame-stroopeffectgame-and-speedtypinggame-call-playclick-on-every-button-tile-interaction-playsuccess-on-correct-answers-or-level-completion-and-playerror-on-wrong-answers-or-game-over-states",
-      "title": "Integrate sound effects into all Section A game pages: CardMatchingGame, MemoryTestGame, PatternMemoryGame, SequenceMemoryGame, SlidingPuzzleGame, StroopEffectGame, and SpeedTypingGame. Call playClick() on every button/tile interaction, playSuccess() on correct answers or level completion, and playError() on wrong answers or game-over states.",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-integrate-sound-effects-into-all-section-b-game-pages-missinglettergame-wordscramblegame-and-fillintheblanksgame-call-playclick-on-every-button-press-or-input-submission-playsuccess-on-correct-answers-and-playerror-on-wrong-answers",
-      "title": "Integrate sound effects into all Section B game pages: MissingLetterGame, WordScrambleGame, and FillInTheBlanksGame. Call playClick() on every button press or input submission, playSuccess() on correct answers, and playError() on wrong answers.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
@@ -37,13 +23,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add short sound effects to all games: click sound on every tap, success sound on correct answer, error sound on wrong answer",
+      "summary": "Rebuild Memory Increase Brain Training Game app for a new working deployment link",
       "reqIds": [],
       "status": "pending"
     }
   ],
   "gameProjectType": "2d",
-  "projectName": "Memory Increase",
+  "projectName": "Memory Increase - Brain Training Game",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

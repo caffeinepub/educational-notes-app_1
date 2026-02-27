@@ -1,146 +1,83 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { getDifficultyConfig } from '../utils/difficultyConfig';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
-interface StroopEffectState {
-  currentWord: string;
-  currentColor: string;
-  displayColor: string;
-  round: number;
-  score: number;
-  correctAnswers: number;
-  timeRemaining: number;
-  isComplete: boolean;
-  gameOver: boolean;
+const COLORS = ['Red', 'Blue', 'Green', 'Yellow'];
+const ROUND_TIME = 30;
+
+function randomPair() {
+  const word = COLORS[Math.floor(Math.random() * COLORS.length)];
+  let color = COLORS[Math.floor(Math.random() * COLORS.length)];
+  while (color === word) color = COLORS[Math.floor(Math.random() * COLORS.length)];
+  return { word, color };
 }
 
-const colors = ['Red', 'Blue', 'Green', 'Yellow'];
-
-function generateColorPair(): { word: string; displayColor: string } {
-  const word = colors[Math.floor(Math.random() * colors.length)];
-  let displayColor = colors[Math.floor(Math.random() * colors.length)];
-  
-  // Ensure word and display color are different
-  while (displayColor === word) {
-    displayColor = colors[Math.floor(Math.random() * colors.length)];
-  }
-  
-  return { word, displayColor };
-}
-
-export function useStroopEffect(level: number) {
-  const config = getDifficultyConfig('stroopEffect', level);
-  const timerDuration = config.timerDuration || 30000; // Default 30 seconds
-  
-  const [state, setState] = useState<StroopEffectState>(() => {
-    const { word, displayColor } = generateColorPair();
-    return {
-      currentWord: word,
-      currentColor: word,
-      displayColor,
-      round: 1,
-      score: 0,
-      correctAnswers: 0,
-      timeRemaining: timerDuration,
-      isComplete: false,
-      gameOver: false,
-    };
-  });
-
-  const timerRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number>(Date.now());
+export default function useStroopEffect(level: number) {
+  const totalRounds = 10 + level * 5;
+  const [pair, setPair] = useState(randomPair);
+  const [score, setScore] = useState(0);
+  const [round, setRound] = useState(1);
+  const [timeRemaining, setTimeRemaining] = useState(ROUND_TIME);
+  const [isComplete, setIsComplete] = useState(false);
+  const [lastCorrect, setLastCorrect] = useState<boolean | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (state.isComplete || state.gameOver) {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-      return;
-    }
-
-    startTimeRef.current = Date.now();
-    
-    timerRef.current = window.setInterval(() => {
-      const elapsed = Date.now() - startTimeRef.current;
-      const remaining = Math.max(0, timerDuration - elapsed);
-      
-      setState((prev) => {
-        if (remaining <= 0) {
-          return { ...prev, timeRemaining: 0, gameOver: true };
+    timerRef.current = setInterval(() => {
+      setTimeRemaining((t) => {
+        if (t <= 1) {
+          clearInterval(timerRef.current!);
+          setIsComplete(true);
+          return 0;
         }
-        return { ...prev, timeRemaining: remaining };
+        return t - 1;
       });
-    }, 100);
-
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [state.isComplete, state.gameOver, timerDuration]);
-
-  const handleColorSelect = useCallback((selectedColor: string) => {
-    setState((prev) => {
-      if (prev.isComplete || prev.gameOver) return prev;
-
-      const isCorrect = selectedColor === prev.displayColor;
-      const newScore = isCorrect ? prev.score + 10 : prev.score;
-      const newCorrectAnswers = isCorrect ? prev.correctAnswers + 1 : prev.correctAnswers;
-      const newRound = prev.round + 1;
-
-      // Check if game is complete (30 rounds)
-      if (newRound > 30) {
-        return {
-          ...prev,
-          score: newScore,
-          correctAnswers: newCorrectAnswers,
-          isComplete: true,
-        };
-      }
-
-      // Generate new color pair
-      const { word, displayColor } = generateColorPair();
-
-      return {
-        ...prev,
-        currentWord: word,
-        currentColor: word,
-        displayColor,
-        round: newRound,
-        score: newScore,
-        correctAnswers: newCorrectAnswers,
-      };
-    });
+    }, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, []);
 
-  const resetGame = useCallback(() => {
-    const { word, displayColor } = generateColorPair();
-    setState({
-      currentWord: word,
-      currentColor: word,
-      displayColor,
-      round: 1,
-      score: 0,
-      correctAnswers: 0,
-      timeRemaining: timerDuration,
-      isComplete: false,
-      gameOver: false,
-    });
-    startTimeRef.current = Date.now();
-  }, [timerDuration]);
+  const handleAnswer = useCallback((color: string) => {
+    if (isComplete) return;
+    const correct = color.toLowerCase() === pair.color.toLowerCase();
+    setLastCorrect(correct);
+    if (correct) setScore((s) => s + 1);
+    if (round >= totalRounds) {
+      setIsComplete(true);
+      if (timerRef.current) clearInterval(timerRef.current);
+    } else {
+      setRound((r) => r + 1);
+      setPair(randomPair());
+    }
+  }, [isComplete, pair, round, totalRounds]);
+
+  const reset = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setPair(randomPair());
+    setScore(0);
+    setRound(1);
+    setTimeRemaining(ROUND_TIME);
+    setIsComplete(false);
+    setLastCorrect(null);
+    timerRef.current = setInterval(() => {
+      setTimeRemaining((t) => {
+        if (t <= 1) {
+          clearInterval(timerRef.current!);
+          setIsComplete(true);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+  }, []);
 
   return {
-    currentWord: state.currentWord,
-    currentColor: state.currentColor,
-    displayColor: state.displayColor,
-    round: state.round,
-    score: state.score,
-    correctAnswers: state.correctAnswers,
-    timeRemaining: state.timeRemaining,
-    isComplete: state.isComplete,
-    gameOver: state.gameOver,
-    handleColorSelect,
-    resetGame,
+    currentWord: pair.word,
+    displayColor: pair.color,
+    score,
+    round,
+    totalRounds,
+    timeRemaining,
+    isComplete,
+    lastCorrect,
+    handleAnswer,
+    reset,
   };
 }

@@ -1,115 +1,80 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getDifficultyConfig } from '../utils/difficultyConfig';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
-type Phase = 'memorize' | 'input' | 'complete';
+function generatePattern(size: number, count: number): boolean[][] {
+  const grid = Array.from({ length: size }, () => Array(size).fill(false) as boolean[]);
+  let placed = 0;
+  while (placed < count) {
+    const r = Math.floor(Math.random() * size);
+    const c = Math.floor(Math.random() * size);
+    if (!grid[r][c]) {
+      grid[r][c] = true;
+      placed++;
+    }
+  }
+  return grid;
+}
 
-export function usePatternMemory(level: number) {
-  const config = getDifficultyConfig('patternMemory', level);
-  const gridSize = config.gridSize;
-  const patternCount = config.patternCount || Math.floor((gridSize * gridSize) / 3);
+export default function usePatternMemory(level: number) {
+  const size = Math.min(3 + Math.floor(level / 2), 6);
+  const cellCount = Math.min(3 + level, size * size - 1);
+  const memorizeTime = Math.max(2000, 5000 - level * 300);
 
-  const [pattern, setPattern] = useState<boolean[][]>([]);
-  const [userPattern, setUserPattern] = useState<boolean[][]>([]);
-  const [phase, setPhase] = useState<Phase>('memorize');
+  const [pattern, setPattern] = useState<boolean[][]>(() => generatePattern(size, cellCount));
+  const [userPattern, setUserPattern] = useState<boolean[][]>(() =>
+    Array.from({ length: size }, () => Array(size).fill(false))
+  );
+  const [phase, setPhase] = useState<'memorize' | 'recall' | 'won' | 'lost'>('memorize');
   const [attempts, setAttempts] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const generatePattern = useCallback(() => {
-    const newPattern = Array(gridSize)
-      .fill(null)
-      .map(() => Array(gridSize).fill(false));
-
-    let count = 0;
-    while (count < patternCount) {
-      const row = Math.floor(Math.random() * gridSize);
-      const col = Math.floor(Math.random() * gridSize);
-      if (!newPattern[row][col]) {
-        newPattern[row][col] = true;
-        count++;
-      }
-    }
-
-    return newPattern;
-  }, [gridSize, patternCount]);
+  const startMemorize = useCallback(() => {
+    setPhase('memorize');
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setPhase('recall'), memorizeTime);
+  }, [memorizeTime]);
 
   useEffect(() => {
-    const newPattern = generatePattern();
-    setPattern(newPattern);
-    setUserPattern(
-      Array(gridSize)
-        .fill(null)
-        .map(() => Array(gridSize).fill(false))
-    );
-    setPhase('memorize');
-    setAttempts(0);
-    setIsComplete(false);
-
-    const timer = setTimeout(() => {
-      setPhase('input');
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [generatePattern, gridSize]);
+    startMemorize();
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [startMemorize]);
 
   const handleCellClick = useCallback((row: number, col: number) => {
+    if (phase !== 'recall') return;
     setUserPattern((prev) => {
-      const newPattern = prev.map((r) => [...r]);
-      newPattern[row][col] = !newPattern[row][col];
-      return newPattern;
+      const next = prev.map((r) => [...r]);
+      next[row][col] = !next[row][col];
+      return next;
     });
-  }, []);
+  }, [phase]);
 
-  const checkPattern = useCallback(() => {
-    for (let i = 0; i < gridSize; i++) {
-      for (let j = 0; j < gridSize; j++) {
-        if (pattern[i][j] !== userPattern[i][j]) {
-          return false;
-        }
+  const submitPattern = useCallback(() => {
+    let correct = true;
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (pattern[r][c] !== userPattern[r][c]) { correct = false; break; }
       }
+      if (!correct) break;
     }
-    return true;
-  }, [pattern, userPattern, gridSize]);
-
-  const handleSubmit = useCallback(() => {
-    setAttempts((prev) => prev + 1);
-    if (checkPattern()) {
-      setPhase('complete');
+    if (correct) {
+      setPhase('won');
       setIsComplete(true);
     } else {
-      setUserPattern(
-        Array(gridSize)
-          .fill(null)
-          .map(() => Array(gridSize).fill(false))
-      );
+      setAttempts((a) => a + 1);
+      setPhase('lost');
     }
-  }, [checkPattern, gridSize]);
+  }, [pattern, userPattern, size]);
 
-  const resetGame = useCallback(() => {
-    const newPattern = generatePattern();
+  const reset = useCallback(() => {
+    const newPattern = generatePattern(size, cellCount);
     setPattern(newPattern);
-    setUserPattern(
-      Array(gridSize)
-        .fill(null)
-        .map(() => Array(gridSize).fill(false))
-    );
-    setPhase('memorize');
+    setUserPattern(Array.from({ length: size }, () => Array(size).fill(false)));
     setAttempts(0);
     setIsComplete(false);
+    setPhase('memorize');
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setPhase('recall'), memorizeTime);
+  }, [size, cellCount, memorizeTime]);
 
-    setTimeout(() => {
-      setPhase('input');
-    }, 3000);
-  }, [generatePattern, gridSize]);
-
-  return {
-    pattern,
-    userPattern,
-    phase,
-    attempts,
-    isComplete,
-    handleCellClick,
-    handleSubmit,
-    resetGame,
-    gridSize,
-  };
+  return { pattern, userPattern, phase, attempts, isComplete, size, handleCellClick, submitPattern, reset };
 }

@@ -1,46 +1,42 @@
+import React from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Eye, SkipForward } from 'lucide-react';
+import { ArrowLeft, Eye } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import GameControls from '../components/GameControls';
-import { useMissingLetter } from '../hooks/useMissingLetter';
-import { useSoundEffects } from '../hooks/useSoundEffects';
-import { Difficulty } from '../utils/wordDatabase';
+import useMissingLetter from '../hooks/useMissingLetter';
+import useSoundEffects from '../hooks/useSoundEffects';
+
+type Difficulty = 'easy' | 'hard';
 
 export default function MissingLetterGame() {
   const navigate = useNavigate();
-  const { playClick, playSuccess, playError } = useSoundEffects();
+  const { playSound } = useSoundEffects();
   const {
     difficulty,
     currentWord,
     wordDisplay,
-    userInput,
-    setUserInput,
-    isCorrect,
-    showAnswer,
+    inputValue,
+    setInputValue,
     score,
     streak,
+    feedback,
+    showAnswer,
+    selectDifficulty,
     handleSubmit,
     handleShowAnswer,
-    nextWord,
-    selectDifficulty,
   } = useMissingLetter();
 
   const handleCheckWithSound = () => {
-    playClick();
-    // Determine correctness before calling handleSubmit (which updates state)
-    const correct = userInput.trim().toLowerCase() === currentWord.toLowerCase();
-    if (correct) {
-      playSuccess();
-    } else {
-      playError();
-    }
+    playSound('click');
+    const correct = inputValue.trim().toLowerCase() === currentWord.toLowerCase();
     handleSubmit();
+    setTimeout(() => playSound(correct ? 'success' : 'error'), 50);
   };
 
   const handleShowAnswerWithSound = () => {
-    playClick();
+    playSound('click');
     handleShowAnswer();
   };
 
@@ -70,7 +66,7 @@ export default function MissingLetterGame() {
           <CardContent className="pt-4 pb-4">
             <div className="flex items-center justify-center gap-3">
               <span className="text-sm font-medium text-muted-foreground">Difficulty:</span>
-              {(['easy', 'hard'] as Difficulty[]).map(d => (
+              {(['easy', 'hard'] as Difficulty[]).map((d) => (
                 <Button
                   key={d}
                   size="sm"
@@ -136,44 +132,46 @@ export default function MissingLetterGame() {
               )}
 
               {/* Feedback */}
-              {isCorrect === true && (
+              {feedback === 'correct' && (
                 <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
                   <p className="text-green-600 dark:text-green-400 font-semibold">✅ Correct! Loading next word...</p>
                 </div>
               )}
-              {isCorrect === false && !showAnswer && (
+              {feedback === 'wrong' && !showAnswer && (
                 <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30">
                   <p className="text-destructive font-semibold">❌ Wrong answer! Try again or see the answer.</p>
+                </div>
+              )}
+              {feedback === 'revealed' && (
+                <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/30">
+                  <p className="text-accent font-semibold">💡 Answer revealed. Next word loading...</p>
                 </div>
               )}
 
               {/* Input */}
               <div className="flex gap-3 max-w-sm mx-auto">
                 <Input
-                  value={userInput}
-                  onChange={e => setUserInput(e.target.value)}
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder="Type the full word..."
                   className="text-center text-lg"
-                  disabled={isCorrect === true}
+                  disabled={feedback === 'correct' || showAnswer}
                 />
-                <Button onClick={handleCheckWithSound} disabled={isCorrect === true || !userInput.trim()}>
+                <Button
+                  onClick={handleCheckWithSound}
+                  disabled={feedback === 'correct' || showAnswer || !inputValue.trim()}
+                >
                   Submit
                 </Button>
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-3 justify-center mt-4">
-                {isCorrect === false && !showAnswer && (
+                {feedback === 'wrong' && !showAnswer && (
                   <Button variant="outline" size="sm" onClick={handleShowAnswerWithSound}>
                     <Eye className="h-4 w-4 mr-2" />
                     Show Answer
-                  </Button>
-                )}
-                {(showAnswer || isCorrect === false) && (
-                  <Button variant="outline" size="sm" onClick={nextWord}>
-                    <SkipForward className="h-4 w-4 mr-2" />
-                    Next Word
                   </Button>
                 )}
               </div>

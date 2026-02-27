@@ -1,65 +1,68 @@
+import React from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { Trophy, RotateCcw, Home } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
-import { Button } from './ui/button';
-import { useScoreCalculation } from '../hooks/useScoreCalculation';
 
 interface GameScoreProps {
+  isOpen: boolean;
   timeTaken: number;
   moves: number;
-  level: number;
+  score: number;
   onPlayAgain: () => void;
-  onBackToMenu: () => void;
 }
 
-export default function GameScore({ timeTaken, moves, level, onPlayAgain, onBackToMenu }: GameScoreProps) {
-  const score = useScoreCalculation(timeTaken, moves, level);
+function formatTime(ms: number): string {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+export default function GameScore({ isOpen, timeTaken, moves, score, onPlayAgain }: GameScoreProps) {
+  const navigate = useNavigate();
+
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={true}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex justify-center mb-4">
-            <img
-              src="/assets/generated/trophy.dim_64x64.png"
-              alt="Trophy"
-              className="h-16 w-16"
-            />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <div className="bg-surface rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl border border-border text-center">
+        <div className="flex justify-center mb-4">
+          <img src="/assets/generated/trophy.dim_64x64.png" alt="Trophy" className="w-16 h-16" />
+        </div>
+        <h2 className="text-2xl font-extrabold text-primary mb-2">Level Complete! 🎉</h2>
+        <p className="text-muted-foreground mb-6">Great job! Here are your results:</p>
+
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="bg-muted rounded-xl p-3">
+            <p className="text-xs text-muted-foreground mb-1">Time</p>
+            <p className="font-bold text-foreground">{formatTime(timeTaken)}</p>
           </div>
-          <DialogTitle className="text-center text-2xl">Congratulations!</DialogTitle>
-          <DialogDescription className="text-center">
-            You completed the puzzle!
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-4 rounded-lg bg-muted">
-              <p className="text-sm text-muted-foreground">Time</p>
-              <p className="text-2xl font-bold">{Math.floor(timeTaken / 1000)}s</p>
-            </div>
-            <div className="text-center p-4 rounded-lg bg-muted">
-              <p className="text-sm text-muted-foreground">Moves</p>
-              <p className="text-2xl font-bold">{moves}</p>
-            </div>
+          <div className="bg-muted rounded-xl p-3">
+            <p className="text-xs text-muted-foreground mb-1">Moves</p>
+            <p className="font-bold text-foreground">{moves}</p>
           </div>
-          
-          <div className="text-center p-6 rounded-lg bg-gradient-to-br from-primary to-accent text-white">
-            <p className="text-sm opacity-90">Your Score</p>
-            <p className="text-4xl font-bold">{score}</p>
+          <div className="bg-muted rounded-xl p-3">
+            <p className="text-xs text-muted-foreground mb-1">Score</p>
+            <p className="font-bold text-primary">{score}</p>
           </div>
         </div>
 
         <div className="flex gap-3">
-          <Button onClick={onPlayAgain} className="flex-1">
-            <RotateCcw className="h-4 w-4 mr-2" />
+          <button
+            onClick={onPlayAgain}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
+          >
+            <RotateCcw size={16} />
             Play Again
-          </Button>
-          <Button onClick={onBackToMenu} variant="outline" className="flex-1">
-            <Home className="h-4 w-4 mr-2" />
+          </button>
+          <button
+            onClick={() => navigate({ to: '/' })}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-muted-foreground font-bold hover:bg-muted/80 transition-colors"
+          >
+            <Home size={16} />
             Menu
-          </Button>
+          </button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

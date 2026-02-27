@@ -1,33 +1,41 @@
+import React from 'react';
+
 interface PatternGridProps {
   pattern: boolean[][];
-  userPattern: boolean[][];
-  phase: 'memorize' | 'input' | 'complete';
-  onCellClick: (row: number, col: number) => void;
-  gridSize: number;
+  userPattern?: boolean[][];
+  isDisplayMode: boolean;
+  onCellClick?: (row: number, col: number) => void;
+  size: number;
 }
 
-export default function PatternGrid({ pattern, userPattern, phase, onCellClick, gridSize }: PatternGridProps) {
-  const displayPattern = phase === 'memorize' ? pattern : userPattern;
+export default function PatternGrid({
+  pattern,
+  userPattern,
+  isDisplayMode,
+  onCellClick,
+  size,
+}: PatternGridProps) {
+  const displayGrid = isDisplayMode ? pattern : (userPattern || Array.from({ length: size }, () => Array(size).fill(false)));
 
   return (
     <div
-      className="grid gap-2 mx-auto bg-card/80 backdrop-blur-sm p-4 rounded-lg border border-border"
+      className="grid gap-2 mx-auto"
       style={{
-        gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
-        maxWidth: `${gridSize * 80}px`,
+        gridTemplateColumns: `repeat(${size}, 1fr)`,
+        maxWidth: `${size * 56}px`,
       }}
     >
-      {displayPattern.map((row, rowIndex) =>
-        row.map((cell, colIndex) => (
+      {displayGrid.map((row, rowIdx) =>
+        row.map((cell, colIdx) => (
           <button
-            key={`${rowIndex}-${colIndex}`}
-            onClick={() => phase === 'input' && onCellClick(rowIndex, colIndex)}
-            disabled={phase !== 'input'}
-            className={`
-              aspect-square rounded-lg transition-all duration-300
-              ${cell ? 'bg-gradient-to-br from-primary to-accent shadow-lg' : 'bg-muted/50'}
-              ${phase === 'input' ? 'hover:scale-105 cursor-pointer' : 'cursor-default'}
-            `}
+            key={`${rowIdx}-${colIdx}`}
+            onClick={() => !isDisplayMode && onCellClick?.(rowIdx, colIdx)}
+            disabled={isDisplayMode}
+            className={`w-12 h-12 rounded-lg border-2 transition-all duration-150 ${
+              cell
+                ? 'bg-primary border-primary shadow-lg scale-95'
+                : 'bg-surface border-border hover:border-primary/50'
+            } ${!isDisplayMode ? 'cursor-pointer' : 'cursor-default'}`}
           />
         ))
       )}

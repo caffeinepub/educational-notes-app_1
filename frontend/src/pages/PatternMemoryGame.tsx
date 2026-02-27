@@ -1,155 +1,144 @@
-import { useEffect, useRef } from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
+import React, { useEffect } from 'react';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import usePatternMemory from '../hooks/usePatternMemory';
+import useGameTimer from '../hooks/useGameTimer';
+import useSoundEffects from '../hooks/useSoundEffects';
+import useScoreCalculation from '../hooks/useScoreCalculation';
+import { useCompleteLevel } from '../hooks/useQueries';
+import { GameType } from '../backend';
 import PatternGrid from '../components/PatternGrid';
 import GameControls from '../components/GameControls';
 import GameScore from '../components/GameScore';
-import { usePatternMemory } from '../hooks/usePatternMemory';
-import { useGameTimer } from '../hooks/useGameTimer';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useCompleteLevel } from '../hooks/useQueries';
-import { useSoundEffects } from '../hooks/useSoundEffects';
-import { GameType } from '../backend';
+import { Timer } from 'lucide-react';
+
+const LEVEL = 1;
 
 export default function PatternMemoryGame() {
-  const navigate = useNavigate();
   const { identity } = useInternetIdentity();
-  const principal = identity?.getPrincipal().toString() || 'guest';
-  const { playClick, playSuccess, playError } = useSoundEffects();
-
-  const {
-    pattern,
-    userPattern,
-    phase,
-    attempts,
-    isComplete,
-    handleCellClick,
-    handleSubmit,
-    resetGame,
-    gridSize,
-  } = usePatternMemory(1);
-
-  const { elapsedTime, isRunning, startTimer, stopTimer, resetTimer } = useGameTimer();
-  const completeLevel = useCompleteLevel();
-
-  const prevPhaseRef = useRef(phase);
+  const { pattern, userPattern, phase, attempts, isComplete, size, handleCellClick, submitPattern, reset } = usePatternMemory(LEVEL);
+  const { elapsed, start, stop, reset: resetTimer } = useGameTimer();
+  const { playSound } = useSoundEffects();
+  const { calculateScore } = useScoreCalculation();
+  const { mutate: completeLevel } = useCompleteLevel();
+  const [showScore, setShowScore] = React.useState(false);
+  const [finalScore, setFinalScore] = React.useState(0);
+  const startTimeRef = React.useRef<bigint>(BigInt(0));
 
   useEffect(() => {
-    if (phase === 'input' && !isRunning && !isComplete) {
-      startTimer();
-    }
-  }, [phase, isRunning, isComplete, startTimer]);
+    start();
+    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
+  }, []);
 
   useEffect(() => {
-    if (isComplete && isRunning) {
-      stopTimer();
-      playSuccess();
-      completeLevel.mutate({
-        player: principal,
-        gameType: GameType.patternMemory,
-        level: BigInt(1),
-        startTime: BigInt(Date.now() - elapsedTime) * BigInt(1000000),
-        correctAnswers: BigInt(1),
-        totalQuestions: BigInt(1),
-      });
+    if (isComplete) {
+      stop();
+      const score = calculateScore(elapsed, attempts, LEVEL);
+      setFinalScore(score);
+      setShowScore(true);
+      playSound('success');
+      if (identity) {
+        completeLevel({
+          player: identity.getPrincipal().toString(),
+          gameType: GameType.patternMemory,
+          level: BigInt(LEVEL),
+          startTime: startTimeRef.current,
+          correctAnswers: BigInt(1),
+          totalQuestions: BigInt(1),
+        });
+      }
     }
-  }, [isComplete, isRunning]);
+  }, [isComplete]);
 
-  // Detect wrong submission: phase goes back to input after a failed attempt
-  useEffect(() => {
-    if (prevPhaseRef.current === 'input' && phase === 'input' && attempts > 0) {
-      playError();
-    }
-    prevPhaseRef.current = phase;
-  }, [phase, attempts]);
+  const handleClick = (row: number, col: number) => {
+    playSound('click');
+    handleCellClick(row, col);
+  };
 
-  const handleCellClickWithSound = (row: number, col: number) => {
-    if (phase === 'input') {
-      playClick();
-      handleCellClick(row, col);
+  const handleSubmit = () => {
+    playSound('click');
+    submitPattern();
+    if (phase === 'recall') {
+      setTimeout(() => playSound(isComplete ? 'success' : 'error'), 100);
     }
   };
 
-  const handleSubmitWithSound = () => {
-    handleSubmit();
-  };
-
-  const handleReset = () => {
-    resetGame();
+  const handleRestart = () => {
+    reset();
     resetTimer();
+    setShowScore(false);
+    start();
+    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={() => navigate({ to: '/' })}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">Pattern Memory</h1>
-          <div className="w-20" />
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-primary">Pattern Memory</h1>
+          <p className="text-muted-foreground text-sm">Memorize and reproduce the pattern!</p>
         </div>
-
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-around text-center">
-              <div>
-                <p className="text-sm text-muted-foreground">Phase</p>
-                <p className="text-lg font-bold capitalize">{phase}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Time</p>
-                <p className="text-2xl font-bold">{Math.floor(elapsedTime / 1000)}s</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Attempts</p>
-                <p className="text-2xl font-bold">{attempts}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <div
-          className="relative mx-auto"
-          style={{
-            backgroundImage: 'url(/assets/generated/pattern-bg.dim_800x600.png)',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            borderRadius: '1rem',
-            padding: '2rem',
-          }}
-        >
-          <PatternGrid
-            pattern={pattern}
-            userPattern={userPattern}
-            phase={phase}
-            onCellClick={handleCellClickWithSound}
-            gridSize={gridSize}
-          />
-        </div>
-
-        <div className="mt-6 flex gap-4">
-          {phase === 'input' && (
-            <Button onClick={handleSubmitWithSound} className="flex-1">
-              Submit Pattern
-            </Button>
-          )}
-          <GameControls onRestart={handleReset} />
-        </div>
-
-        {isComplete && (
-          <GameScore
-            timeTaken={elapsedTime}
-            moves={attempts}
-            level={1}
-            onPlayAgain={handleReset}
-            onBackToMenu={() => navigate({ to: '/' })}
-          />
-        )}
+        <GameControls onRestart={handleRestart} />
       </div>
+
+      <div className="flex items-center gap-4 mb-6 bg-surface rounded-xl p-4 border border-border">
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Timer size={16} />
+          <span className="font-mono font-bold text-foreground">
+            {Math.floor(elapsed / 60000)}:{String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0')}
+          </span>
+        </div>
+        <div className="ml-auto">
+          <span className={`px-3 py-1 rounded-full text-sm font-bold ${
+            phase === 'memorize' ? 'bg-yellow-500/20 text-yellow-600' :
+            phase === 'recall' ? 'bg-blue-500/20 text-blue-600' :
+            phase === 'won' ? 'bg-green-500/20 text-green-600' :
+            'bg-red-500/20 text-red-600'
+          }`}>
+            {phase === 'memorize' ? '👁 Memorize' : phase === 'recall' ? '✏️ Recall' : phase === 'won' ? '✅ Won!' : '❌ Wrong'}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex justify-center mb-6">
+        <PatternGrid
+          pattern={pattern}
+          userPattern={userPattern}
+          isDisplayMode={phase === 'memorize'}
+          onCellClick={handleClick}
+          size={size}
+        />
+      </div>
+
+      {phase === 'recall' && (
+        <div className="text-center">
+          <button
+            onClick={handleSubmit}
+            className="px-8 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
+          >
+            Submit Pattern
+          </button>
+        </div>
+      )}
+
+      {phase === 'lost' && (
+        <div className="text-center">
+          <p className="text-destructive mb-4">Wrong pattern! Try again.</p>
+          <button
+            onClick={handleRestart}
+            className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      )}
+
+      <GameScore
+        isOpen={showScore}
+        timeTaken={elapsed}
+        moves={attempts}
+        score={finalScore}
+        onPlayAgain={handleRestart}
+      />
     </div>
   );
 }

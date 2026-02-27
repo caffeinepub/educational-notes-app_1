@@ -1,6 +1,6 @@
-import { RotateCcw, Home } from 'lucide-react';
-import { Button } from './ui/button';
+import React from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { RotateCcw, Home } from 'lucide-react';
 
 interface GameControlsProps {
   onRestart: () => void;
@@ -10,15 +10,21 @@ export default function GameControls({ onRestart }: GameControlsProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="flex gap-4">
-      <Button onClick={onRestart} variant="outline" className="flex-1">
-        <RotateCcw className="h-4 w-4 mr-2" />
+    <div className="flex items-center gap-3">
+      <button
+        onClick={onRestart}
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
+      >
+        <RotateCcw size={16} />
         Restart
-      </Button>
-      <Button onClick={() => navigate({ to: '/' })} variant="outline" className="flex-1">
-        <Home className="h-4 w-4 mr-2" />
-        Menu
-      </Button>
+      </button>
+      <button
+        onClick={() => navigate({ to: '/' })}
+        className="flex items-center gap-2 px-4 py-2 rounded-xl bg-muted hover:bg-muted/80 text-muted-foreground font-medium transition-colors"
+      >
+        <Home size={16} />
+        Home
+      </button>
     </div>
   );
 }

@@ -1,54 +1,48 @@
-import { Card, CardContent } from './ui/card';
-import { Button } from './ui/button';
+import React from 'react';
 
 interface StroopDisplayProps {
   word: string;
-  wordColor: string;
   displayColor: string;
-  onColorSelect: (color: string) => void;
+  onAnswer: (color: string) => void;
+  disabled?: boolean;
 }
 
-const colorMap: Record<string, string> = {
-  Red: '#ef4444',
-  Blue: '#3b82f6',
-  Green: '#22c55e',
-  Yellow: '#eab308',
+const COLOR_OPTIONS = ['Red', 'Blue', 'Green', 'Yellow'];
+
+const COLOR_CLASSES: Record<string, string> = {
+  Red: 'bg-red-500 hover:bg-red-600 text-white',
+  Blue: 'bg-blue-500 hover:bg-blue-600 text-white',
+  Green: 'bg-green-500 hover:bg-green-600 text-white',
+  Yellow: 'bg-yellow-400 hover:bg-yellow-500 text-black',
 };
 
-export default function StroopDisplay({ word, wordColor, displayColor, onColorSelect }: StroopDisplayProps) {
-  const colors = ['Red', 'Blue', 'Green', 'Yellow'];
+const DISPLAY_COLOR_STYLES: Record<string, string> = {
+  red: '#ef4444',
+  blue: '#3b82f6',
+  green: '#22c55e',
+  yellow: '#eab308',
+};
 
+export default function StroopDisplay({ word, displayColor, onAnswer, disabled }: StroopDisplayProps) {
   return (
-    <div className="space-y-8">
-      {/* Word Display */}
-      <Card className="bg-gradient-to-br from-background to-muted">
-        <CardContent className="pt-12 pb-12">
-          <div className="text-center">
-            <h2
-              className="text-7xl font-bold tracking-wider"
-              style={{ color: colorMap[displayColor] }}
-            >
-              {word}
-            </h2>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Color Selection Buttons */}
-      <div className="grid grid-cols-2 gap-4">
-        {colors.map((color) => (
-          <Button
+    <div className="flex flex-col items-center gap-8">
+      <div
+        className="text-6xl font-extrabold tracking-wide select-none"
+        style={{ color: DISPLAY_COLOR_STYLES[displayColor.toLowerCase()] || '#fff' }}
+      >
+        {word}
+      </div>
+      <p className="text-muted-foreground text-sm">What color is the INK? (not the word)</p>
+      <div className="grid grid-cols-2 gap-3">
+        {COLOR_OPTIONS.map((color) => (
+          <button
             key={color}
-            onClick={() => onColorSelect(color)}
-            size="lg"
-            className="h-20 text-xl font-bold transition-transform hover:scale-105 active:scale-95"
-            style={{
-              backgroundColor: colorMap[color],
-              color: 'white',
-            }}
+            onClick={() => onAnswer(color)}
+            disabled={disabled}
+            className={`px-8 py-3 rounded-xl font-bold text-lg transition-all duration-150 shadow-md hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${COLOR_CLASSES[color]}`}
           >
             {color}
-          </Button>
+          </button>
         ))}
       </div>
     </div>

@@ -1,21 +1,41 @@
-import { createRouter, createRoute, createRootRoute, RouterProvider } from '@tanstack/react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  RouterProvider,
+  createRouter,
+  createRootRoute,
+  createRoute,
+  Outlet,
+} from '@tanstack/react-router';
+import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import CardMatchingGame from './pages/CardMatchingGame';
-import SlidingPuzzleGame from './pages/SlidingPuzzleGame';
+import MemoryTestGame from './pages/MemoryTestGame';
 import PatternMemoryGame from './pages/PatternMemoryGame';
 import SequenceMemoryGame from './pages/SequenceMemoryGame';
+import SlidingPuzzleGame from './pages/SlidingPuzzleGame';
 import StroopEffectGame from './pages/StroopEffectGame';
-import MemoryTestGame from './pages/MemoryTestGame';
-import MissingLetterGame from './pages/MissingLetterGame';
-import WordScrambleGame from './pages/WordScrambleGame';
-import FillInTheBlanksGame from './pages/FillInTheBlanksGame';
 import SpeedTypingGame from './pages/SpeedTypingGame';
+import WordScrambleGame from './pages/WordScrambleGame';
+import MissingLetterGame from './pages/MissingLetterGame';
+import FillInTheBlanksGame from './pages/FillInTheBlanksGame';
 import ProgressPage from './pages/ProgressPage';
 import InstallGuide from './pages/InstallGuide';
-import Layout from './components/Layout';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,
+      retry: 2,
+    },
+  },
+});
 
 const rootRoute = createRootRoute({
-  component: Layout,
+  component: () => (
+    <Layout>
+      <Outlet />
+    </Layout>
+  ),
 });
 
 const indexRoute = createRoute({
@@ -30,10 +50,10 @@ const cardMatchingRoute = createRoute({
   component: CardMatchingGame,
 });
 
-const slidingPuzzleRoute = createRoute({
+const memoryTestRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/sliding-puzzle',
-  component: SlidingPuzzleGame,
+  path: '/memory-test',
+  component: MemoryTestGame,
 });
 
 const patternMemoryRoute = createRoute({
@@ -48,22 +68,22 @@ const sequenceMemoryRoute = createRoute({
   component: SequenceMemoryGame,
 });
 
+const slidingPuzzleRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/sliding-puzzle',
+  component: SlidingPuzzleGame,
+});
+
 const stroopEffectRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/stroop-effect',
   component: StroopEffectGame,
 });
 
-const memoryTestRoute = createRoute({
+const speedTypingRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/memory-test',
-  component: MemoryTestGame,
-});
-
-const missingLetterRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/missing-letter',
-  component: MissingLetterGame,
+  path: '/speed-typing',
+  component: SpeedTypingGame,
 });
 
 const wordScrambleRoute = createRoute({
@@ -72,16 +92,16 @@ const wordScrambleRoute = createRoute({
   component: WordScrambleGame,
 });
 
+const missingLetterRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/missing-letter',
+  component: MissingLetterGame,
+});
+
 const fillInTheBlanksRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/fill-in-the-blanks',
   component: FillInTheBlanksGame,
-});
-
-const speedTypingRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/speed-typing',
-  component: SpeedTypingGame,
 });
 
 const progressRoute = createRoute({
@@ -99,15 +119,15 @@ const installGuideRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   cardMatchingRoute,
-  slidingPuzzleRoute,
+  memoryTestRoute,
   patternMemoryRoute,
   sequenceMemoryRoute,
+  slidingPuzzleRoute,
   stroopEffectRoute,
-  memoryTestRoute,
-  missingLetterRoute,
-  wordScrambleRoute,
-  fillInTheBlanksRoute,
   speedTypingRoute,
+  wordScrambleRoute,
+  missingLetterRoute,
+  fillInTheBlanksRoute,
   progressRoute,
   installGuideRoute,
 ]);
@@ -120,8 +140,10 @@ declare module '@tanstack/react-router' {
   }
 }
 
-function App() {
-  return <RouterProvider router={router} />;
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
+  );
 }
-
-export default App;
