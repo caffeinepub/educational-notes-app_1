@@ -24,6 +24,11 @@ export interface MemoryTestHighScore {
     correctAnswers: bigint;
     timeTaken: bigint;
 }
+export interface AnalyticsView {
+    gamePlayCounts: Array<[string, bigint]>;
+    totalVisitors: bigint;
+    totalSessions: bigint;
+}
 export interface HighScore {
     player: string;
     level: bigint;
@@ -70,6 +75,7 @@ export interface backendInterface {
     completeLevel(player: string, gameType: GameType, level: bigint, startTime: bigint, correctAnswers: bigint, totalQuestions: bigint): Promise<void>;
     completeMemoryTest(player: string, level: bigint, correctAnswers: bigint, streak: bigint, hintsUsed: bigint, timeTaken: bigint, score: bigint): Promise<boolean>;
     getAllChapters(): Promise<Array<ScienceNote>>;
+    getAnalytics(password: string): Promise<AnalyticsView | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
     getChapter(chapterNumber: bigint): Promise<ScienceNote | null>;
@@ -79,6 +85,8 @@ export interface backendInterface {
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     initializeChapters(): Promise<void>;
     isCallerAdmin(): Promise<boolean>;
+    recordGamePlay(gameName: string): Promise<void>;
+    recordVisit(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     startTimer(): Promise<bigint>;
 }

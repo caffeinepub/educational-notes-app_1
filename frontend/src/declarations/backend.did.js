@@ -29,6 +29,11 @@ export const ScienceNote = IDL.Record({
   'definitions' : IDL.Vec(IDL.Text),
   'examples' : IDL.Vec(IDL.Text),
 });
+export const AnalyticsView = IDL.Record({
+  'gamePlayCounts' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
+  'totalVisitors' : IDL.Nat,
+  'totalSessions' : IDL.Nat,
+});
 export const UserProfile = IDL.Record({
   'name' : IDL.Text,
   'avatarUrl' : IDL.Opt(IDL.Text),
@@ -81,6 +86,7 @@ export const idlService = IDL.Service({
       [],
     ),
   'getAllChapters' : IDL.Func([], [IDL.Vec(ScienceNote)], ['query']),
+  'getAnalytics' : IDL.Func([IDL.Text], [IDL.Opt(AnalyticsView)], []),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
   'getChapter' : IDL.Func([IDL.Nat], [IDL.Opt(ScienceNote)], ['query']),
@@ -98,6 +104,8 @@ export const idlService = IDL.Service({
     ),
   'initializeChapters' : IDL.Func([], [], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'recordGamePlay' : IDL.Func([IDL.Text], [], []),
+  'recordVisit' : IDL.Func([], [], []),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'startTimer' : IDL.Func([], [IDL.Int], []),
 });
@@ -125,6 +133,11 @@ export const idlFactory = ({ IDL }) => {
     'chapterTitle' : IDL.Text,
     'definitions' : IDL.Vec(IDL.Text),
     'examples' : IDL.Vec(IDL.Text),
+  });
+  const AnalyticsView = IDL.Record({
+    'gamePlayCounts' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Nat)),
+    'totalVisitors' : IDL.Nat,
+    'totalSessions' : IDL.Nat,
   });
   const UserProfile = IDL.Record({
     'name' : IDL.Text,
@@ -178,6 +191,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'getAllChapters' : IDL.Func([], [IDL.Vec(ScienceNote)], ['query']),
+    'getAnalytics' : IDL.Func([IDL.Text], [IDL.Opt(AnalyticsView)], []),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
     'getChapter' : IDL.Func([IDL.Nat], [IDL.Opt(ScienceNote)], ['query']),
@@ -203,6 +217,8 @@ export const idlFactory = ({ IDL }) => {
       ),
     'initializeChapters' : IDL.Func([], [], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'recordGamePlay' : IDL.Func([IDL.Text], [], []),
+    'recordVisit' : IDL.Func([], [], []),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'startTimer' : IDL.Func([], [IDL.Int], []),
   });

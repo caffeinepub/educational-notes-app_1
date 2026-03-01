@@ -1,135 +1,154 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  RouterProvider,
-  createRouter,
-  createRootRoute,
-  createRoute,
-  Outlet,
-} from '@tanstack/react-router';
-import Layout from './components/Layout';
+import { useEffect, useRef } from 'react';
+import { RouterProvider, createRouter, createRoute, createRootRoute, Outlet } from '@tanstack/react-router';
+import { useActor } from './hooks/useActor';
 import HomePage from './pages/HomePage';
 import CardMatchingGame from './pages/CardMatchingGame';
-import MemoryTestGame from './pages/MemoryTestGame';
+import SlidingPuzzleGame from './pages/SlidingPuzzleGame';
 import PatternMemoryGame from './pages/PatternMemoryGame';
 import SequenceMemoryGame from './pages/SequenceMemoryGame';
-import SlidingPuzzleGame from './pages/SlidingPuzzleGame';
-import StroopEffectGame from './pages/StroopEffectGame';
-import SpeedTypingGame from './pages/SpeedTypingGame';
-import WordScrambleGame from './pages/WordScrambleGame';
-import MissingLetterGame from './pages/MissingLetterGame';
-import FillInTheBlanksGame from './pages/FillInTheBlanksGame';
 import ProgressPage from './pages/ProgressPage';
-import InstallGuide from './pages/InstallGuide';
+import StroopEffectGame from './pages/StroopEffectGame';
+import MemoryTestGame from './pages/MemoryTestGame';
+import MissingLetterGame from './pages/MissingLetterGame';
+import WordScrambleGame from './pages/WordScrambleGame';
+import FillInTheBlanksGame from './pages/FillInTheBlanksGame';
+import SpeedTypingGame from './pages/SpeedTypingGame';
+import AdminPage from './pages/AdminPage';
+import Layout from './components/Layout';
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5,
-      retry: 2,
-    },
-  },
-});
+function VisitTracker() {
+  const { actor, isFetching } = useActor();
+  const visitRecorded = useRef(false);
+
+  useEffect(() => {
+    if (actor && !isFetching && !visitRecorded.current) {
+      if (!sessionStorage.getItem('visit_recorded')) {
+        actor.recordVisit().then(() => {
+          sessionStorage.setItem('visit_recorded', '1');
+        }).catch(() => {});
+        visitRecorded.current = true;
+      }
+    }
+  }, [actor, isFetching]);
+
+  return null;
+}
+
+function LayoutWrapper() {
+  return (
+    <>
+      <VisitTracker />
+      <Layout>
+        <Outlet />
+      </Layout>
+    </>
+  );
+}
 
 const rootRoute = createRootRoute({
-  component: () => (
-    <Layout>
-      <Outlet />
-    </Layout>
-  ),
+  component: () => <Outlet />,
 });
 
-const indexRoute = createRoute({
+const layoutRoute = createRoute({
   getParentRoute: () => rootRoute,
+  id: 'layout',
+  component: LayoutWrapper,
+});
+
+const homeRoute = createRoute({
+  getParentRoute: () => layoutRoute,
   path: '/',
   component: HomePage,
 });
 
+const progressRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/progress',
+  component: ProgressPage,
+});
+
 const cardMatchingRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: '/card-matching',
   component: CardMatchingGame,
 });
 
-const memoryTestRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/memory-test',
-  component: MemoryTestGame,
+const slidingPuzzleRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/sliding-puzzle',
+  component: SlidingPuzzleGame,
 });
 
 const patternMemoryRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: '/pattern-memory',
   component: PatternMemoryGame,
 });
 
 const sequenceMemoryRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: '/sequence-memory',
   component: SequenceMemoryGame,
 });
 
-const slidingPuzzleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/sliding-puzzle',
-  component: SlidingPuzzleGame,
-});
-
 const stroopEffectRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: '/stroop-effect',
   component: StroopEffectGame,
 });
 
-const speedTypingRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/speed-typing',
-  component: SpeedTypingGame,
-});
-
-const wordScrambleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/word-scramble',
-  component: WordScrambleGame,
+const memoryTestRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/memory-test',
+  component: MemoryTestGame,
 });
 
 const missingLetterRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: '/missing-letter',
   component: MissingLetterGame,
 });
 
+const wordScrambleRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/word-scramble',
+  component: WordScrambleGame,
+});
+
 const fillInTheBlanksRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => layoutRoute,
   path: '/fill-in-the-blanks',
   component: FillInTheBlanksGame,
 });
 
-const progressRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/progress',
-  component: ProgressPage,
+const speedTypingRoute = createRoute({
+  getParentRoute: () => layoutRoute,
+  path: '/speed-typing',
+  component: SpeedTypingGame,
 });
 
-const installGuideRoute = createRoute({
+const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/install-guide',
-  component: InstallGuide,
+  path: '/admin',
+  component: AdminPage,
 });
 
 const routeTree = rootRoute.addChildren([
-  indexRoute,
-  cardMatchingRoute,
-  memoryTestRoute,
-  patternMemoryRoute,
-  sequenceMemoryRoute,
-  slidingPuzzleRoute,
-  stroopEffectRoute,
-  speedTypingRoute,
-  wordScrambleRoute,
-  missingLetterRoute,
-  fillInTheBlanksRoute,
-  progressRoute,
-  installGuideRoute,
+  layoutRoute.addChildren([
+    homeRoute,
+    progressRoute,
+    cardMatchingRoute,
+    slidingPuzzleRoute,
+    patternMemoryRoute,
+    sequenceMemoryRoute,
+    stroopEffectRoute,
+    memoryTestRoute,
+    missingLetterRoute,
+    wordScrambleRoute,
+    fillInTheBlanksRoute,
+    speedTypingRoute,
+  ]),
+  adminRoute,
 ]);
 
 const router = createRouter({ routeTree });
@@ -141,9 +160,5 @@ declare module '@tanstack/react-router' {
 }
 
 export default function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
+  return <RouterProvider router={router} />;
 }

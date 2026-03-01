@@ -1,19 +1,14 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Memory Increase - Brain Training Game app project on ICP (Internet Computer Platform). User wants to rebuild the app to get a new working link after experiencing 'Canister ID not resolved' errors.",
-  "architectural_notes": [
-    "App is deployed on Internet Computer (ICP) blockchain as a PWA web app",
-    "Live app link: https://7qf4a-ziaaa-aaaap-qncea-cai.icp0.io (experiencing Canister ID not resolved errors)"
-  ],
-  "known_issues": [
-    "'Canister ID not resolved' error when accessing live app link - ICP server issue"
-  ],
-  "isFixRequest": true,
+  "summary": "NeuroBoost app - a memory/brain training app. User wants all instances of 'Memory Increase' text inside the app replaced with 'NeuroBoost'.",
+  "architectural_notes": [],
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-rebuild-and-redeploy-the-entire-memory-increase-brain-training-game-application-frontend-and-backend-to-generate-a-fresh-canister-deployment-with-a-new-working-live-url",
-      "title": "Rebuild and redeploy the entire Memory Increase Brain Training Game application — frontend and backend — to generate a fresh canister deployment with a new working live URL.",
+      "id": "feature-find-and-replace-all-occurrences-of-the-text-memory-increase-and-any-case-variants-like-memory-increase-memory-increase-with-neuroboost-across-all-frontend-source-files-including-page-components-layout-components-home-page-hero-sections-game-cards-headings-labels-button-text-and-any-other-visible-ui-text",
+      "title": "Find and replace all occurrences of the text 'Memory Increase' (and any case variants like 'memory increase', 'Memory increase') with 'NeuroBoost' across all frontend source files, including page components, layout components, home page hero sections, game cards, headings, labels, button text, and any other visible UI text.",
       "reqIds": [
         "REQ-1"
       ],
@@ -23,13 +18,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Rebuild Memory Increase Brain Training Game app for a new working deployment link",
+      "summary": "Replace all 'Memory Increase' text inside the app with 'NeuroBoost'",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "gameProjectType": "2d",
-  "projectName": "Memory Increase - Brain Training Game",
+  "gameProjectType": "none",
+  "projectName": "NeuroBoost",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

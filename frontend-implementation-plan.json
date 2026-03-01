@@ -1,191 +1,92 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Rebuild Memory Increase Brain Training Game App",
+  "title": "Replace 'Memory Increase' text with 'NeuroBoost' throughout the app",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Rebuild and redeploy the entire Memory Increase Brain Training Game application frontend to ensure all games, navigation, authentication, and PWA features work with the new canister deployment",
+      "summary": "Find and replace all occurrences of 'Memory Increase' (and case variants) with 'NeuroBoost' across all frontend source files including page components, layout components, home page hero sections, game cards, headings, labels, button text, and any other visible UI text",
       "acceptanceCriteria": [
-        "App deploys successfully with a new canister ID",
-        "New live URL opens the Memory Increase app without 'Canister ID not resolved' error",
-        "All existing games (Card Matching, Memory Test, Pattern Memory, Sequence Memory, Sliding Puzzle, Stroop Effect, Speed Typing, Word Scramble, Missing Letter, Fill in the Blanks) are accessible",
-        "Home page loads with all game cards visible",
-        "Backend actor initializes correctly with user profile and high score functionality",
-        "Background music controls work in the header",
-        "Progress page loads and shows player stats when logged in",
-        "PWA manifest and service worker are active so users can install via 'Add to Home Screen'"
+        "No visible text reading 'Memory Increase' (or any case variant) appears anywhere in the app UI",
+        "All previously 'Memory Increase' labeled text now displays 'NeuroBoost'",
+        "The app title/brand name 'NeuroBoost' remains unchanged in the header, browser tab, and SEO meta tags",
+        "All pages including HomePage, Layout header, and any game description cards are checked and updated"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/pages/HomePage.tsx",
           "operation": "modify",
-          "description": "Verify all game routes are registered correctly in the router configuration, ensuring paths match the navigation links used throughout the app (home, card-matching, memory-test, pattern-memory, sequence-memory, sliding-puzzle, stroop-effect, speed-typing, word-scramble, missing-letter, fill-in-blanks, progress, install-guide). Confirm RouterProvider is properly wired."
+          "description": "Search for and replace all occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in the hero section heading, subheading, game card titles, and game card descriptions. Verify the app brand name 'NeuroBoost' in the main heading remains unchanged."
         },
         {
           "path": "frontend/src/components/Layout.tsx",
           "operation": "modify",
-          "description": "Verify the Layout component correctly renders the header with branding, background music controls, progress navigation link, and login/logout button using the authorization component's useInternetIdentity hook. Ensure the Outlet renders child routes and the layout structure supports all game pages."
-        },
-        {
-          "path": "frontend/src/pages/HomePage.tsx",
-          "operation": "modify",
-          "description": "Verify the home page displays all 10 game cards organized into Memory Games and Language Games sections. Ensure each GameCard component links to the correct game route and displays the player's current level from fetched game state. Confirm navigation wiring to all game pages is complete."
-        },
-        {
-          "path": "frontend/src/pages/CardMatchingGame.tsx",
-          "operation": "modify",
-          "description": "Verify the card matching game page correctly uses useCardGame hook, renders the CardGrid component, displays GameControls, plays sound effects, tracks time with useGameTimer, and submits level completion to the backend via the completeLevel mutation when all pairs are matched."
-        },
-        {
-          "path": "frontend/src/pages/MemoryTestGame.tsx",
-          "operation": "modify",
-          "description": "Verify the memory test game page correctly uses useMemoryTest hook, displays memorization and recall phases, handles countdown timers, validates user input, plays sound effects, and submits results to the backend via completeMemoryTest when the game ends."
-        },
-        {
-          "path": "frontend/src/pages/PatternMemoryGame.tsx",
-          "operation": "modify",
-          "description": "Verify the pattern memory game page correctly uses usePatternMemory hook, renders the PatternGrid component for both display and input phases, tracks attempts and elapsed time, plays sound effects, and submits level completion to the backend when the pattern is correctly reproduced."
-        },
-        {
-          "path": "frontend/src/pages/SequenceMemoryGame.tsx",
-          "operation": "modify",
-          "description": "Verify the sequence memory game page correctly uses useSequenceMemory hook, renders SequenceItem components for display and input phases, tracks attempts and time, plays sound effects, and submits level completion to the backend when the sequence is correctly reproduced."
-        },
-        {
-          "path": "frontend/src/pages/SlidingPuzzleGame.tsx",
-          "operation": "modify",
-          "description": "Verify the sliding puzzle game page correctly uses useSlidingPuzzle hook, renders the SlidingTile grid, tracks moves and elapsed time, plays sound effects, and submits level completion to the backend when the puzzle is solved."
-        },
-        {
-          "path": "frontend/src/pages/StroopEffectGame.tsx",
-          "operation": "modify",
-          "description": "Verify the Stroop effect game page correctly uses useStroopEffect hook, renders the StroopDisplay component with color word and buttons, tracks score and rounds, plays sound effects on correct/wrong answers, and submits level completion to the backend when the game ends."
-        },
-        {
-          "path": "frontend/src/pages/SpeedTypingGame.tsx",
-          "operation": "modify",
-          "description": "Verify the speed typing game page correctly uses useSpeedTyping hook, displays target text with per-character color feedback, tracks WPM and accuracy in real-time, manages the 60-second countdown timer, plays sound effects, and shows results when time expires."
-        },
-        {
-          "path": "frontend/src/pages/WordScrambleGame.tsx",
-          "operation": "modify",
-          "description": "Verify the word scramble game page correctly uses useWordScramble hook, displays scrambled letters, validates user input, tracks score and streak, plays sound effects, and supports keyboard input for answer submission."
-        },
-        {
-          "path": "frontend/src/pages/MissingLetterGame.tsx",
-          "operation": "modify",
-          "description": "Verify the missing letter game page correctly uses useMissingLetter hook, displays partially masked words with difficulty selection, validates answers, tracks score and streak, plays sound effects, and provides answer reveal functionality."
-        },
-        {
-          "path": "frontend/src/pages/FillInTheBlanksGame.tsx",
-          "operation": "modify",
-          "description": "Verify the fill-in-the-blanks game page correctly uses useFillInTheBlanks hook, displays sentences with blank inputs, validates user answers, tracks score and streak, plays sound effects, and reveals correct answers on wrong guesses."
-        },
-        {
-          "path": "frontend/src/pages/ProgressPage.tsx",
-          "operation": "modify",
-          "description": "Verify the progress page correctly uses the authorization component's useInternetIdentity hook to check authentication status, fetches player game state and high scores using useQueries hooks, displays current level/score/time/unlocked puzzles for authenticated users, and shows a login prompt for unauthenticated users."
-        },
-        {
-          "path": "frontend/src/pages/InstallGuide.tsx",
-          "operation": "modify",
-          "description": "Verify the install guide page correctly displays step-by-step PWA installation instructions for Chrome desktop, Chrome mobile, and Safari iOS, ensuring the content is accessible and properly formatted."
-        },
-        {
-          "path": "frontend/src/hooks/useInternetIdentity.ts",
-          "operation": "modify",
-          "description": "Verify the useInternetIdentity hook and InternetIdentityProvider correctly initialize the AuthClient, expose login/logout functions, manage identity state, and clear cached application data on logout. Ensure the authorization component's authentication requirements are met."
-        },
-        {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Verify the useActor hook correctly creates authenticated or anonymous backend actors using TanStack Query, caches the actor instance, and invalidates dependent queries when the actor changes. Ensure it properly initializes the first admin as required by the authorization component."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Verify the React Query hooks for fetching player game state (getPlayerGameState) and high scores (getPlayerHighScores) are correctly wired to the backend actor, and the completeLevel mutation hook properly submits level completion results. Ensure queries depend on the actor being available."
-        },
-        {
-          "path": "frontend/src/hooks/useBackgroundMusic.ts",
-          "operation": "modify",
-          "description": "Verify the useBackgroundMusic hook correctly manages the looping audio element, provides play/pause toggle and volume controls, and exposes state (isPlaying, volume) to consumers. Ensure it works with the Layout header controls."
-        },
-        {
-          "path": "frontend/src/main.tsx",
-          "operation": "modify",
-          "description": "Verify the application entry point correctly mounts the React app wrapped with QueryClientProvider (for TanStack Query) and InternetIdentityProvider (from the authorization component), ensuring all providers are properly nested and the app renders correctly."
-        },
-        {
-          "path": "frontend/index.html",
-          "operation": "modify",
-          "description": "Verify the HTML entry point includes all required meta tags, Open Graph/Twitter card metadata, PWA manifest link, icon links (including the generated app-icon-192.dim_192x192.png and app-icon-512.dim_512x512.png from frontend/public/assets/generated/), and JSON-LD structured data for SEO."
-        },
-        {
-          "path": "frontend/public/manifest.json",
-          "operation": "modify",
-          "description": "Verify the PWA manifest defines the correct app name ('Memory Increase'), start_url, display mode ('standalone'), theme colors, background color, and icon references (using the generated app-icon-192.dim_192x192.png and app-icon-512.dim_512x512.png from assets/generated/). Ensure shortcuts for card matching and progress pages are correctly configured."
-        },
-        {
-          "path": "frontend/public/service-worker.js",
-          "operation": "modify",
-          "description": "Verify the service worker implements cache-first strategy for static assets (CSS, JS, images) and network-first strategy for HTML/scripts, includes install-time pre-caching of critical resources, and performs old cache cleanup on activation. Ensure it correctly handles requests for generated assets under frontend/public/assets/generated/."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "Verify the global CSS file correctly imports Tailwind base, components, and utilities, defines light and dark mode CSS custom properties for the brain-training theme (purple/cyan/pink color tokens), and includes the card-flip animation utility used by the Card component."
-        },
-        {
-          "path": "frontend/tailwind.config.js",
-          "operation": "modify",
-          "description": "Verify the Tailwind configuration correctly sets up dark mode, custom OKLCH-based color tokens matching the theme, border radius, fonts, accordion animations, and registers the typography, container-queries, and animate plugins required by the UI components."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in the header logo text, navigation labels, or any visible UI text. Ensure the app brand name 'NeuroBoost' in the header remains unchanged."
         },
         {
           "path": "frontend/src/components/GameCard.tsx",
           "operation": "modify",
-          "description": "Verify the GameCard component correctly displays game icon, title, description, current level from props, and a Play button that navigates to the game route. Ensure it's used on the home page for all 10 games."
+          "description": "Search for and replace any hardcoded 'Memory Increase' text (case-insensitive) with 'NeuroBoost' in the title prop default values or any internal text rendering. Verify no 'Memory Increase' appears in the component."
         },
         {
-          "path": "frontend/src/components/CardGrid.tsx",
+          "path": "frontend/src/pages/CardMatchingGame.tsx",
           "operation": "modify",
-          "description": "Verify the CardGrid component correctly renders a responsive grid of Card components for the card matching game, delegating click handlers and flip/match state to the parent page component."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
         },
         {
-          "path": "frontend/src/components/Card.tsx",
+          "path": "frontend/src/pages/PatternMemoryGame.tsx",
           "operation": "modify",
-          "description": "Verify the Card component correctly implements 3D flip transforms to show front (emoji/value) and back (image using the generated card-back.dim_200x200.png from frontend/public/assets/generated/) faces, and responds to click events from the parent."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
         },
         {
-          "path": "frontend/src/components/PatternGrid.tsx",
+          "path": "frontend/src/pages/SequenceMemoryGame.tsx",
           "operation": "modify",
-          "description": "Verify the PatternGrid component correctly renders a grid of toggle cells for the pattern memory game, displays either the target pattern (during memorization) or the user's input (during recall), and handles cell toggle events."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
         },
         {
-          "path": "frontend/src/components/SequenceItem.tsx",
+          "path": "frontend/src/pages/MemoryTestGame.tsx",
           "operation": "modify",
-          "description": "Verify the SequenceItem component correctly renders a button cell for the sequence memory game with visual states for active (highlighted during display), selected (user clicked), and disabled conditions."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
         },
         {
-          "path": "frontend/src/components/SlidingTile.tsx",
+          "path": "frontend/src/pages/SlidingPuzzleGame.tsx",
           "operation": "modify",
-          "description": "Verify the SlidingTile component correctly renders either a numbered button tile or an empty placeholder for the blank space in the sliding puzzle, and handles click events to move tiles."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
         },
         {
-          "path": "frontend/src/components/StroopDisplay.tsx",
+          "path": "frontend/src/pages/StroopEffectGame.tsx",
           "operation": "modify",
-          "description": "Verify the StroopDisplay component correctly displays a color word in mismatched ink color and renders four color-selection buttons for the Stroop effect game, handling answer selection events."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
         },
         {
-          "path": "frontend/src/components/GameControls.tsx",
+          "path": "frontend/src/pages/ProgressPage.tsx",
           "operation": "modify",
-          "description": "Verify the GameControls component correctly provides Restart and Home navigation buttons used within all game pages, ensuring navigation links are correctly wired to the router."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings or labels."
+        },
+        {
+          "path": "frontend/src/pages/WordScrambleGame.tsx",
+          "operation": "modify",
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
+        },
+        {
+          "path": "frontend/src/pages/FillInTheBlanksGame.tsx",
+          "operation": "modify",
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
+        },
+        {
+          "path": "frontend/src/pages/MissingLetterGame.tsx",
+          "operation": "modify",
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
+        },
+        {
+          "path": "frontend/src/pages/SpeedTypingGame.tsx",
+          "operation": "modify",
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in page headings, instructions, or button labels."
         },
         {
           "path": "frontend/src/components/GameScore.tsx",
           "operation": "modify",
-          "description": "Verify the GameScore component correctly displays a modal dialog with player's time, moves, and calculated score upon game completion, and provides Play Again and Menu action buttons that navigate correctly."
+          "description": "Search for and replace any occurrences of 'Memory Increase' (case-insensitive) with 'NeuroBoost' in modal headings or congratulatory messages."
         }
       ]
     }

@@ -10,6 +10,11 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AnalyticsView {
+  'gamePlayCounts' : Array<[string, bigint]>,
+  'totalVisitors' : bigint,
+  'totalSessions' : bigint,
+}
 export interface GameState {
   'memoryTestRecords' : [] | [Array<MemoryTestHighScore>],
   'score' : bigint,
@@ -73,6 +78,7 @@ export interface _SERVICE {
     boolean
   >,
   'getAllChapters' : ActorMethod<[], Array<ScienceNote>>,
+  'getAnalytics' : ActorMethod<[string], [] | [AnalyticsView]>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getChapter' : ActorMethod<[bigint], [] | [ScienceNote]>,
@@ -82,6 +88,8 @@ export interface _SERVICE {
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'initializeChapters' : ActorMethod<[], undefined>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'recordGamePlay' : ActorMethod<[string], undefined>,
+  'recordVisit' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'startTimer' : ActorMethod<[], bigint>,
 }

@@ -1,65 +1,54 @@
 import React from 'react';
-import { useNavigate } from '@tanstack/react-router';
-import { Trophy, RotateCcw, Home } from 'lucide-react';
 
 interface GameScoreProps {
-  isOpen: boolean;
-  timeTaken: number;
-  moves: number;
   score: number;
+  elapsedTime: number;
+  moves: number;
   onPlayAgain: () => void;
+  onMenu: () => void;
 }
 
-function formatTime(ms: number): string {
-  const seconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${minutes}:${secs.toString().padStart(2, '0')}`;
-}
-
-export default function GameScore({ isOpen, timeTaken, moves, score, onPlayAgain }: GameScoreProps) {
-  const navigate = useNavigate();
-
-  if (!isOpen) return null;
+export default function GameScore({ score, elapsedTime, moves, onPlayAgain, onMenu }: GameScoreProps) {
+  const seconds = Math.floor(elapsedTime / 1000);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-surface rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl border border-border text-center">
-        <div className="flex justify-center mb-4">
-          <img src="/assets/generated/trophy.dim_64x64.png" alt="Trophy" className="w-16 h-16" />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-card border border-border rounded-2xl p-8 max-w-sm w-full text-center shadow-2xl">
+        <div className="mb-4">
+          <img src="/assets/generated/trophy.dim_64x64.png" alt="Trophy" className="w-16 h-16 mx-auto mb-3" />
+          <h2 className="text-2xl font-bold text-foreground">🎉 Shabash!</h2>
+          <p className="text-muted-foreground text-sm mt-1">Level complete!</p>
         </div>
-        <h2 className="text-2xl font-extrabold text-primary mb-2">Level Complete! 🎉</h2>
-        <p className="text-muted-foreground mb-6">Great job! Here are your results:</p>
 
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          <div className="bg-muted rounded-xl p-3">
-            <p className="text-xs text-muted-foreground mb-1">Time</p>
-            <p className="font-bold text-foreground">{formatTime(timeTaken)}</p>
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-background rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Score</p>
+            <p className="text-xl font-bold text-primary">{score}</p>
           </div>
-          <div className="bg-muted rounded-xl p-3">
-            <p className="text-xs text-muted-foreground mb-1">Moves</p>
-            <p className="font-bold text-foreground">{moves}</p>
-          </div>
-          <div className="bg-muted rounded-xl p-3">
-            <p className="text-xs text-muted-foreground mb-1">Score</p>
-            <p className="font-bold text-primary">{score}</p>
+          {elapsedTime > 0 && (
+            <div className="bg-background rounded-lg p-3">
+              <p className="text-xs text-muted-foreground">Time</p>
+              <p className="text-xl font-bold text-foreground">{seconds}s</p>
+            </div>
+          )}
+          <div className="bg-background rounded-lg p-3">
+            <p className="text-xs text-muted-foreground">Moves</p>
+            <p className="text-xl font-bold text-foreground">{moves}</p>
           </div>
         </div>
 
         <div className="flex gap-3">
           <button
             onClick={onPlayAgain}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
+            className="flex-1 bg-primary text-primary-foreground py-2.5 rounded-lg font-medium"
           >
-            <RotateCcw size={16} />
-            Play Again
+            🔄 Dobara
           </button>
           <button
-            onClick={() => navigate({ to: '/' })}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-muted text-muted-foreground font-bold hover:bg-muted/80 transition-colors"
+            onClick={onMenu}
+            className="flex-1 bg-secondary text-secondary-foreground py-2.5 rounded-lg font-medium"
           >
-            <Home size={16} />
-            Menu
+            🏠 Menu
           </button>
         </div>
       </div>

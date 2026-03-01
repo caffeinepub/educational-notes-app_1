@@ -1,144 +1,134 @@
-import React, { useEffect } from 'react';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import usePatternMemory from '../hooks/usePatternMemory';
 import useGameTimer from '../hooks/useGameTimer';
-import useSoundEffects from '../hooks/useSoundEffects';
 import useScoreCalculation from '../hooks/useScoreCalculation';
-import { useCompleteLevel } from '../hooks/useQueries';
-import { GameType } from '../backend';
+import useSoundEffects from '../hooks/useSoundEffects';
+import { useActor } from '../hooks/useActor';
 import PatternGrid from '../components/PatternGrid';
-import GameControls from '../components/GameControls';
 import GameScore from '../components/GameScore';
-import { Timer } from 'lucide-react';
-
-const LEVEL = 1;
 
 export default function PatternMemoryGame() {
-  const { identity } = useInternetIdentity();
-  const { pattern, userPattern, phase, attempts, isComplete, size, handleCellClick, submitPattern, reset } = usePatternMemory(LEVEL);
+  const navigate = useNavigate();
+  const { actor } = useActor();
+  const gamePlayRecorded = useRef(false);
+
+  const level = 1;
+  const {
+    pattern,
+    userPattern,
+    phase,
+    size,
+    handleCellClick,
+    submitPattern,
+    reset,
+    isComplete,
+    attempts,
+  } = usePatternMemory(level);
   const { elapsed, start, stop, reset: resetTimer } = useGameTimer();
-  const { playSound } = useSoundEffects();
   const { calculateScore } = useScoreCalculation();
-  const { mutate: completeLevel } = useCompleteLevel();
-  const [showScore, setShowScore] = React.useState(false);
-  const [finalScore, setFinalScore] = React.useState(0);
-  const startTimeRef = React.useRef<bigint>(BigInt(0));
+  const { playSound } = useSoundEffects();
+
+  useEffect(() => {
+    if (actor && !gamePlayRecorded.current) {
+      actor.recordGamePlay('PatternMemory').catch(() => {});
+      gamePlayRecorded.current = true;
+    }
+  }, [actor]);
 
   useEffect(() => {
     start();
-    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
+    return () => stop();
   }, []);
 
   useEffect(() => {
-    if (isComplete) {
+    if (phase === 'won') {
       stop();
-      const score = calculateScore(elapsed, attempts, LEVEL);
-      setFinalScore(score);
-      setShowScore(true);
       playSound('success');
-      if (identity) {
-        completeLevel({
-          player: identity.getPrincipal().toString(),
-          gameType: GameType.patternMemory,
-          level: BigInt(LEVEL),
-          startTime: startTimeRef.current,
-          correctAnswers: BigInt(1),
-          totalQuestions: BigInt(1),
-        });
-      }
+    } else if (phase === 'lost') {
+      playSound('error');
     }
-  }, [isComplete]);
+  }, [phase]);
 
-  const handleClick = (row: number, col: number) => {
+  const handleCellClickWithSound = (row: number, col: number) => {
     playSound('click');
     handleCellClick(row, col);
   };
 
-  const handleSubmit = () => {
-    playSound('click');
-    submitPattern();
-    if (phase === 'recall') {
-      setTimeout(() => playSound(isComplete ? 'success' : 'error'), 100);
-    }
-  };
-
-  const handleRestart = () => {
+  const handleReset = () => {
     reset();
     resetTimer();
-    setShowScore(false);
     start();
-    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
   };
 
+  const score = phase === 'won' ? calculateScore(elapsed, attempts, level) : 0;
+
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">Pattern Memory</h1>
-          <p className="text-muted-foreground text-sm">Memorize and reproduce the pattern!</p>
-        </div>
-        <GameControls onRestart={handleRestart} />
-      </div>
-
-      <div className="flex items-center gap-4 mb-6 bg-surface rounded-xl p-4 border border-border">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Timer size={16} />
-          <span className="font-mono font-bold text-foreground">
-            {Math.floor(elapsed / 60000)}:{String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0')}
-          </span>
-        </div>
-        <div className="ml-auto">
-          <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-            phase === 'memorize' ? 'bg-yellow-500/20 text-yellow-600' :
-            phase === 'recall' ? 'bg-blue-500/20 text-blue-600' :
-            phase === 'won' ? 'bg-green-500/20 text-green-600' :
-            'bg-red-500/20 text-red-600'
-          }`}>
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-foreground">🔲 Pattern Memory</h1>
+          <div className="text-sm text-muted-foreground capitalize">
             {phase === 'memorize' ? '👁 Memorize' : phase === 'recall' ? '✏️ Recall' : phase === 'won' ? '✅ Won!' : '❌ Wrong'}
-          </span>
+          </div>
         </div>
-      </div>
 
-      <div className="flex justify-center mb-6">
         <PatternGrid
           pattern={pattern}
           userPattern={userPattern}
           isDisplayMode={phase === 'memorize'}
-          onCellClick={handleClick}
+          onCellClick={handleCellClickWithSound}
           size={size}
         />
+
+        {phase === 'recall' && (
+          <div className="mt-4 text-center">
+            <button
+              onClick={submitPattern}
+              className="bg-primary text-primary-foreground px-6 py-2 rounded-lg font-medium"
+            >
+              Submit Pattern
+            </button>
+          </div>
+        )}
+
+        {phase === 'lost' && (
+          <div className="mt-4 text-center">
+            <p className="text-destructive mb-3">❌ Galat pattern! Dobara try karo.</p>
+            <button
+              onClick={handleReset}
+              className="bg-primary text-primary-foreground px-6 py-2 rounded-lg font-medium"
+            >
+              Try Again
+            </button>
+          </div>
+        )}
+
+        <div className="flex gap-3 mt-4 justify-center">
+          <button
+            onClick={handleReset}
+            className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium"
+          >
+            🔄 Reset
+          </button>
+          <button
+            onClick={() => navigate({ to: '/' })}
+            className="bg-muted text-muted-foreground px-4 py-2 rounded-lg font-medium"
+          >
+            🏠 Home
+          </button>
+        </div>
+
+        {phase === 'won' && (
+          <GameScore
+            score={score}
+            elapsedTime={elapsed}
+            moves={attempts}
+            onPlayAgain={handleReset}
+            onMenu={() => navigate({ to: '/' })}
+          />
+        )}
       </div>
-
-      {phase === 'recall' && (
-        <div className="text-center">
-          <button
-            onClick={handleSubmit}
-            className="px-8 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
-          >
-            Submit Pattern
-          </button>
-        </div>
-      )}
-
-      {phase === 'lost' && (
-        <div className="text-center">
-          <p className="text-destructive mb-4">Wrong pattern! Try again.</p>
-          <button
-            onClick={handleRestart}
-            className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      )}
-
-      <GameScore
-        isOpen={showScore}
-        timeTaken={elapsed}
-        moves={attempts}
-        score={finalScore}
-        onPlayAgain={handleRestart}
-      />
     </div>
   );
 }

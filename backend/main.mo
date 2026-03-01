@@ -11,9 +11,27 @@ import Runtime "mo:core/Runtime";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
 
+
+
 actor {
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
+
+  type Analytics = {
+    totalVisitors : Nat;
+    totalSessions : Nat;
+    gamePlayCounts : Map.Map<Text, Nat>;
+  };
+
+  type AnalyticsView = {
+    totalVisitors : Nat;
+    totalSessions : Nat;
+    gamePlayCounts : [(Text, Nat)];
+  };
+
+  let gamePlayCounts = Map.empty<Text, Nat>();
+  var totalVisitors = 0;
+  var totalSessions = 0;
 
   type UserProfile = {
     name : Text;
@@ -82,7 +100,36 @@ actor {
   let highScores = Map.empty<Text, List.List<HighScore>>();
   let memoryTestHighScores = List.empty<MemoryTestHighScore>();
 
-  // User Profile Management
+  // Analytics functions
+  public shared ({ caller }) func recordVisit() : async () {
+    totalVisitors += 1;
+    totalSessions += 1;
+  };
+
+  public shared ({ caller }) func recordGamePlay(gameName : Text) : async () {
+    switch (gamePlayCounts.get(gameName)) {
+      case (null) {
+        gamePlayCounts.add(gameName, 1);
+      };
+      case (?count) {
+        let newCount = count + 1;
+        gamePlayCounts.add(gameName, newCount);
+      };
+    };
+  };
+
+  public shared ({ caller }) func getAnalytics(password : Text) : async ?AnalyticsView {
+    if (password != "#vansh@g1admin@81") { return null };
+
+    let playCountsArray = gamePlayCounts.toArray();
+
+    ?{
+      totalVisitors;
+      totalSessions;
+      gamePlayCounts = playCountsArray;
+    };
+  };
+
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
       Runtime.trap("Unauthorized: Only users can get their profile");

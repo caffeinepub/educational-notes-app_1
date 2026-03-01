@@ -1,163 +1,150 @@
-import React, { useEffect } from 'react';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import useSequenceMemory from '../hooks/useSequenceMemory';
 import useGameTimer from '../hooks/useGameTimer';
-import useSoundEffects from '../hooks/useSoundEffects';
 import useScoreCalculation from '../hooks/useScoreCalculation';
-import { useCompleteLevel } from '../hooks/useQueries';
-import { GameType } from '../backend';
-import SequenceItem from '../components/SequenceItem';
-import GameControls from '../components/GameControls';
+import useSoundEffects from '../hooks/useSoundEffects';
+import { useActor } from '../hooks/useActor';
 import GameScore from '../components/GameScore';
-import { Timer } from 'lucide-react';
-
-const LEVEL = 1;
 
 export default function SequenceMemoryGame() {
-  const { identity } = useInternetIdentity();
-  const { sequence, phase, activeIndex, userInput, currentIndex, attempts, isComplete, items, handleItemClick, reset } = useSequenceMemory(LEVEL);
+  const navigate = useNavigate();
+  const { actor } = useActor();
+  const gamePlayRecorded = useRef(false);
+
+  const level = 1;
+  const {
+    sequence,
+    phase,
+    activeIndex,
+    currentIndex,
+    attempts,
+    isComplete,
+    items,
+    handleItemClick,
+    reset,
+  } = useSequenceMemory(level);
   const { elapsed, start, stop, reset: resetTimer } = useGameTimer();
-  const { playSound } = useSoundEffects();
   const { calculateScore } = useScoreCalculation();
-  const { mutate: completeLevel } = useCompleteLevel();
-  const [showScore, setShowScore] = React.useState(false);
-  const [finalScore, setFinalScore] = React.useState(0);
-  const startTimeRef = React.useRef<bigint>(BigInt(0));
+  const { playSound } = useSoundEffects();
+
+  useEffect(() => {
+    if (actor && !gamePlayRecorded.current) {
+      actor.recordGamePlay('SequenceMemory').catch(() => {});
+      gamePlayRecorded.current = true;
+    }
+  }, [actor]);
 
   useEffect(() => {
     start();
-    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
+    return () => stop();
   }, []);
 
+  const prevAttemptsRef = useRef(attempts);
   useEffect(() => {
     if (isComplete) {
       stop();
-      const score = calculateScore(elapsed, attempts, LEVEL);
-      setFinalScore(score);
-      setShowScore(true);
       playSound('success');
-      if (identity) {
-        completeLevel({
-          player: identity.getPrincipal().toString(),
-          gameType: GameType.sequenceMemory,
-          level: BigInt(LEVEL),
-          startTime: startTimeRef.current,
-          correctAnswers: BigInt(sequence.length),
-          totalQuestions: BigInt(sequence.length),
-        });
-      }
     }
   }, [isComplete]);
 
-  const handleClick = (item: string) => {
+  useEffect(() => {
+    if (attempts > prevAttemptsRef.current) {
+      playSound('error');
+    }
+    prevAttemptsRef.current = attempts;
+  }, [attempts]);
+
+  const handleItemClickWithSound = (item: string) => {
     playSound('click');
     handleItemClick(item);
   };
 
-  const handleRestart = () => {
+  const handleReset = () => {
     reset();
     resetTimer();
-    setShowScore(false);
     start();
-    startTimeRef.current = BigInt(Date.now()) * BigInt(1_000_000);
   };
 
+  const score = isComplete ? calculateScore(elapsed, sequence.length, level) : 0;
+
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-primary">Sequence Memory</h1>
-          <p className="text-muted-foreground text-sm">Watch and repeat the sequence!</p>
-        </div>
-        <GameControls onRestart={handleRestart} />
-      </div>
-
-      <div className="flex items-center gap-4 mb-6 bg-surface rounded-xl p-4 border border-border">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Timer size={16} />
-          <span className="font-mono font-bold text-foreground">
-            {Math.floor(elapsed / 60000)}:{String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0')}
-          </span>
-        </div>
-        <div className="ml-auto">
-          <span className={`px-3 py-1 rounded-full text-sm font-bold ${
-            phase === 'display' ? 'bg-yellow-500/20 text-yellow-600' :
-            phase === 'input' ? 'bg-blue-500/20 text-blue-600' :
-            phase === 'won' ? 'bg-green-500/20 text-green-600' :
-            'bg-red-500/20 text-red-600'
-          }`}>
-            {phase === 'display' ? '👁 Watch' : phase === 'input' ? '👆 Repeat' : phase === 'won' ? '✅ Won!' : '❌ Wrong'}
-          </span>
-        </div>
-      </div>
-
-      {/* Sequence display */}
-      {phase === 'display' && (
-        <div className="text-center mb-6">
-          <p className="text-muted-foreground mb-4">Watch the sequence carefully...</p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            {sequence.map((item, i) => (
-              <SequenceItem
-                key={i}
-                item={item}
-                isActive={activeIndex === i}
-                isSelected={false}
-                isDisabled={true}
-                onClick={() => {}}
-              />
-            ))}
+    <div className="min-h-screen bg-background p-4">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-foreground">🔢 Sequence Memory</h1>
+          <div className="text-sm text-muted-foreground">
+            {phase === 'display' ? '👁 Dekho...' : phase === 'input' ? `✏️ Input: ${currentIndex}/${sequence.length}` : phase === 'won' ? '✅ Won!' : '❌ Wrong'}
           </div>
         </div>
-      )}
 
-      {/* Input phase */}
-      {phase === 'input' && (
-        <div className="text-center mb-6">
-          <p className="text-muted-foreground mb-4">
-            Repeat the sequence! ({currentIndex}/{sequence.length})
-          </p>
-          <div className="flex flex-wrap gap-3 justify-center">
+        {(phase === 'display' || phase === 'input') && (
+          <div className="grid grid-cols-4 gap-3 mt-4">
             {items.map((item, i) => (
-              <SequenceItem
+              <button
                 key={i}
-                item={item}
-                isActive={false}
-                isSelected={userInput.includes(item)}
-                isDisabled={false}
-                onClick={() => handleClick(item)}
-              />
+                onClick={() => phase === 'input' && handleItemClickWithSound(item)}
+                disabled={phase !== 'input'}
+                className={`
+                  p-4 rounded-xl text-2xl font-bold transition-all duration-200 border-2
+                  ${phase === 'display' && activeIndex === sequence.indexOf(item)
+                    ? 'bg-primary border-primary text-primary-foreground scale-110 shadow-lg'
+                    : phase === 'input'
+                    ? 'bg-card border-border text-foreground hover:bg-primary/10 cursor-pointer'
+                    : 'bg-card border-border text-foreground opacity-60'
+                  }
+                `}
+              >
+                {item}
+              </button>
             ))}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Lost phase */}
-      {phase === 'lost' && (
-        <div className="text-center py-8">
-          <div className="text-5xl mb-4">❌</div>
-          <h2 className="text-xl font-bold text-destructive mb-2">Wrong sequence!</h2>
-          <p className="text-muted-foreground mb-6">The correct sequence was:</p>
-          <div className="flex flex-wrap gap-2 justify-center mb-6">
-            {sequence.map((item, i) => (
-              <span key={i} className="text-3xl">{item}</span>
-            ))}
+        {phase === 'lost' && (
+          <div className="text-center py-8">
+            <p className="text-4xl mb-4">❌</p>
+            <p className="text-xl font-bold text-destructive mb-2">Galat sequence!</p>
+            <p className="text-muted-foreground mb-4">Sahi sequence tha:</p>
+            <div className="flex flex-wrap gap-2 justify-center mb-6">
+              {sequence.map((item, i) => (
+                <span key={i} className="text-3xl">{item}</span>
+              ))}
+            </div>
+            <button
+              onClick={handleReset}
+              className="bg-primary text-primary-foreground px-6 py-2 rounded-lg font-medium"
+            >
+              Try Again
+            </button>
           </div>
+        )}
+
+        <div className="flex gap-3 mt-4 justify-center">
           <button
-            onClick={handleRestart}
-            className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 transition-colors"
+            onClick={handleReset}
+            className="bg-secondary text-secondary-foreground px-4 py-2 rounded-lg font-medium"
           >
-            Try Again
+            🔄 Reset
+          </button>
+          <button
+            onClick={() => navigate({ to: '/' })}
+            className="bg-muted text-muted-foreground px-4 py-2 rounded-lg font-medium"
+          >
+            🏠 Home
           </button>
         </div>
-      )}
 
-      <GameScore
-        isOpen={showScore}
-        timeTaken={elapsed}
-        moves={attempts}
-        score={finalScore}
-        onPlayAgain={handleRestart}
-      />
+        {isComplete && (
+          <GameScore
+            score={score}
+            elapsedTime={elapsed}
+            moves={sequence.length}
+            onPlayAgain={handleReset}
+            onMenu={() => navigate({ to: '/' })}
+          />
+        )}
+      </div>
     </div>
   );
 }

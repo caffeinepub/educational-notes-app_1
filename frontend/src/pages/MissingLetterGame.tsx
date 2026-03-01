@@ -1,186 +1,134 @@
-import React from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowLeft, Eye } from 'lucide-react';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import GameControls from '../components/GameControls';
-import useMissingLetter from '../hooks/useMissingLetter';
+import useMissingLetter, { MaskedChar } from '../hooks/useMissingLetter';
 import useSoundEffects from '../hooks/useSoundEffects';
-
-type Difficulty = 'easy' | 'hard';
+import { useActor } from '../hooks/useActor';
+import LetterButtons from '../components/LetterButtons';
 
 export default function MissingLetterGame() {
   const navigate = useNavigate();
-  const { playSound } = useSoundEffects();
+  const { actor } = useActor();
+  const gamePlayRecorded = useRef(false);
+
   const {
-    difficulty,
-    currentWord,
-    wordDisplay,
-    inputValue,
-    setInputValue,
+    maskedChars,
     score,
     streak,
     feedback,
-    showAnswer,
-    selectDifficulty,
-    handleSubmit,
+    correctAnswer,
+    handleLetterClick,
+    handleClear,
     handleShowAnswer,
+    handleTryAgain,
+    nextWord,
   } = useMissingLetter();
+  const { playSound } = useSoundEffects();
 
-  const handleCheckWithSound = () => {
+  useEffect(() => {
+    if (actor && !gamePlayRecorded.current) {
+      actor.recordGamePlay('MissingLetter').catch(() => {});
+      gamePlayRecorded.current = true;
+    }
+  }, [actor]);
+
+  const handleLetterClickWithSound = (letter: string) => {
+    if (feedback !== null) return;
     playSound('click');
-    const correct = inputValue.trim().toLowerCase() === currentWord.toLowerCase();
-    handleSubmit();
-    setTimeout(() => playSound(correct ? 'success' : 'error'), 50);
+    handleLetterClick(letter);
   };
 
-  const handleShowAnswerWithSound = () => {
-    playSound('click');
-    handleShowAnswer();
-  };
+  useEffect(() => {
+    if (feedback === 'correct') playSound('success');
+    else if (feedback === 'wrong') playSound('error');
+  }, [feedback]);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleCheckWithSound();
-  };
-
-  const handleReset = () => {
-    selectDifficulty(difficulty);
-  };
+  const isInputDisabled = feedback === 'correct' || feedback === 'revealed';
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" onClick={() => navigate({ to: '/' })}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold">🔤 Missing Letter</h1>
-          <div className="w-20" />
+          <h1 className="text-2xl font-bold text-foreground">🔡 Missing Letter</h1>
+          <div className="text-sm text-muted-foreground">
+            Score: {score} | Streak: {streak}
+          </div>
         </div>
 
-        {/* Difficulty Selector */}
-        <Card className="mb-4">
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-sm font-medium text-muted-foreground">Difficulty:</span>
-              {(['easy', 'hard'] as Difficulty[]).map((d) => (
-                <Button
-                  key={d}
-                  size="sm"
-                  variant={difficulty === d ? 'default' : 'outline'}
-                  onClick={() => selectDifficulty(d)}
-                  className="capitalize"
+        <div className="bg-card border border-border rounded-xl p-8 text-center mb-6">
+          {/* Word display */}
+          <div className="flex justify-center flex-wrap gap-1 mb-4">
+            {maskedChars.map((mc: MaskedChar, i: number) => {
+              const displayChar = mc.isMasked
+                ? (mc.userFilled ? mc.userFilled.toUpperCase() : '_')
+                : mc.char.toUpperCase();
+              const cellClass = mc.isMasked
+                ? mc.userFilled
+                  ? feedback === 'correct'
+                    ? 'border-green-500 text-green-600 dark:text-green-400 bg-green-500/10'
+                    : feedback === 'wrong'
+                    ? 'border-red-500 text-red-600 dark:text-red-400 bg-red-500/10'
+                    : 'border-primary text-primary'
+                  : 'border-muted-foreground text-muted-foreground'
+                : 'border-transparent text-foreground';
+
+              return (
+                <span
+                  key={i}
+                  className={`inline-block w-8 text-center text-2xl font-bold border-b-2 mx-0.5 ${cellClass}`}
                 >
-                  {d === 'easy' ? '🟢 Easy' : '🔴 Hard'}
-                </Button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                  {displayChar}
+                </span>
+              );
+            })}
+          </div>
 
-        {/* Stats */}
-        <Card className="mb-6">
-          <CardContent className="pt-4 pb-4">
-            <div className="flex items-center justify-around text-center">
-              <div>
-                <p className="text-xs text-muted-foreground">Score</p>
-                <p className="text-2xl font-bold text-primary">{score}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Streak</p>
-                <p className="text-2xl font-bold text-accent">🔥 {streak}</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Mode</p>
-                <p className="text-sm font-semibold capitalize">{difficulty}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {feedback === 'correct' && <p className="text-green-500 font-medium">✅ Sahi jawab!</p>}
+          {feedback === 'wrong' && <p className="text-destructive font-medium">❌ Galat! Dobara try karo.</p>}
+          {feedback === 'revealed' && correctAnswer && (
+            <p className="text-blue-500 text-sm mt-1">Answer: {correctAnswer}</p>
+          )}
+        </div>
 
-        {/* Game Area */}
-        <Card className="mb-6">
-          <CardContent className="pt-8 pb-8">
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground mb-4">Fill in the missing letters:</p>
+        <LetterButtons
+          onLetterClick={handleLetterClickWithSound}
+          disabled={isInputDisabled}
+        />
 
-              {/* Word Display */}
-              <div className="flex items-center justify-center gap-2 mb-8 flex-wrap">
-                {wordDisplay.split('').map((char, i) => (
-                  <div
-                    key={i}
-                    className={`w-10 h-12 flex items-center justify-center text-2xl font-bold border-b-2 ${
-                      char === '_'
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-foreground'
-                    }`}
-                  >
-                    {char === '_' ? '?' : char}
-                  </div>
-                ))}
-              </div>
+        <div className="flex gap-3 mt-4 flex-wrap justify-center">
+          <button
+            onClick={() => { playSound('click'); handleClear(); }}
+            className="text-sm bg-muted text-muted-foreground px-3 py-1.5 rounded-lg"
+          >
+            Clear
+          </button>
+          <button
+            onClick={() => { playSound('click'); handleTryAgain(); }}
+            className="text-sm bg-muted text-muted-foreground px-3 py-1.5 rounded-lg"
+          >
+            Try Again
+          </button>
+          <button
+            onClick={() => { playSound('click'); handleShowAnswer(); }}
+            className="text-sm bg-muted text-muted-foreground px-3 py-1.5 rounded-lg"
+          >
+            Answer Dikhao
+          </button>
+          <button
+            onClick={() => { playSound('click'); nextWord(); }}
+            className="text-sm bg-primary text-primary-foreground px-3 py-1.5 rounded-lg"
+          >
+            Next Word
+          </button>
+        </div>
 
-              {/* Show Answer Reveal */}
-              {showAnswer && (
-                <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/30">
-                  <p className="text-sm text-muted-foreground">The answer is:</p>
-                  <p className="text-2xl font-bold text-accent">{currentWord}</p>
-                </div>
-              )}
-
-              {/* Feedback */}
-              {feedback === 'correct' && (
-                <div className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/30">
-                  <p className="text-green-600 dark:text-green-400 font-semibold">✅ Correct! Loading next word...</p>
-                </div>
-              )}
-              {feedback === 'wrong' && !showAnswer && (
-                <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30">
-                  <p className="text-destructive font-semibold">❌ Wrong answer! Try again or see the answer.</p>
-                </div>
-              )}
-              {feedback === 'revealed' && (
-                <div className="mb-4 p-3 rounded-lg bg-accent/10 border border-accent/30">
-                  <p className="text-accent font-semibold">💡 Answer revealed. Next word loading...</p>
-                </div>
-              )}
-
-              {/* Input */}
-              <div className="flex gap-3 max-w-sm mx-auto">
-                <Input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="Type the full word..."
-                  className="text-center text-lg"
-                  disabled={feedback === 'correct' || showAnswer}
-                />
-                <Button
-                  onClick={handleCheckWithSound}
-                  disabled={feedback === 'correct' || showAnswer || !inputValue.trim()}
-                >
-                  Submit
-                </Button>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-3 justify-center mt-4">
-                {feedback === 'wrong' && !showAnswer && (
-                  <Button variant="outline" size="sm" onClick={handleShowAnswerWithSound}>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Show Answer
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Controls */}
-        <GameControls onRestart={handleReset} />
+        <div className="flex gap-3 mt-4 justify-center">
+          <button
+            onClick={() => navigate({ to: '/' })}
+            className="bg-muted text-muted-foreground px-4 py-2 rounded-lg font-medium"
+          >
+            🏠 Home
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 {
-  "name": "Memory Increase - Brain Training Puzzle Game",
-  "short_name": "Memory Increase",
-  "description": "Train your brain with engaging puzzle games. Improve memory, focus, and cognitive skills through card matching, sliding puzzles, pattern memory, and sequence memory challenges.",
+  "name": "NeuroBoost – Brain Training & Memory Games",
+  "short_name": "NeuroBoost",
+  "description": "Train your brain with NeuroBoost! Improve memory, focus, and cognitive skills through card matching, sliding puzzles, pattern memory, and sequence memory challenges.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",

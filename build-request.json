@@ -1,43 +1,41 @@
 {
   "kind": "build_request",
-  "title": "Rebuild Memory Increase Brain Training Game App",
-  "projectName": "Memory Increase",
-  "priority": "high",
+  "title": "Replace 'Memory Increase' text with 'NeuroBoost' throughout the app",
+  "projectName": "NeuroBoost",
+  "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Rebuild and redeploy the entire Memory Increase Brain Training Game application — frontend and backend — to generate a fresh canister deployment with a new working live URL.",
-      "target": "both",
+      "text": "Find and replace all occurrences of the text 'Memory Increase' (and any case variants like 'memory increase', 'Memory increase') with 'NeuroBoost' across all frontend source files, including page components, layout components, home page hero sections, game cards, headings, labels, button text, and any other visible UI text.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-10",
+          "msg-12"
         ],
         "quotes": [
-          "Memory increas app rebuild karo"
+          "App ke andar ji memory increas likha hota hai use hatao aur NeuroBoost naam rakho",
+          "ऐप के अंदर जहाँ भी 'Memory Increase' लिखा हुआ है, उसे हटाकर 'NeuroBoost' से replace करना है"
         ]
       },
       "acceptanceCriteria": [
-        "App deploys successfully with a new canister ID",
-        "New live URL opens the Memory Increase app without 'Canister ID not resolved' error",
-        "All existing games (Card Matching, Memory Test, Pattern Memory, Sequence Memory, Sliding Puzzle, Stroop Effect, Speed Typing, Word Scramble, Missing Letter, Fill in the Blanks) are accessible",
-        "Home page loads with all game cards visible",
-        "Backend actor initializes correctly with user profile and high score functionality",
-        "Background music controls work in the header",
-        "Progress page loads and shows player stats when logged in",
-        "PWA manifest and service worker are active so users can install via 'Add to Home Screen'"
+        "No visible text reading 'Memory Increase' (or any case variant) appears anywhere in the app UI",
+        "All previously 'Memory Increase' labeled text now displays 'NeuroBoost'",
+        "The app title/brand name 'NeuroBoost' remains unchanged in the header, browser tab, and SEO meta tags",
+        "All pages including HomePage, Layout header, and any game description cards are checked and updated"
       ]
     }
   ],
   "constraints": [
-    "Preserve all existing game logic, hooks, and components exactly as they are",
-    "Do not change the backend data model or Motoko actor structure",
-    "Do not modify immutable frontend paths (useInternetIdentity.ts, useActor.ts, main.tsx, components/ui)"
+    "Do not change the app name 'NeuroBoost' in the header, browser tab title, SEO meta tags, or manifest.json",
+    "Do not modify files listed in frontend.immutablePaths",
+    "Do not alter any backend logic or data models"
   ],
   "nonGoals": [
-    "Adding new games or features",
-    "Publishing to Google Play Store",
-    "Changing the visual design or theme",
-    "Any backend schema migration"
+    "Changing the app brand name NeuroBoost",
+    "Modifying SEO meta tags or Open Graph tags",
+    "Adding new features or pages",
+    "Backend changes"
   ],
   "imageRequirements": {
     "required": [],

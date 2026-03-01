@@ -1,61 +1,24 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-26T12:44:16.194Z",
-  "summary": "The diff shows a rebuild of the Memory Increase Brain Training Game application with both frontend and backend files modified. All 10 games are routed in App.tsx, the backend actor has user profile and high score functionality, the Layout component includes background music controls, the Progress page route exists, and a PWA install guide page is present. The implementation broadly satisfies REQ-1, though some acceptance criteria cannot be fully verified from the truncated/omitted diff alone.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-03-01T03:03:12.724Z",
+  "summary": "The diff shows that the HomePage.tsx hero section heading was changed from 'Memory Increase' to 'NeuroBoost'. The frontend-file-summaries.txt confirms this change. However, REQ-1 requires checking ALL frontend source files including layout components, game cards, headings, labels, button text, and any other visible UI text. Only one file (HomePage.tsx) shows explicit content changes, while other files (Layout.tsx, GameCard.tsx, translations.ts, etc.) are not shown as modified, leaving uncertainty about whether all occurrences were replaced.",
+  "missing_requirements": [
     {
-      "description": "ScienceNote data type and chapter management (initializeChapters, notes map with Hindi-language science chapters)",
-      "reason": "The backend introduces a ScienceNote type, a notes map, a nextId counter, and an initializeChapters admin function with science curriculum content in Hindi. None of this was requested in the build request, which explicitly states the backend data model should not be changed and no new features should be added.",
+      "id": "REQ-1",
+      "requirement": "Find and replace all occurrences of 'Memory Increase' (and case variants) across ALL frontend source files including layout components, game cards, headings, labels, button text, and any other visible UI text.",
+      "reason": "Only HomePage.tsx is shown as modified with the replacement. Files like frontend/src/i18n/translations.ts, frontend/src/components/GameCard.tsx, frontend/src/components/Layout.tsx, and other page components are not shown as modified, but they could contain 'Memory Increase' text. The diff does not demonstrate a comprehensive search-and-replace across all frontend source files as required.",
       "evidence": [
-        "backend/main.mo"
+        "frontend/src/pages/HomePage.tsx",
+        "frontend-file-summaries.txt"
       ]
     }
   ],
+  "hallucinated_features": [],
   "confidence": 0.62,
   "changed_files": [
-    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/App.tsx",
-    "frontend/src/components/Card.tsx",
-    "frontend/src/components/CardGrid.tsx",
-    "frontend/src/components/GameCard.tsx",
-    "frontend/src/components/GameControls.tsx",
-    "frontend/src/components/GameScore.tsx",
-    "frontend/src/components/Layout.tsx",
-    "frontend/src/components/PatternGrid.tsx",
-    "frontend/src/components/SequenceItem.tsx",
-    "frontend/src/components/SlidingTile.tsx",
-    "frontend/src/components/StroopDisplay.tsx",
-    "frontend/src/hooks/useBackgroundMusic.ts",
-    "frontend/src/hooks/useCardGame.ts",
-    "frontend/src/hooks/useFillInTheBlanks.ts",
-    "frontend/src/hooks/useGameTimer.ts",
-    "frontend/src/hooks/useMemoryTest.ts",
-    "frontend/src/hooks/useMissingLetter.ts",
-    "frontend/src/hooks/usePatternMemory.ts",
-    "frontend/src/hooks/useQueries.ts",
-    "frontend/src/hooks/useScoreCalculation.ts",
-    "frontend/src/hooks/useSequenceMemory.ts",
-    "frontend/src/hooks/useSlidingPuzzle.ts",
-    "frontend/src/hooks/useSoundEffects.ts",
-    "frontend/src/hooks/useSpeedTyping.ts",
-    "frontend/src/hooks/useStroopEffect.ts",
-    "frontend/src/hooks/useWordScramble.ts",
-    "frontend/src/pages/CardMatchingGame.tsx",
-    "frontend/src/pages/FillInTheBlanksGame.tsx",
     "frontend/src/pages/HomePage.tsx",
-    "frontend/src/pages/MemoryTestGame.tsx",
-    "frontend/src/pages/MissingLetterGame.tsx",
-    "frontend/src/pages/PatternMemoryGame.tsx",
-    "frontend/src/pages/SequenceMemoryGame.tsx",
-    "frontend/src/pages/SlidingPuzzleGame.tsx",
-    "frontend/src/pages/SpeedTypingGame.tsx",
-    "frontend/src/pages/StroopEffectGame.tsx",
-    "frontend/src/pages/WordScrambleGame.tsx",
-    "frontend/src/utils/sentenceDatabase.ts",
-    "frontend/src/utils/wordDatabase.ts",
     "project_state.json"
   ]
 }

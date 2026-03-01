@@ -2,33 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-rebuild-and-redeploy-the-entire-memory-increase-brain-training-game-application-frontend-and-backend-to-generate-a-fresh-canister-deployment-with-a-new-working-live-url",
-      "featureTitle": "Rebuild and redeploy the entire Memory Increase Brain Training Game application — frontend and backend — to generate a fresh canister deployment with a new working live URL.",
+      "featureId": "feature-find-and-replace-all-occurrences-of-the-text-memory-increase-and-any-case-variants-like-memory-increase-memory-increase-with-neuroboost-across-all-frontend-source-files-including-page-components-layout-components-home-page-hero-sections-game-cards-headings-labels-button-text-and-any-other-visible-ui-text",
+      "featureTitle": "Find and replace all occurrences of the text 'Memory Increase' (and any case variants like 'memory increase', 'Memory increase') with 'NeuroBoost' across all frontend source files, including page components, layout components, home page hero sections, game cards, headings, labels, button text, and any other visible UI text.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/Card.tsx",
-        "frontend/src/components/CardGrid.tsx",
-        "frontend/src/components/GameCard.tsx",
-        "frontend/src/components/GameControls.tsx",
-        "frontend/src/components/GameScore.tsx",
-        "frontend/src/components/Layout.tsx",
-        "frontend/src/components/PatternGrid.tsx",
-        "frontend/src/components/SequenceItem.tsx",
-        "frontend/src/components/SlidingTile.tsx",
-        "frontend/src/components/StroopDisplay.tsx",
-        "frontend/src/hooks/useBackgroundMusic.ts",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/CardMatchingGame.tsx",
-        "frontend/src/pages/FillInTheBlanksGame.tsx",
-        "frontend/src/pages/HomePage.tsx",
-        "frontend/src/pages/MemoryTestGame.tsx",
-        "frontend/src/pages/MissingLetterGame.tsx",
-        "frontend/src/pages/PatternMemoryGame.tsx",
-        "frontend/src/pages/SequenceMemoryGame.tsx",
-        "frontend/src/pages/SlidingPuzzleGame.tsx",
-        "frontend/src/pages/SpeedTypingGame.tsx",
-        "frontend/src/pages/StroopEffectGame.tsx",
-        "frontend/src/pages/WordScrambleGame.tsx"
+        "frontend/src/pages/HomePage.tsx"
       ],
       "components": [
         "core-infrastructure@1.0.2",
